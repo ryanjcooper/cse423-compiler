@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-g -Wall
 
-targets = hello_world fizzbuzz bubblesort
+targets = hello_world fizzbuzz bubblesort bubblesort2 bubblesortline
 
 all: $(targets)
 
@@ -13,6 +13,12 @@ fizzbuzz: fizzbuzz.c
 
 bubblesort: bubblesort.c
 	$(CC) $(CFLAGS) $@.c -o $@
+
+bubblesort2: bubblesort2.c
+	$(CC) $(CFLAGS) $@.c -o $@
+
+bubblesortline: bubblesortline.c
+		$(CC) $(CFLAGS) $@.c -o $@
 
 clean:
 	rm $(targets)
