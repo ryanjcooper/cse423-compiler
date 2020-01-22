@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class TokenLabler {
+public class TokenLabeler {
+	
 	public enum TokenLabel {
 	    variableModifier,
 	    typeSpecifier,
@@ -33,7 +34,11 @@ public class TokenLabler {
 	
 	public static HashMap<String,String> tokenMap = new HashMap<String, String>();
 	
-	public static void readConfig(String filename) {
+	{
+		readConfig("tokens_and_labels");
+	}
+	
+	private static void readConfig(String filename) {
 		/* attempt to read in config file */
 		try {
 			Scanner sc = new Scanner(new File(filename));
@@ -82,7 +87,6 @@ public class TokenLabler {
 	}
 	
 	public static void main(String[] argv) {
-		readConfig("tokens_and_labels");
 		System.out.println(labelToken("main"));
 	}
 }
