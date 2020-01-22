@@ -1,0 +1,17 @@
+variableModifier auto const unsigned signed volatile extern static register
+typeSpecifier double float int short long void char
+controlSpecifier break return continue goto
+tagSpecifier ' " [ ] { } ( )
+assignmentSpecifier =
+integerOperator + - * / % ++ --
+booleanOperator && == ||
+conditionalSpecifier if else
+iterationStmt while do for
+structSpecifier struct
+switchStmt switch case default
+enumSpecifier enum
+unionSpecifier union
+typedefSpecifier typedef
+sizeofSpecifier sizeof
+delimiters , ;
+bitOperator ^ & |
