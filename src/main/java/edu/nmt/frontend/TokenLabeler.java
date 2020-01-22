@@ -34,7 +34,7 @@ public class TokenLabeler {
 	
 	public static HashMap<String,String> tokenMap = new HashMap<String, String>();
 	
-	{
+	static {
 		readConfig("tokens_and_labels");
 	}
 	
