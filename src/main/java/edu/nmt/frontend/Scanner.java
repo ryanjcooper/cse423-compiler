@@ -22,6 +22,22 @@ public class Scanner {
 	private static String punctuation = "'!\"#$%&\\'()*+,-./:;<=>?@[\\\\]^_`{|}~";
 	List<Token> tokens;
 	
+	
+	private static final String[][] doublePunctCases = {{"\\+\\s\\+", "\\+\\+"},
+														{"\\-\\s\\-", "\\-\\-"},
+														{"\\&\\s\\&", "\\&\\&"},
+														{"\\|\\s\\|", "\\|\\|"},
+														{"\\+\\s\\=", "\\+\\="},
+														{"\\-\\s\\=", "\\-\\="},
+														{"\\*\\s\\=", "\\*\\="},
+														{"\\/\\s\\=", "\\/\\="},
+														{"\\&\\s\\=", "\\&\\="},
+														{"\\%\\s\\=", "\\%\\="},
+														{"\\|\\s\\=", "\\|\\="},
+														{"\\^\\s\\=", "\\^\\="},
+														{"\\~\\s\\=", "\\~\\="}};		
+	
+	
 	public Scanner(File file) throws FileNotFoundException { 
 		finp = file;
 		if (!finp.exists()) {
@@ -46,6 +62,11 @@ public class Scanner {
 		}
 		
 		fcontents = fcontents.replaceAll("\\s+", " ");
+
+		for (int i = 0; i < doublePunctCases.length; i++) {
+			fcontents = fcontents.replaceAll(doublePunctCases[i][0], doublePunctCases[i][1]);
+		}
+		
 		
 		tokens = tokenize(fcontents);
 	
