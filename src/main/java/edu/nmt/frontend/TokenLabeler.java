@@ -7,59 +7,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class TokenLabeler {
-	
-	public enum TokenLabel {
-	    variableModifier,
-	    typeSpecifier,
-	    controlSpecifier,
-	    identifier,
-	    numConstant,
-	    tagSpecifier,
-	    assignmentSpecifier,
-	    integerOperator,
-	    booleanOperator,
-	    conditionalSpecifier,
-	    iterationStmt,
-	    structSpecifier,
-	    switchStmt,
-	    enumSpecifier,
-	    unionSpecifier,
-	    typedefSpecifier,
-	    sizeofSpecifier,
-	    parameterDelimiter,
-	    delimiters,
-	    bitOperator
-	}
-	
-	public static HashMap<String,String> tokenMap = new HashMap<String, String>();
-	
-	static {
-		readConfig("tokens_and_labels");
-	}
-	
-	private static void readConfig(String filename) {
-		/* attempt to read in config file */
-		try {
-			Scanner sc = new Scanner(new File(filename));
-			
-			/* go through the config file 
-			 * each line begins with a label followed by all
-			 * corresponding symbols
-			 */
-			while (sc.hasNextLine()) {
-				String[] tokenList = sc.nextLine().split(" ");
-				String label = tokenList[0]; // this is the label for this set of tokens
-				
-				for (int i = 1; i < tokenList.length; i++) {
-					tokenMap.put(tokenList[i], label);
-				}
-			}
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
+import edu.nmt.RuntimeSettings;
+
+/**
+ * TODO: Add documentation
+ * @author Terence
+ *
+ */
+public class TokenLabeler {		
 	
 	public static boolean isNumeric(String str) {
 	    if (str == null) {
@@ -73,20 +28,22 @@ public class TokenLabeler {
 	    return true;
 	}
 	
-	public static String labelToken(String tokenString) {
-		String label = tokenMap.get(tokenString);
+	public static TokenLabel labelToken(String tokenString) {
+		String label = RuntimeSettings.labeledTokenMap.get(tokenString);
 		
 		/* check if token is defined token, number, or id */
 		if (label != null)
-			return label;
+			return TokenLabel.valueOf(label);
 		else if (isNumeric(label))
-			return "numConstant";
+			return TokenLabel.valueOf("numConstant");
 		else
-			return "identifier";
+			return TokenLabel.valueOf("identifier");
 		
 	}
 	
 	public static void main(String[] argv) {
 		System.out.println(labelToken("main"));
+		System.out.println(labelToken("foobar"));
+		System.out.println(labelToken("\""));
 	}
 }

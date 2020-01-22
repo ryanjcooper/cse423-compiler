@@ -15,6 +15,12 @@ import java.util.regex.Pattern;
 import edu.nmt.RuntimeSettings;
 import edu.nmt.util.IOUtil;
 
+/**
+ * Scanner and tokenizer
+ * @dated 01/22/20
+ * @author Ryan
+ *
+ */
 public class Scanner {
 	
 	private File finp;
@@ -23,20 +29,22 @@ public class Scanner {
 	List<Token> tokens;
 	
 	
-	private static final String[][] doublePunctCases = {{"\\+\\s\\+", "\\+\\+"},
-														{"\\-\\s\\-", "\\-\\-"},
-														{"\\&\\s\\&", "\\&\\&"},
-														{"\\|\\s\\|", "\\|\\|"},
-														{"\\+\\s\\=", "\\+\\="},
-														{"\\-\\s\\=", "\\-\\="},
-														{"\\*\\s\\=", "\\*\\="},
-														{"\\/\\s\\=", "\\/\\="},
-														{"\\&\\s\\=", "\\&\\="},
-														{"\\%\\s\\=", "\\%\\="},
-														{"\\|\\s\\=", "\\|\\="},
-														{"\\^\\s\\=", "\\^\\="},
-														{"\\~\\s\\=", "\\~\\="}};		
-	
+	private static final String[][] doublePunctCases = {{"\\+\\s\\+", "\\+\\+"}, // ++
+														{"\\-\\s\\-", "\\-\\-"}, // --
+														{"\\&\\s\\&", "\\&\\&"}, // &&
+														{"\\|\\s\\|", "\\|\\|"}, // ||
+														{"\\+\\s\\=", "\\+\\="}, // +=
+														{"\\-\\s\\=", "\\-\\="}, // -=
+														{"\\*\\s\\=", "\\*\\="}, // *=
+														{"\\/\\s\\=", "\\/\\="}, // /=
+														{"\\&\\s\\=", "\\&\\="}, // &=
+														{"\\%\\s\\=", "\\%\\="}, // %=
+														{"\\|\\s\\=", "\\|\\="}, // |=
+														{"\\^\\s\\=", "\\^\\="}, // ^=
+														{"\\~\\s\\=", "\\~\\="}, // ~=
+														{"\\=\\s\\=", "\\=\\="}  // ==
+													   };
+														
 	
 	public Scanner(File file) throws FileNotFoundException { 
 		finp = file;
@@ -55,19 +63,29 @@ public class Scanner {
 	public void scan() throws IOException {
 		String fcontents = IOUtil.readFileToString(finp);
 		
-		// Preprocess input prior to tokenization
+		/* Preprocess input prior to tokenization */
+		
+		// Remove single line comments
+		fcontents = fcontents.replaceAll("//.*\n", " ");
+		
+		// Remove multiline comments (non-greedy search, otherwise we might delete code)
+		fcontents = fcontents.replaceAll("(?s)/\\*.*?\\*/", " ");
+		
+		// Add whitespace around punctuation characters
 		for (char c : punctuation.toCharArray()) {
 			String cs = Character.toString(c);
-			fcontents = fcontents.replaceAll("\\" + cs, " " + "\\" + cs);
+			fcontents = fcontents.replaceAll("\\" + cs, " " + "\\" + cs + " ");
 		}
 		
+		// Remove repeated whitespace
 		fcontents = fcontents.replaceAll("\\s+", " ");
 
+		// Remove whitespace for special punctuation tokens (*=, +=, &&, etc)
 		for (int i = 0; i < doublePunctCases.length; i++) {
 			fcontents = fcontents.replaceAll(doublePunctCases[i][0], doublePunctCases[i][1]);
 		}
 		
-		
+		// Send processed code to tokenizer
 		tokens = tokenize(fcontents);
 	
 		offloadToFile();
@@ -86,6 +104,7 @@ public class Scanner {
 	private void offloadToFile() throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(tokenOffloadFile));
 	    for (Token tok : tokens) {
+	    	System.out.println(tok.toString()); // TODO: Remove in future
 	    	writer.write(tok.toString() + '\n');
 	    }     
 	    writer.close();

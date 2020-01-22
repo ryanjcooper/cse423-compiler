@@ -7,7 +7,7 @@ public class Token {
 	
 	public Token(String token) {
 		tokenString = token;
-//		tokenLabel = labelToken(tokenString);
+		tokenLabel = TokenLabeler.labelToken(tokenString);
 	}
 	
 	@Override
