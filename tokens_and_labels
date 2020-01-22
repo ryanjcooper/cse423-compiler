@@ -1,130 +1,17 @@
-variableModifier
-----------------
-auto
-const
-unsigned
-signed
-volatile
-extern
-static 
-register
-
-typeSpecifier
--------------
-double
-float
-int
-short
-long
-void
-char
-
-breakStmt
----------
-break
-
-returnStmt
-----------
-return
-
-ID
---
-any word beginning with a character and may contain underscores and numbers, cant be keyword
-
-numConstant
------------
-1...9
-
-charSpecifier
--------------
-'
-
-stringSpecifier
----------------
-"
-
-arraySpecifier
---------------
-[
-]
-
-assignmentSpecifier
--------------------
-=
-
-integerOperator
----------------
-+
--
-*
-/
-
-booleanOperator
----------------
-&&
-==
-||
-
-conditionalSpecifier
---------------------
-if
-else
-
-continueStatement
------------------
-continue
-
-iterationStmt
--------------
-while
-do
-
-iterationRange
---------------
-for
-
-structSpecifier
----------------
-struct
-
-switchStmt
-----------
-switch
-case
-default
-
-enumSpecifier
--------------
-enum
-
-gotoSpecifier
--------------
-goto
-
-unionSpecifier
---------------
-union
-
-typedefSpecifier
-----------------
-typedef
-
-sizeofSpecifier
----------------
-sizeof
-
-blockStmt
----------
-{
-}
-
-parameterStmt
--------------
-(
-)
-
-bitOperator
------------
-^
-&
-|
+variableModifier auto const unsigned signed volatile extern static register
+typeSpecifier double float int short long void char
+controlSpecifier break return continue goto
+tagSpecifier ' " [ ] { } ( )
+assignmentSpecifier =
+integerOperator + - * / % ++ --
+booleanOperator && == ||
+conditionalSpecifier if else
+iterationStmt while do for
+structSpecifier struct
+switchStmt switch case default
+enumSpecifier enum
+unionSpecifier union
+typedefSpecifier typedef
+sizeofSpecifier sizeof
+delimiters , ;
+bitOperator ^ & |
