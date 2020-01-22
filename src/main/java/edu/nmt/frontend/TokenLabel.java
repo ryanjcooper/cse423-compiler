@@ -1,0 +1,30 @@
+package edu.nmt.frontend;
+
+public enum TokenLabel {
+	variableModifier,
+	typeSpecifier,
+	breakStmt,
+	returnStmt,
+	identifier,
+	numConstant,
+	charSpecifier,
+	stringSpecifier,
+	arraySpecifier,
+	assignmentSpecifier,
+	integerOperator,
+	booleanOperator,
+	conditionalSpecifier,
+	continueStatement,
+	iterationStmt,
+	iterationRange,
+	structSpecifier,
+	switchStmt,
+	enumSpecifier,
+	gotoSpecifier,
+	unionSpecifier,
+	typedefSpecifier,
+	sizeofSpecifier,
+	blockStmt,
+	parameterStmt,
+	bitOperator
+}

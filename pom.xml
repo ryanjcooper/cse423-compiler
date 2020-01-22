@@ -4,4 +4,11 @@
   <artifactId>c-compiler</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>CSE423-Compiler</name>
+  <dependencies>
+  	<dependency>
+  		<groupId>commons-io</groupId>
+  		<artifactId>commons-io</artifactId>
+  		<version>2.6</version>
+  	</dependency>
+  </dependencies>
 </project>
