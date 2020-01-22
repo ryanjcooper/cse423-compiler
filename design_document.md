@@ -28,7 +28,7 @@
 #### Stretch-goal Features
 * [] Pointers, arrays, strings
 * [] Struct, enum
-* ~~Preprocessor statements~
+* ~~Preprocessor statements~~
 * ~~Casting, type promotion~~
 * ~~Type specs~~
 
