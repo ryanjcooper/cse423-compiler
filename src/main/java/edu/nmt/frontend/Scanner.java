@@ -23,10 +23,11 @@ import edu.nmt.util.IOUtil;
  */
 public class Scanner {
 	
-	private File finp;
-	private static final String tokenOffloadFile = RuntimeSettings.buildDir + "/" + "tokens.txt";
-	private static String punctuation = "'!\"#$%&\\'()*+,-./:;<=>?@[\\\\]^_`{|}~";
-	List<Token> tokens;
+	// Class Variables
+	private File finp; // input file object
+	private static final String tokenOffloadFile = RuntimeSettings.buildDir + "/" + "tokens.txt"; // file to write tokens to
+	private static String punctuation = "'!\"#$%&\\'()*+,-./:;<=>?@[\\\\]^_`{|}~"; // punctuation
+	List<Token> tokens; // list of tokens
 	
 	
 	private static final String[][] doublePunctCases = {{"\\+\\s\\+", "\\+\\+"}, // ++
@@ -42,7 +43,9 @@ public class Scanner {
 														{"\\|\\s\\=", "\\|\\="}, // |=
 														{"\\^\\s\\=", "\\^\\="}, // ^=
 														{"\\~\\s\\=", "\\~\\="}, // ~=
-														{"\\=\\s\\=", "\\=\\="}  // ==
+														{"\\=\\s\\=", "\\=\\="}, // ==
+														{"\\<\\s\\=", "\\<\\="}, // <=
+														{"\\>\\s\\=", "\\>\\="}, // >=
 													   };
 														
 	
@@ -112,7 +115,7 @@ public class Scanner {
 	
 	
     public static void main(String[] args) throws IOException {
-        Scanner s = new Scanner("test/minimal.c");
+        Scanner s = new Scanner("test/fizzbuzz.c");
         s.scan();
     }
 	
