@@ -7,6 +7,9 @@ int main() {
 /* my 
 	multi-line
 		comment */
-  c++;
+  c <<= 5;
+  c <= 1;
+  c >>= 5;
+  c >= 1;
   return 1;
 }
