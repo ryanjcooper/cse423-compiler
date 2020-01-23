@@ -44,8 +44,12 @@ public class Scanner {
 														{"\\^\\s\\=", "\\^\\="}, // ^=
 														{"\\~\\s\\=", "\\~\\="}, // ~=
 														{"\\=\\s\\=", "\\=\\="}, // ==
+														{"\\>\\s\\>\\s\\=", "\\>\\>\\="}, // >>=
+														{"\\<\\s\\<\\s\\=", "\\<\\<\\="}, // <<=
 														{"\\<\\s\\=", "\\<\\="}, // <=
 														{"\\>\\s\\=", "\\>\\="}, // >=
+														{"\\!\\s\\=", "\\!\\="}, // !=
+														{"\\-\\s\\>", "\\-\\>"}, // ->
 													   };
 														
 	
@@ -115,7 +119,7 @@ public class Scanner {
 	
 	
     public static void main(String[] args) throws IOException {
-        Scanner s = new Scanner("test/fizzbuzz.c");
+        Scanner s = new Scanner("test/minimal.c");
         s.scan();
     }
 	
