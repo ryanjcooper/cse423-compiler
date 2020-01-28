@@ -8,17 +8,15 @@ public enum TokenLabel {
     numConstant,
     tagSpecifier,
     assignmentSpecifier,
-    integerOperator,
+    variableOperator,
     booleanOperator,
-    conditionalSpecifier,
     iterationStmt,
-    structSpecifier,
+    structStmt,
     switchStmt,
     enumSpecifier,
     unionSpecifier,
     typedefSpecifier,
-    sizeofSpecifier,
-    parameterDelimiter,
-    delimiters,
-    bitOperator
+    delimiter,
+    bitOperator,
+    preprocessorSpecifier
 }
