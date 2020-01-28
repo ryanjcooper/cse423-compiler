@@ -18,5 +18,6 @@ public enum TokenLabel {
     typedefSpecifier,
     delimiter,
     bitOperator,
-    preprocessorSpecifier
+    preprocessorSpecifier,
+    stringLiteral
 }
