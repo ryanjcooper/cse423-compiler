@@ -22,5 +22,6 @@ public enum TokenLabel {
     delimiters,
     bitOperator,
     variableOperator,
-    delimiter
+    delimiter,
+    stringLiteral
 }

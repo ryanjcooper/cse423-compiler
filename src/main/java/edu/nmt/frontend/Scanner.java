@@ -8,8 +8,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.nmt.RuntimeSettings;
@@ -84,6 +88,16 @@ public class Scanner {
 		String fcontents = IOUtil.readFileToString(finp);
 		
 		/* Preprocess input prior to tokenization */
+			
+		// Handle strings
+		 Map<String, String> stringLiteralID = new HashMap<String, String>();
+		 Matcher m = Pattern.compile("(?s)\\\"[^\\n]*?\\\"").matcher(fcontents);
+		 while (m.find()) {
+			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+			 String stringLiteral = m.group();
+			 fcontents = fcontents.replace(stringLiteral, "\"" + uuid + "\"");
+			 stringLiteralID.put(uuid, stringLiteral.substring(1, stringLiteral.length() - 1));
+		 }
 		
 		// Remove single line comments
 		fcontents = fcontents.replaceAll("//.*\n", " ");
@@ -107,6 +121,15 @@ public class Scanner {
 		
 		// Send processed code to tokenizer
 		tokens = tokenize(fcontents);
+		
+		// Convert string id placeholders back to unmoddified literals
+		for (Token tok : tokens) {
+			// Case where the current token is a string literal placeholder
+			if (stringLiteralID.containsKey(tok.getTokenString())) {
+				tok.setTokenString(stringLiteralID.get(tok.getTokenString()));
+				tok.setTokenLabel(TokenLabel.stringLiteral);
+			}
+		}
 	
 		offloadToFile();
 	}
@@ -133,6 +156,7 @@ public class Scanner {
 	private void offloadToFile() throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(tokenOffloadFile));
 	    for (Token tok : tokens) {
+	    	System.out.println(tok);
 	    	writer.write(tok.toString() + '\n');
 	    }     
 	    writer.close();
