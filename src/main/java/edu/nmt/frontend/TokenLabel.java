@@ -10,6 +10,7 @@ public enum TokenLabel {
     assignmentSpecifier,
     variableOperator,
     booleanOperator,
+    conditionalStmt,
     iterationStmt,
     structStmt,
     switchStmt,
