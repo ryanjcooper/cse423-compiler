@@ -10,6 +10,27 @@ public class Token {
 		tokenLabel = TokenLabeler.labelToken(tokenString);
 	}
 	
+	public Token(String token, TokenLabel label) {
+		tokenString = token;
+		tokenLabel = label;
+	}
+	
+	public String getTokenString() {
+		return tokenString;
+	}
+	
+	public TokenLabel getTokenLabel() {
+		return tokenLabel;
+	}
+	
+	public void setTokenString(String tokenString) {
+		this.tokenString = tokenString;
+	}
+	
+	public void setTokenLabel(TokenLabel tokenLabel) {
+		this.tokenLabel = tokenLabel;
+	}
+	
 	@Override
 	public String toString() {
 		return "<\"" + tokenString + "\"," + tokenLabel + ">"; 

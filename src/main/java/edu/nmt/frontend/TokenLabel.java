@@ -20,5 +20,8 @@ public enum TokenLabel {
     sizeofSpecifier,
     parameterDelimiter,
     delimiters,
-    bitOperator
+    bitOperator,
+    variableOperator,
+    delimiter,
+    stringLiteral
 }
