@@ -5,6 +5,6 @@
 <")", tagSpecifier>
 <"{", tagSpecifier>
 <"return", controlSpecifier>
-<"1". numConstant>
+<"1", numConstant>
 <";", delimiter>
 <"}", tagSpecifier>
