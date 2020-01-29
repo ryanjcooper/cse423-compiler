@@ -135,6 +135,33 @@ public class Scanner {
 	}
 	
 	/**
+	 * Scans in a token array from a <>.token file
+	 * @param verbose specify verbose printing of matches
+	 * @throws IOException
+	 */
+	public void reScan(int verbose) throws IOException {
+		String fcontents = IOUtil.readFileToString(finp);
+		ArrayList<Token> tokens = new ArrayList<Token>();
+		
+		//Set up matching for 2 token fields
+		Matcher m = Pattern.compile("<\"(.*?)\", (.*?)>").matcher(fcontents);
+		 while (m.find()) {
+			 //Add relevant token to list, re-check the token label
+			 Token tmp = new Token(m.group(1));
+			 tokens.add(tmp);
+		 }
+		 
+		 // Print if verbose enabled
+		 if(verbose == 1) {
+			 for (Token tok : tokens) {
+			    	System.out.println(tok);
+			    }
+		 }
+		 
+		 return;
+	}
+	
+	/**
 	 * Tokenizes a preprocessed code string
 	 * @param s string to tokenize
 	 * @return A list of token objects
@@ -163,8 +190,11 @@ public class Scanner {
 	}
 	
     public static void main(String[] args) throws IOException {
-        Scanner s = new Scanner("test/minimal.c");
-        s.scan();
+        Scanner s = new Scanner("test/base.c");
+        Scanner reader = new Scanner("test/base.tokens");
+        //s.scan();
+        System.out.println("Tokens read from <>.tokens file");
+        reader.reScan(0);
     }
 	
 	
