@@ -28,8 +28,7 @@ public class Parser {
 			/* add token label to token string */
 			tokenString += token.getTokenLabel();
 			
-			if (!tokenString.contains("call"))
-				System.out.println(tokenString);
+			//System.out.println(tokenString);
 			
 			/* split the token string into an array */
 			String[] tokenSplit = tokenString.split(" ");
@@ -56,6 +55,8 @@ public class Parser {
 					tokenString = tokenString.replace(tokenLabels, nonTerminal);
 					tokenLabels = nonTerminal;
 				}
+				
+				System.out.println(tokenLabels);
 			}
 			
 			tokenString += " ";
