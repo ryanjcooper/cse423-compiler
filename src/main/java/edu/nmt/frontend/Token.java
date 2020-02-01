@@ -3,14 +3,14 @@ package edu.nmt.frontend;
 public class Token {
 
 	private String tokenString;
-	private TokenLabel tokenLabel;
+	private String tokenLabel;
 	
 	public Token(String token) {
 		tokenString = token;
 		tokenLabel = TokenLabeler.labelToken(tokenString);
 	}
 	
-	public Token(String token, TokenLabel label) {
+	public Token(String token, String label) {
 		tokenString = token;
 		tokenLabel = label;
 	}
@@ -19,7 +19,7 @@ public class Token {
 		return tokenString;
 	}
 	
-	public TokenLabel getTokenLabel() {
+	public String getTokenLabel() {
 		return tokenLabel;
 	}
 	
@@ -27,7 +27,7 @@ public class Token {
 		this.tokenString = tokenString;
 	}
 	
-	public void setTokenLabel(TokenLabel tokenLabel) {
+	public void setTokenLabel(String tokenLabel) {
 		this.tokenLabel = tokenLabel;
 	}
 	
