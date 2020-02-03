@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.nmt.RuntimeSettings;
 
@@ -16,16 +18,34 @@ import edu.nmt.RuntimeSettings;
  */
 public class TokenLabeler {		
 	
+	/**
+	 * isNumeric function copied from baeldung
+	 * ref: https://www.baeldung.com/java-check-string-number
+	 * Section 3.
+	 */
 	public static boolean isNumeric(String str) {
 	    if (str == null) {
 	        return false;
 	    }
+	    
 	    try {
 	        int d = Integer.parseInt(str);
 	    } catch (NumberFormatException nfe) {
 	        return false;
 	    }
+	    
 	    return true;
+	}
+	
+	public static boolean isIdentifier(String str) {		
+		Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z_0-9]*");
+		Matcher matcher = pattern.matcher(str);
+		
+		if (str == null) {
+			return false;
+		} else {
+			return matcher.matches();
+		}
 	}
 	
 	public static String labelToken(String tokenString) {
@@ -34,16 +54,16 @@ public class TokenLabeler {
 		/* check if token is defined token, number, or id */
 		if (label != null)
 			return label;
-		else if (isNumeric(label))
-			return "numConstant";
-		else
+		else if (isNumeric(tokenString))
+			return "numeric_constant";
+		else if (isIdentifier(tokenString))
 			return "identifier";
+		else
+			return "unknown";
 		
 	}
 	
-	public static void main(String[] argv) {
-		System.out.println(labelToken("main"));
-		System.out.println(labelToken("foobar"));
-		System.out.println(labelToken("\""));
+	public static void main(String argv[]) {
+		System.out.println(isIdentifier("0m__1__ate"));
 	}
 }
