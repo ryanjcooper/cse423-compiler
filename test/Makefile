@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-g -Wall
-TOKIT=clang -Xclang -dump-tokens
+TOKIT=clang -O0 -Xclang -dump-tokens
 
 targets = base hello_world fizzbuzz bubblesort bubblesort2 bubblesortline minimal tokenize
 
