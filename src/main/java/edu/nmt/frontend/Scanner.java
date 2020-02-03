@@ -127,7 +127,7 @@ public class Scanner {
 			// Case where the current token is a string literal placeholder
 			if (stringLiteralID.containsKey(tok.getTokenString())) {
 				tok.setTokenString(stringLiteralID.get(tok.getTokenString()));
-				tok.setTokenLabel(TokenLabel.stringLiteral);
+				tok.setTokenLabel("stringLiteral");
 			}
 		}
 	

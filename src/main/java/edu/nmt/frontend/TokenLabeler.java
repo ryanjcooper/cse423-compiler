@@ -28,16 +28,16 @@ public class TokenLabeler {
 	    return true;
 	}
 	
-	public static TokenLabel labelToken(String tokenString) {
+	public static String labelToken(String tokenString) {
 		String label = RuntimeSettings.labeledTokenMap.get(tokenString);
 		
 		/* check if token is defined token, number, or id */
 		if (label != null)
-			return TokenLabel.valueOf(label);
+			return label;
 		else if (isNumeric(label))
-			return TokenLabel.valueOf("numConstant");
+			return "numConstant";
 		else
-			return TokenLabel.valueOf("identifier");
+			return "identifier";
 		
 	}
 	
