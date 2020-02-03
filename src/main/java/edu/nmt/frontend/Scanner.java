@@ -130,8 +130,6 @@ public class Scanner {
 				tok.setTokenLabel("string_literal");
 			}
 		}
-	
-		offloadToFile();
 	}
 	
 	/**
@@ -139,7 +137,7 @@ public class Scanner {
 	 * @param verbose specify verbose printing of matches
 	 * @throws IOException
 	 */
-	public void reScan(int verbose) throws IOException {
+	public void rescan() throws IOException {
 		String fcontents = IOUtil.readFileToString(finp);
 		ArrayList<Token> tokens = new ArrayList<Token>();
 		
@@ -150,14 +148,7 @@ public class Scanner {
 			 Token tmp = new Token(m.group(1));
 			 tokens.add(tmp);
 		 }
-		 
-		 // Print if verbose enabled
-		 if(verbose == 1) {
-			 for (Token tok : tokens) {
-			    	System.out.println(tok);
-			    }
-		 }
-		 
+
 		 return;
 	}
 	
@@ -180,10 +171,9 @@ public class Scanner {
 	 * Optionally offload to file
 	 * @throws IOException
 	 */
-	private void offloadToFile() throws IOException {
+	public void offloadToFile() throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(tokenOffloadFile));
 	    for (Token tok : tokens) {
-	    	System.out.println(tok);
 	    	writer.write(tok.toString() + '\n');
 	    }     
 	    writer.close();
@@ -195,10 +185,10 @@ public class Scanner {
 	
     public static void main(String[] args) throws IOException {
         Scanner s = new Scanner("test/base.c");
-        Scanner reader = new Scanner("test/base.tokens");
-        //s.scan();
-        System.out.println("Tokens read from <>.tokens file");
-        reader.reScan(0);
+//        Scanner reader = new Scanner("test/base.tokens");
+        s.scan();
+//        System.out.println("Tokens read from <>.tokens file");
+//        reader.reScan(0);
     }
 	
 	
