@@ -39,6 +39,7 @@ public class RuntimeSettings {
 		if (tokenCfg.exists()) {
 			/* attempt to read in config file */
 			try {
+				/* this is java.util Scanner, not the lexer Scanner */
 				Scanner sc = new Scanner(tokenCfg);
 				
 				/* go through the config file 
@@ -67,6 +68,48 @@ public class RuntimeSettings {
 		
 	}
 	
+	public static HashMap<String,String> grammarMap = new HashMap<String, String>();
 	
+	static {
+		File grammarCfg = new File("config/grammar.cfg");
+		
+		if (grammarCfg.exists()) {
+			/* attempt to read in grammar file */
+			try {
+				/* this is java.util Scanner, not the lexer Scanner */
+				Scanner sc = new Scanner(grammarCfg);
+				String nonTerminal = null; 						// think of this as a parent node				
+				
+				/* go through the grammar file 
+				 * each line begins with a label followed by all
+				 * corresponding symbols
+				 */
+				while (sc.hasNextLine()) {
+					String terminal = sc.nextLine();			// think of this as a child node
+					
+					/* if the line contains a tab, it is a terminal or child node
+					 * else it is a parent node
+					*/
+					if (!terminal.contains("\t")) {
+						nonTerminal = terminal;
+					} else if (nonTerminal == null) {
+						throw new Exception("Error in config"); // check if first line is parent
+					} else {
+						grammarMap.put(terminal.trim(), nonTerminal.trim());
+					}
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.err.println("Unable to load grammar from " + grammarCfg.toString());
+				System.exit(1);
+			}
+		} else {
+			System.err.println("Unable to find " + grammarCfg.toString());
+			System.exit(1);
+		}
+		
+		
+	}	
 
 }
