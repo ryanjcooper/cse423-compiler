@@ -3,12 +3,17 @@ package edu.nmt.frontend;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 public class ScannerTest {
 
+	/**
+	 * Tests if the Scanner output matches the clang Scanner
+	 * @throws IOException
+	 */
 	@Test
 	public void testScan() throws IOException {
 		
@@ -46,6 +51,29 @@ public class ScannerTest {
 		List<Token> testero = Scanner.scanfromfile("test/minimal.tokens");
 		so.scan();
 		assertEquals(so.getTokens(), testero);
+	}
+	
+	/**
+	 * Tests if the scanfromfile function is correct
+	 * @throws IOException 
+	 */
+	@Test
+	public void testComp() throws IOException {
+		List<Token> subject = Scanner.scanfromfile("test/base.tokens");
+		List<Token> baseline = new ArrayList<Token>();
+		
+		// Assemble baseline
+		baseline.add(new Token("int"));
+		baseline.add(new Token("main"));
+		baseline.add(new Token("("));
+		baseline.add(new Token(")"));
+		baseline.add(new Token("{"));
+		baseline.add(new Token("return"));
+		baseline.add(new Token("1"));
+		baseline.add(new Token(";"));
+		baseline.add(new Token("}"));
+		
+		assertEquals(subject, baseline);
 	}
 
 }
