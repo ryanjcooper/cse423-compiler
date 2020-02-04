@@ -33,7 +33,23 @@ public class Token {
 	
 	@Override
 	public String toString() {
-		return "<\"" + tokenString + "\"," + tokenLabel + ">"; 
+		return tokenLabel + " '" + tokenString + "'";
+	}
+	
+	/**
+	 * Compares Token to another object
+	 * @param t
+	 * @return true if true
+	 */
+	@Override
+	public boolean equals(Object t) {
+		if (t == null)
+			return false;
+		if (this.getClass() != t.getClass())
+			return false;
+
+		//System.out.println((((Token) t).tokenString.equals(this.tokenString) & ((Token) t).tokenLabel.equals(this.tokenLabel)));
+		return (((Token) t).tokenString.equals(this.tokenString) && ((Token) t).tokenLabel.equals(this.tokenLabel));
 	}
 	
 	
