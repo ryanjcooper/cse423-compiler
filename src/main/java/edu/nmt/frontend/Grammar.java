@@ -81,6 +81,10 @@ public class Grammar {
 		return rules;
 	}
 	
+	public HashMap<String, HashSet<String>> getFollowSets() {
+		return this.followSets;
+	}
+	
 	 private void computeFirstSets() {
         firstSets = new HashMap<String, HashSet<String>>();
 
@@ -180,7 +184,7 @@ public class Grammar {
     public static void main(String[] args) throws IOException {
     	Grammar g = new Grammar("config/grammar.cfg");
     	g.loadGrammar();
-    	
+    	System.out.println(g.followSets.get("param"));
     }
 	
 }
