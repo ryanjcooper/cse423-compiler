@@ -4,5 +4,6 @@ branches:
     - master
 script:
     - mvn test
+    - mvn cobertura:cobertura
 after_success:
-- ls
+- bash <(curl -s https://codecov.io/bash)

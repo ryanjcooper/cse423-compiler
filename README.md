@@ -1,5 +1,8 @@
 # cse423-compiler
 
+
+[![Build Status](https://travis-ci.com/Coopss/cse423-compiler.svg?branch=master](https://travis-ci.com/Coopss/cse423-compiler)
+
 ### Authors
 * Ryan Cooper (@coopss)
 * Brandon Fleming (@RodianRomeo)
