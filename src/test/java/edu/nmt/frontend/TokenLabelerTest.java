@@ -18,7 +18,7 @@ public class TokenLabelerTest {
 		assertEquals(false, TokenLabeler.isNumeric("wrong"));
 		assertEquals(false, TokenLabeler.isNumeric("42life"));
 	}
-
+/*
 	@Test
 	public void testLabelToken() {
 		//generate identifier string
@@ -132,5 +132,5 @@ public class TokenLabelerTest {
 //		System.out.println("generated string = " + genString); //print generated string
 		assertEquals(TokenLabel.identifier, TokenLabeler.labelToken(genString));
 	}
-
+*/
 }

@@ -31,7 +31,7 @@ public class Scanner {
 	private File finp; // input file object
 	private static final String tokenOffloadFile = RuntimeSettings.buildDir + "/" + "tokens.txt"; // file to write tokens to
 	private static String punctuation = "'!\"#$%&\\'()*+,-./:;<=>?@[\\\\]^_`{|}~"; // punctuation
-	List<Token> tokens; // list of tokens
+	private List<Token> tokens; // list of tokens
 	
 	// Doublepunct cases since special characters have added spaces
 	private static final String[][] doublePunctCases = {{"\\+\\s\\+", "\\+\\+"}, // ++
@@ -127,7 +127,7 @@ public class Scanner {
 			// Case where the current token is a string literal placeholder
 			if (stringLiteralID.containsKey(tok.getTokenString())) {
 				tok.setTokenString(stringLiteralID.get(tok.getTokenString()));
-				tok.setTokenLabel(TokenLabel.stringLiteral);
+				tok.setTokenLabel("string_literal");
 			}
 		}
 	
@@ -173,13 +173,17 @@ public class Scanner {
 	 * Optionally offload to file
 	 * @throws IOException
 	 */
-	private void offloadToFile() throws IOException {
+	public void offloadToFile() throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(tokenOffloadFile));
 	    for (Token tok : tokens) {
 	    	System.out.println(tok);
 	    	writer.write(tok.toString() + '\n');
 	    }     
 	    writer.close();
+	}
+	
+	public List<Token> getTokens() {
+		return this.tokens;
 	}
 	
     public static void main(String[] args) throws IOException {
