@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-g -Wall
 TOKIT=clang -O0 -Xclang -dump-tokens
 
-targets = base hello_world fizzbuzz bubblesort bubblesort2 bubblesortline minimal tokenize exhaustive
+targets = ops base hello_world fizzbuzz bubblesort bubblesort2 bubblesortline minimal tokenize exhaustive
 
 all: $(targets)
 
@@ -29,6 +29,9 @@ minimal: minimal.c
 base: base.c
 	$(CC) $(CFLAGS) $@.c -o $@
 
+ops: ops.c
+	$(CC) $(CFLAGS) $@.c -o $@
+
 tokenize: hello_world.c fizzbuzz.c bubblesort.c bubblesort2.c bubblesortline.c
 	-$(TOKIT) hello_world.c > hello_world.tokens 2>&1
 	@sed -i "s/^\(\S* '.*'\).*/\1/" hello_world.tokens
@@ -50,6 +53,9 @@ tokenize: hello_world.c fizzbuzz.c bubblesort.c bubblesort2.c bubblesortline.c
 	-$(TOKIT) exhaustive.c > exhaustive.tokens 2>&1
 	@sed -i "s/^\(\S* '.*'\).*/\1/" exhaustive.tokens
 	@head -n -3 exhaustive.tokens | tee exhaustive.tokens > /dev/null
+	-$(TOKIT) ops.c > ops.tokens 2>&1
+	@sed -i "s/^\(\S* '.*'\).*/\1/" ops.tokens
+	@head -n -3 ops.tokens | tee ops.tokens > /dev/null
 
 clean:
 	rm $(targets) *.tokens
