@@ -173,7 +173,7 @@ public class Scanner {
 	 * Optionally offload to file
 	 * @throws IOException
 	 */
-	private void offloadToFile() throws IOException {
+	public void offloadToFile() throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(tokenOffloadFile));
 	    for (Token tok : tokens) {
 	    	System.out.println(tok);
