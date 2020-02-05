@@ -83,8 +83,18 @@ public class TokenTest {
 		Token baseline = new Token("int");
 		Token subject = new Token("int");
 		Token falsehood = new Token("return");
+		Token empty = null;
+		String dog = new String("Mastiff");
 		assertTrue(baseline.equals(subject));
 		assertFalse(baseline.equals(falsehood));
+		// Test if null
+		assertFalse(baseline.equals(empty));
+		// Test if different class
+		assertFalse(baseline.equals(dog));
+		// Same string
+		subject.setTokenLabel("incorrect");
+		assertFalse(baseline.equals(subject));
+		
 	}
 
 }
