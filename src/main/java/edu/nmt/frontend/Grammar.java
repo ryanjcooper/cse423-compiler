@@ -81,43 +81,62 @@ public class Grammar {
 		return rules;
 	}
 	
+	public List<Rule> getRules(String lhs) {
+		ArrayList<Rule> out = new ArrayList<Rule>();
+		
+		for (Rule rule : rules) {
+			if (rule.getLeftSide().equals(lhs))
+				out.add(rule);
+		}
+		
+		return out;
+	}
+	
 	public HashMap<String, HashSet<String>> getFollowSets() {
 		return this.followSets;
 	}
 	
-	 private void computeFirstSets() {
+	public HashMap<String, HashSet<String>> getFirstSets() {
+		return this.firstSets;
+	}
+	
+	public HashSet<String> getVariables() {
+		return this.variables;
+	}
+	 
+	private void computeFirstSets() {
         firstSets = new HashMap<String, HashSet<String>>();
 
+        /* init all first sets for all non-terminals */
         for (String s : variables) {
-
             HashSet<String> temp = new HashSet<String>();
             firstSets.put(s, temp);
         }
-        while (true) {
-            boolean isChanged = false;
-            for (String variable : variables) {
-                HashSet<String> firstSet = new HashSet<String>();
-                for (Rule rule : rules) {
-                    if (rule.getLeftSide().equals(variable)) {
-                        HashSet<String> addAll = computeFirst(rule.getRightSide(), 0);
-                        firstSet.addAll(addAll);
-                    }
-                }
-                if (!firstSets.get(variable).containsAll(firstSet)) {
-                    isChanged = true;
-                    firstSets.get(variable).addAll(firstSet);
-                }
-
-            }
-            if (!isChanged) {
-                break;
-            }
+        
+        /* init all first sets for all terminals */
+        for (String s : terminals) {
+            HashSet<String> temp = new HashSet<String>();
+            firstSets.put(s, temp);
+        }        
+        
+        /* loop through all possible symbols in grammar */
+        for (String sym : firstSets.keySet()) {
+        	/* look through all rules, RHS, and search for the symbol
+        	 * that appears after sym
+        	 */
+        	HashSet<String> firsts = firstSets.get(sym);
+        	for (Rule rule : rules) {
+        		String[] rhs = rule.getRightSide();
+        		for (int i = 0; i < rhs.length; i++) {
+        			if (rhs[i].equals(sym) && i+1 < rhs.length) {
+        				firsts.add(rhs[i+1]);
+        			}
+        		}
+        	}
         }
+    }	 
 
-        firstSets.put("S'", firstSets.get(startVariable));
-    }
-
-    private void computeFollowSet() {
+     private void computeFollowSet() {
     	followSets = new HashMap<String, HashSet<String>>();
         for (String s : variables) {
             HashSet<String> temp = new HashSet<String>();
@@ -154,7 +173,7 @@ public class Grammar {
                 break;
             }
         }
-    }
+    } 
 	    
     public HashSet<String> computeFirst(String[] string, int index) {
         HashSet<String> first = new HashSet<String>();
@@ -184,7 +203,6 @@ public class Grammar {
     public static void main(String[] args) throws IOException {
     	Grammar g = new Grammar("config/grammar.cfg");
     	g.loadGrammar();
-    	System.out.println(g.followSets.get("param"));
     }
 	
 }

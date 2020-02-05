@@ -1,0 +1,28 @@
+int main ( ) { return 1 ; }
+
+int
+typeSpecifier
+typeSpecifier main
+typeSpecifier id
+typeSpecifier id (
+typeSpecifier id ( )
+typeSpecifier call
+typeSpecifier call {
+typeSpecifier call { return
+typeSpecifier call { return 1
+typeSpecifier call { return number
+typeSpecifier call { return factor
+typeSpecifier call { return term
+typeSpecifier call { return addExpression
+typeSpecifier call { return simpleExpression
+typeSpecifier call { return expression
+typeSpecifier call { return expression ;
+typeSpecifier call { returnStmt
+typeSpecifier call { statement
+typeSpecifier call { statementList
+typeSpecifier call { statementList }
+typeSpecifier call compoundStmt
+funcDeclaration
+declaration
+declarationList
+program

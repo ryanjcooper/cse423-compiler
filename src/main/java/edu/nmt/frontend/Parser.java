@@ -1,12 +1,10 @@
 package edu.nmt.frontend;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import edu.nmt.RuntimeSettings;
 
 public class Parser {
 	
@@ -19,7 +17,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/min.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
@@ -42,8 +40,10 @@ public class Parser {
 	 * @param lookahead is the next symbol to be added to the stack
 	 * @return state reduced to a non-terminal
 	 */
-	public String reduce(String state, Token lookahead) {
+	public String reduce(String state, Token lookahead, Token lookbehind) {
 		boolean repeat = true;
+		
+		//System.out.println("state = " + state + "\n");
 		
 		while (repeat) {
 			ArrayList<String> nts = new ArrayList<String>();	// list of possible non-terminals
@@ -53,21 +53,50 @@ public class Parser {
 				/* convert right side to space-spaced string */
 				String rhs = getSpacedArray(rule.getRightSide());
 				
-				/* if the state is found in the RHS of grammar,
-				 * add its corresponding LHS non-terminal
-				 */
+				/* get all possible non-terminals the currrent state can become */
 				if (rhs.equals(state)) {
-					//System.out.println("rhs:" + rhs + " lhs: " + rule.getLeftSide());
+					System.out.println("state \"" + rhs + "\" can become \"" + rule.getLeftSide() + "\"");
 					nts.add(rule.getLeftSide());
 				}
 			}
 			
-			/* loop through nts, checking to see if the lookahead matches any of their follow sets */
+			/* loop through nts, checking to see if to change the state or not */
 			for (String nt : nts) {
-				if (lookahead == null || this.grammar.getFollowSets().get(nt).contains(lookahead.getTokenLabel())) {
-					state = nt;
-					repeat = true;
+				HashSet<String> ntFollowSet = this.grammar.getFollowSets().get(nt);
+				
+				/* 
+				 * state will only reduce if:
+				 * 	(1) if this state contains the last token
+				 * 	(2) if this state contains a semi
+				 * 	(3) if the follow set of the non-terminal contains the lookahead
+				 * 	(4) if the follow set of the non-terminal contains a non-terminal
+				 */
+				if (lookahead == null 
+						|| state.contains("semi") 
+						|| ntFollowSet.isEmpty() 
+						|| ntFollowSet.contains(lookahead.getTokenLabel()) 					  
+						|| this.hasNonTerminal(ntFollowSet)) {
+					HashSet<String> lbFirstSets = (lookbehind != null) ? this.grammar.getFirstSets().get(lookbehind.getTokenLabel()) : null;
+					
+					/* 
+					 * state will only reduce for real if:
+					 * 	(1) lookbehind exists and
+					 *  (2) the firstsSet of lookbehind contains state or
+					 *  (3) the firstsSet of lookbehind contains the first element of the state and does not only consist of it
+					 */
+					if (lbFirstSets != null 
+							&& (lbFirstSets.contains(state) 
+							|| (lbFirstSets.contains(state.split(" ")[0]) && !state.split(" ")[0].equals(nt)))) {
+						System.out.println("state \"" + state + "\" --> \"" + state + "\"\n");
+						repeat = false;
+					} else {
+						System.out.println("state \"" + state + "\" --> \"" + nt + "\"\n");
+						state = nt;
+						repeat = true;
+					}
 					break;
+				} else {
+					System.out.println("state \"" + state + "\" --> \"" + state + "\"\n");
 				}
 			}					
 		}		
@@ -76,15 +105,36 @@ public class Parser {
 	}
 	
 	/*
+	 * checks if set contains non-terminal
+	 * @param hs is the set to be evaluated
+	 * @return true if set contains nt, else false
+	 */	
+	public boolean hasNonTerminal(HashSet<String> hs) {
+		for (String s : hs) {
+			if (this.grammar.getVariables().contains(s))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/*
 	 * replace the last n elements on the stack with nt
 	 * @param nt is the newest symbol to be added to the stack
-	 * @param n is the number of symbols to be replaced by nt
+	 * @param n are the symbols to be replaced by nt
 	 * @param stack is the stack to be manipulated
 	 * @return altered stack
 	 */
-	public ArrayList<String> replace(String nt, int n, ArrayList<String> stack) {
+	public ArrayList<String> replace(String nt, String n, ArrayList<String> stack) {
+		/* check if nt and n are identical 
+		 * else continue
+		 */
+		if (nt.equals(n)) {
+			return stack;
+		}
+		
 		/* pop n items off stack */
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < n.split(" ").length; i++) {
 			stack.remove(stack.size()-1);
 		}
 		
@@ -94,16 +144,19 @@ public class Parser {
 		return stack;
 	}
 	
+	/*
+	 * parses through a list of tokens, printing interesting messages at each shift
+	 */
 	public void parse() {
-		ArrayList<String> stack = new ArrayList<String>();
-		Iterator<Token> tokenIt = tokens.iterator();
-		Token lookahead = tokenIt.next();
-		String state = "";
-		String newState = "";
+		ArrayList<String> stack = new ArrayList<String>();	// stores each token one-at-a-time as they are read in
+		Iterator<Token> tokenIt = tokens.iterator();		// used to iterate through list of tokens
+		Token lookahead = tokenIt.next();					// looks ahead to next token to be read
 		boolean repeat = true;
 		
 		while (repeat) {
-			Token token = lookahead;
+			Token token = lookahead;						// current token to be added to stack
+			Token lookbehind = null;						// looks behind at the previous read token
+			String state = "";								// represents the stack at each inverse iteration
 			
 			try {
 				lookahead = tokenIt.next();
@@ -111,26 +164,34 @@ public class Parser {
 				lookahead = null;
 			}
 			
+			/* add token to stack */
 			if (token != null) {
+				System.out.println("Adding \"" + token.getTokenLabel() + "\" to the stack\n");
 				stack.add(token.getTokenLabel());
 			} else {
 				repeat = false;
 			}
 			
-			System.out.println(stack);
+			System.out.println("Current stack: " + stack + "\n");
 			
-			/* check if current can become a NT 
-			 * and gather possible NTs in a list 
+			/* 
+			 * walk backwards through the stack, constructing the state
+			 * at each iteration and checking if it can be reduced
 			 */
-			state = "";
-			newState = "";
-			
 			for (int i = stack.size() - 1; i >= 0; i--) {
+				String newState; // tmp variable used to represent the result from reduce
+				
 				state = stack.get(i) + " " + state;
 				state = state.trim();
-				newState = this.reduce(state, lookahead);
-				if (!state.equals(newState))
-					stack = this.replace(newState, state.split(" ").length, stack);
+
+				if (i > 0) {
+					lookbehind = new Token(null, stack.get(i-1));
+				} else {
+					lookbehind = null;
+				}
+				
+				newState = this.reduce(state, lookahead, lookbehind);
+				stack = this.replace(newState, state, stack);
 				state = newState;
 			}
 		}
