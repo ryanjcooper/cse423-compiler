@@ -31,6 +31,9 @@ public class Token {
 		this.tokenLabel = tokenLabel;
 	}
 	
+	/**
+	 * Converts a token into the clang string format
+	 */
 	@Override
 	public String toString() {
 		return tokenLabel + " '" + tokenString + "'";
@@ -48,7 +51,6 @@ public class Token {
 		if (this.getClass() != t.getClass())
 			return false;
 
-		//System.out.println((((Token) t).tokenString.equals(this.tokenString) & ((Token) t).tokenLabel.equals(this.tokenLabel)));
 		return (((Token) t).tokenString.equals(this.tokenString) && ((Token) t).tokenLabel.equals(this.tokenLabel));
 	}
 	

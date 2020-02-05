@@ -2,9 +2,9 @@ package edu.nmt.frontend;
 
 import static org.junit.Assert.*;
 
-import java.util.Random;
-
 import org.junit.Test;
+
+import edu.nmt.RuntimeSettings;
 
 public class TokenLabelerTest {
 
@@ -18,119 +18,119 @@ public class TokenLabelerTest {
 		assertEquals(false, TokenLabeler.isNumeric("wrong"));
 		assertEquals(false, TokenLabeler.isNumeric("42life"));
 	}
-/*
+
 	@Test
-	public void testLabelToken() {
-		//generate identifier string
+	public void testIsIdentifier() {
 		final String ALPHA_NUMERIC_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
-		StringBuilder builder = new StringBuilder();
+		//generate identifier strings
+		StringBuilder builder1 = new StringBuilder();
+		StringBuilder builder2 = new StringBuilder();
+		
 		//set first character to letter or underscore to create valid id
-		int c = (int) (Math.random()*ALPHA_NUMERIC_STRING.length() - 10);
-		builder.append(ALPHA_NUMERIC_STRING.charAt(c));
+		int c = (int) (Math.random()*(ALPHA_NUMERIC_STRING.length() - 10));
+		builder1.append(ALPHA_NUMERIC_STRING.charAt(c));
+		
+		//set first character to number to create invalid id
+		c = (int) (Math.random()*10);
+		builder2.append(c);
+		
 		//random length from 1-31
-		int len = (int) (Math.random()*31); 
+		int len = (int) (Math.random()*31);
+		
 		while(len-- != 0) {
 			c = (int) (Math.random()*ALPHA_NUMERIC_STRING.length());
-			builder.append(ALPHA_NUMERIC_STRING.charAt(c));
+			builder1.append(ALPHA_NUMERIC_STRING.charAt(c));
+			builder2.append(ALPHA_NUMERIC_STRING.charAt(c));
 		}
-		String genString = builder.toString();
 		
-		//variableModifier auto const unsigned signed volatile extern static register
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("auto"));
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("const"));
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("unsigned"));
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("signed"));
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("volatile"));
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("extern"));
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("static"));
-		assertEquals(TokenLabel.variableModifier, TokenLabeler.labelToken("register"));
-		//typeSpecifier double float int short long void char
-		assertEquals(TokenLabel.typeSpecifier, TokenLabeler.labelToken("double"));
-		assertEquals(TokenLabel.typeSpecifier, TokenLabeler.labelToken("float"));
-		assertEquals(TokenLabel.typeSpecifier, TokenLabeler.labelToken("int"));
-		assertEquals(TokenLabel.typeSpecifier, TokenLabeler.labelToken("short"));
-		assertEquals(TokenLabel.typeSpecifier, TokenLabeler.labelToken("long"));
-		assertEquals(TokenLabel.typeSpecifier, TokenLabeler.labelToken("void"));
-		assertEquals(TokenLabel.typeSpecifier, TokenLabeler.labelToken("char"));
-		//controlSpecifier break return continue goto
-		assertEquals(TokenLabel.controlSpecifier, TokenLabeler.labelToken("break"));
-		assertEquals(TokenLabel.controlSpecifier, TokenLabeler.labelToken("return"));
-		assertEquals(TokenLabel.controlSpecifier, TokenLabeler.labelToken("continue"));
-		assertEquals(TokenLabel.controlSpecifier, TokenLabeler.labelToken("goto"));
-		//tagSpecifier ' " [ ] { } ( )
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken("'"));
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken("\""));
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken("["));
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken("]"));
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken("{"));
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken("}"));
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken("("));
-		assertEquals(TokenLabel.tagSpecifier, TokenLabeler.labelToken(")"));
-		//assignmentSpecifier = += -= /= *= %= |= &= >>= <<= ^=
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("+="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("-="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("/="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("*="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("%="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("|="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("&="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken(">>="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("<<="));
-		assertEquals(TokenLabel.assignmentSpecifier, TokenLabeler.labelToken("^="));
-		//variableOperator + - * / % ++ --
-		assertEquals(TokenLabel.variableOperator, TokenLabeler.labelToken("+"));
-		assertEquals(TokenLabel.variableOperator, TokenLabeler.labelToken("-"));
-		assertEquals(TokenLabel.variableOperator, TokenLabeler.labelToken("*"));
-		assertEquals(TokenLabel.variableOperator, TokenLabeler.labelToken("/"));
-		assertEquals(TokenLabel.variableOperator, TokenLabeler.labelToken("%"));
-		assertEquals(TokenLabel.variableOperator, TokenLabeler.labelToken("++"));
-		assertEquals(TokenLabel.variableOperator, TokenLabeler.labelToken("--"));
-		//booleanOperator && == || <= >= < > !=
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken("&&"));
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken("=="));
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken("||"));
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken("<="));
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken(">="));
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken("<"));
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken(">"));
-		assertEquals(TokenLabel.booleanOperator, TokenLabeler.labelToken("!="));
-		//conditionalStmt if else
-		assertEquals(TokenLabel.conditionalStmt, TokenLabeler.labelToken("if"));
-		assertEquals(TokenLabel.conditionalStmt, TokenLabeler.labelToken("else"));
-		//iterationStmt while do for
-		assertEquals(TokenLabel.iterationStmt, TokenLabeler.labelToken("while"));
-		assertEquals(TokenLabel.iterationStmt, TokenLabeler.labelToken("do"));
-		assertEquals(TokenLabel.iterationStmt, TokenLabeler.labelToken("for"));
-		//structStmt struct . ->
-		assertEquals(TokenLabel.structStmt, TokenLabeler.labelToken("struct"));
-		assertEquals(TokenLabel.structStmt, TokenLabeler.labelToken("."));
-		assertEquals(TokenLabel.structStmt, TokenLabeler.labelToken("->"));
-		//switchStmt switch case default
-		assertEquals(TokenLabel.switchStmt, TokenLabeler.labelToken("switch"));
-		assertEquals(TokenLabel.switchStmt, TokenLabeler.labelToken("case"));
-		assertEquals(TokenLabel.switchStmt, TokenLabeler.labelToken("default"));
-		//enumSpecifier enum
-		assertEquals(TokenLabel.enumSpecifier, TokenLabeler.labelToken("enum"));
-		//unionSpecifier union
-		assertEquals(TokenLabel.unionSpecifier, TokenLabeler.labelToken("union"));
-		//typedefSpecifier typedef
-		assertEquals(TokenLabel.typedefSpecifier, TokenLabeler.labelToken("typedef"));
-		//delimiter , ;
-		assertEquals(TokenLabel.delimiter, TokenLabeler.labelToken(","));
-		assertEquals(TokenLabel.delimiter, TokenLabeler.labelToken(";"));
-		//bitOperator ^ & | ! << >>
-		assertEquals(TokenLabel.bitOperator, TokenLabeler.labelToken("^"));
-		assertEquals(TokenLabel.bitOperator, TokenLabeler.labelToken("&"));
-		assertEquals(TokenLabel.bitOperator, TokenLabeler.labelToken("|"));
-		assertEquals(TokenLabel.bitOperator, TokenLabeler.labelToken("!"));
-		assertEquals(TokenLabel.bitOperator, TokenLabeler.labelToken("<<"));
-		assertEquals(TokenLabel.bitOperator, TokenLabeler.labelToken(">>"));
-		//preprocessorSpecifier #
-		assertEquals(TokenLabel.preprocessorSpecifier, TokenLabeler.labelToken("#"));
-		//identifier
-//		System.out.println("generated string = " + genString); //print generated string
-		assertEquals(TokenLabel.identifier, TokenLabeler.labelToken(genString));
+		String validString = builder1.toString();
+		String invalidString = builder2.toString();
+		
+		assertEquals(true, TokenLabeler.isIdentifier(validString));
+		assertEquals(false, TokenLabeler.isIdentifier(invalidString));
 	}
-*/
+
+	@Test
+	public void testLabelToken() {
+		//type int void char
+		assertEquals("type", TokenLabeler.labelToken("int"));
+		assertEquals("type", TokenLabeler.labelToken("void"));
+		assertEquals("type", TokenLabeler.labelToken("char"));
+		//return return
+		assertEquals("return", TokenLabeler.labelToken("return"));
+		//break break
+		assertEquals("break", TokenLabeler.labelToken("break"));
+		//goto goto
+		assertEquals("goto", TokenLabeler.labelToken("goto"));
+		//single_quote '
+		assertEquals("single_quote", TokenLabeler.labelToken("'"));
+		//double_quote "
+		assertEquals("double_quote", TokenLabeler.labelToken("\""));
+		//l_paren (
+		assertEquals("l_paren", TokenLabeler.labelToken("("));
+		//r_paren )
+		assertEquals("r_paren", TokenLabeler.labelToken(")"));
+		//l_brace {
+		assertEquals("l_brace", TokenLabeler.labelToken("{"));
+		//r_brace }
+		assertEquals("r_brace", TokenLabeler.labelToken("}"));
+		//assign_op = += -= /= *= %= |= &= >>= <<= ^=
+		assertEquals("assign_op", TokenLabeler.labelToken("="));
+		assertEquals("assign_op", TokenLabeler.labelToken("+="));
+		assertEquals("assign_op", TokenLabeler.labelToken("-="));
+		assertEquals("assign_op", TokenLabeler.labelToken("/="));
+		assertEquals("assign_op", TokenLabeler.labelToken("*="));
+		assertEquals("assign_op", TokenLabeler.labelToken("%="));
+		assertEquals("assign_op", TokenLabeler.labelToken("|="));
+		assertEquals("assign_op", TokenLabeler.labelToken("&="));
+		assertEquals("assign_op", TokenLabeler.labelToken(">>="));
+		assertEquals("assign_op", TokenLabeler.labelToken("<<="));
+		assertEquals("assign_op", TokenLabeler.labelToken("^="));
+		//add_op + - 
+		assertEquals("add_op", TokenLabeler.labelToken("+"));
+		assertEquals("add_op", TokenLabeler.labelToken("-"));
+		//mul_op * /
+		assertEquals("mul_op", TokenLabeler.labelToken("*"));
+		assertEquals("mul_op", TokenLabeler.labelToken("/"));
+		//unary_op ++ --
+		assertEquals("unary_op", TokenLabeler.labelToken("++"));
+		assertEquals("unary_op", TokenLabeler.labelToken("--"));
+		//bool_op && == || <= >= < > != 
+		assertEquals("bool_op", TokenLabeler.labelToken("&&"));
+		assertEquals("bool_op", TokenLabeler.labelToken("=="));
+		assertEquals("bool_op", TokenLabeler.labelToken("||"));
+		assertEquals("bool_op", TokenLabeler.labelToken("<="));
+		assertEquals("bool_op", TokenLabeler.labelToken(">="));
+		assertEquals("bool_op", TokenLabeler.labelToken("<"));
+		assertEquals("bool_op", TokenLabeler.labelToken(">"));
+		assertEquals("bool_op", TokenLabeler.labelToken("!="));
+		//if if
+		assertEquals("if", TokenLabeler.labelToken("if"));
+		//else else
+		assertEquals("else", TokenLabeler.labelToken("else"));
+		//while while
+		assertEquals("while", TokenLabeler.labelToken("while"));
+		//do do
+		assertEquals("do", TokenLabeler.labelToken("do"));
+		//for for
+		assertEquals("for", TokenLabeler.labelToken("for"));
+		//switch switch
+		assertEquals("switch", TokenLabeler.labelToken("switch"));
+		//case case
+		assertEquals("case", TokenLabeler.labelToken("case"));
+		//default default
+		assertEquals("default", TokenLabeler.labelToken("default"));
+		//comma ,
+		assertEquals("comma", TokenLabeler.labelToken(","));
+		//semi ;
+		assertEquals("semi", TokenLabeler.labelToken(";"));
+		//bit_op ^ & | ! << >>
+		assertEquals("bit_op", TokenLabeler.labelToken("^"));
+		assertEquals("bit_op", TokenLabeler.labelToken("&"));
+		assertEquals("bit_op", TokenLabeler.labelToken("|"));
+		assertEquals("bit_op", TokenLabeler.labelToken("!"));
+		assertEquals("bit_op", TokenLabeler.labelToken("<<"));
+		assertEquals("bit_op", TokenLabeler.labelToken(">>"));
+	}
+
 }
