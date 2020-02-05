@@ -61,8 +61,11 @@ int main (void)
         i < 0;
         i > 0;
 
-
+        goto NEXT;
         return 0;
+
+        NEXT:
+        return 1;
 }
 
 /*
