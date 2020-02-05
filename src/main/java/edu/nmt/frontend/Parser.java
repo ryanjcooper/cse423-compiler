@@ -3,6 +3,7 @@ package edu.nmt.frontend;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/min.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
@@ -45,6 +46,8 @@ public class Parser {
 	public String reduce(String state, Token lookahead, Token lookbehind) {
 		boolean repeat = true;
 		
+		System.out.println("\nstate = " + state + "\n");
+		
 		while (repeat) {
 			ArrayList<String> nts = new ArrayList<String>();	// list of possible non-terminals
 			repeat = false;
@@ -57,17 +60,21 @@ public class Parser {
 				 * add its corresponding LHS non-terminal
 				 */
 				if (rhs.equals(state)) {
-					System.out.println("rhs:" + rhs + " lhs: " + rule.getLeftSide());
+					System.out.println("\nrhs:" + rhs + " lhs: " + rule.getLeftSide());
 					nts.add(rule.getLeftSide());
 				}
 			}
 			
 			/* loop through nts, checking to see if the lookahead matches any of their follow sets */
 			for (String nt : nts) {
-				//System.out.println(this.grammar.getFirstSets().get(lookbehind.getTokenLabel()));
-				if ((lookahead == null || this.grammar.getFollowSets().get(nt).isEmpty() || this.grammar.getFollowSets().get(nt).contains(lookahead.getTokenLabel()))) {
+				if (lookahead == null || 
+					 state.contains("semi") || 
+					 this.grammar.getFollowSets().get(nt).isEmpty() || 
+					 this.grammar.getFollowSets().get(nt).contains(lookahead.getTokenLabel()) ||
+					 this.hasNonTerminal(this.grammar.getFollowSets().get(nt))) {
 					state = nt;
 					System.out.println("lookbehind: " + lookbehind.getTokenLabel());
+					System.out.println("lookbehind firsts: " + this.grammar.getFirstSets().get(lookbehind.getTokenLabel()));
 					if (this.grammar.getFirstSets().get(lookbehind.getTokenLabel()).contains(state))
 						repeat = false;
 					else
@@ -78,6 +85,15 @@ public class Parser {
 		}		
 		
 		return state;
+	}
+	
+	public boolean hasNonTerminal(HashSet<String> hs) {
+		for (String s : hs) {
+			if (this.grammar.getVariables().contains(s))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	/*
