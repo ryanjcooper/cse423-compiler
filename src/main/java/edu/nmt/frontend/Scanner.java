@@ -150,9 +150,7 @@ public class Scanner {
 		 while (m.find()) {
 			 //Add relevant token to list, re-check the token label
 			 Token tmp = new Token(m.group(2));
-			 if(!m.group(1).equals("eof")) {
-				 tokens.add(tmp);
-			 }
+			 tokens.add(tmp);
 		 }
 		 
 		 for (Token tok : tokens) {
