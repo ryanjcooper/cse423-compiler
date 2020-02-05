@@ -150,8 +150,8 @@ public class TokenLabelerTest {
 		c = (int) (Math.random()*10);
 		builder2.append(c);
 		
-		//random length from 1-31
-		int len = (int) (Math.random()*31);
+		//random length from 2-32
+		int len = (int) (Math.random()*31) + 1;
 		
 		while(len-- != 0) {
 			c = (int) (Math.random()*ALPHA_NUMERIC_STRING.length());
