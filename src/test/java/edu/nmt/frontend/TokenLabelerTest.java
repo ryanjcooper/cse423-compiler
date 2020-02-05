@@ -12,11 +12,11 @@ public class TokenLabelerTest {
 	public void testIsNumeric() {
 		int num = (int) Math.random() * 2147483647;
 		
-		assertEquals(true, TokenLabeler.isNumeric(Integer.toString(num)));
-		assertEquals(false, TokenLabeler.isNumeric(""));
-		assertEquals(false, TokenLabeler.isNumeric(null));
-		assertEquals(false, TokenLabeler.isNumeric("wrong"));
-		assertEquals(false, TokenLabeler.isNumeric("42life"));
+		assertTrue(TokenLabeler.isNumeric(Integer.toString(num)));
+		assertFalse(TokenLabeler.isNumeric(""));
+		assertFalse(TokenLabeler.isNumeric(null));
+		assertFalse(TokenLabeler.isNumeric("wrong"));
+		assertFalse(TokenLabeler.isNumeric("42life"));
 	}
 
 	@Test
@@ -45,9 +45,11 @@ public class TokenLabelerTest {
 		
 		String validString = builder1.toString();
 		String invalidString = builder2.toString();
+		String nullString = null;
 		
-		assertEquals(true, TokenLabeler.isIdentifier(validString));
-		assertEquals(false, TokenLabeler.isIdentifier(invalidString));
+		assertTrue(TokenLabeler.isIdentifier(validString));
+		assertFalse(TokenLabeler.isIdentifier(invalidString));
+		assertFalse(TokenLabeler.isIdentifier(nullString));
 	}
 
 	@Test
@@ -131,6 +133,38 @@ public class TokenLabelerTest {
 		assertEquals("bit_op", TokenLabeler.labelToken("!"));
 		assertEquals("bit_op", TokenLabeler.labelToken("<<"));
 		assertEquals("bit_op", TokenLabeler.labelToken(">>"));
+		//numeric_constant
+		int c = (int) Math.random() * 2147483647;
+		assertEquals("numeric_constant", TokenLabeler.labelToken(Integer.toString(c)));
+		//identifier
+		final String ALPHA_NUMERIC_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
+		//generate identifier strings
+		StringBuilder builder1 = new StringBuilder();
+		StringBuilder builder2 = new StringBuilder();
+		
+		//set first character to letter or underscore to create valid id
+		c = (int) (Math.random()*(ALPHA_NUMERIC_STRING.length() - 10));
+		builder1.append(ALPHA_NUMERIC_STRING.charAt(c));
+		
+		//set first character to number to create invalid id
+		c = (int) (Math.random()*10);
+		builder2.append(c);
+		
+		//random length from 2-32
+		int len = (int) (Math.random()*31) + 1;
+		
+		while(len-- != 0) {
+			c = (int) (Math.random()*ALPHA_NUMERIC_STRING.length());
+			builder1.append(ALPHA_NUMERIC_STRING.charAt(c));
+			builder2.append(ALPHA_NUMERIC_STRING.charAt(c));
+		}
+		
+		String validString = builder1.toString();
+		String invalidString = builder2.toString();
+		
+		assertEquals("identifier", TokenLabeler.labelToken(validString));
+		//unknown
+		assertEquals("unknown", TokenLabeler.labelToken(invalidString));
 	}
 
 }
