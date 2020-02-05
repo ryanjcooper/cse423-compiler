@@ -54,6 +54,8 @@ public class Scanner {
 														{"\\>\\s\\=", "\\>\\="}, // >=
 														{"\\!\\s\\=", "\\!\\="}, // !=
 														{"\\-\\s\\>", "\\-\\>"}, // ->
+														{"\\>\\s\\>", "\\>\\>"}, // >>
+														{"\\<\\s\\<", "\\<\\<"}, // <<
 													   };
 														
 	/**
@@ -95,8 +97,8 @@ public class Scanner {
 		 while (m.find()) {
 			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
 			 String stringLiteral = m.group();
-			 fcontents = fcontents.replace(stringLiteral, "\"" + uuid + "\"");
-			 stringLiteralID.put(uuid, stringLiteral.substring(1, stringLiteral.length() - 1));
+			 fcontents = fcontents.replace(stringLiteral, uuid);
+			 stringLiteralID.put(uuid, stringLiteral);
 		 }
 		
 		// Remove single line comments
@@ -194,28 +196,32 @@ public class Scanner {
 	
     public static void main(String[] args) throws IOException {
         Scanner s = new Scanner("test/base.c");
-        //Scanner reader = new Scanner("test/base.tokens");
-        List<Token> tester = Scanner.scanfromfile("test/base.tokens");
         s.scan();
-        System.out.println("Tokens read from <>.tokens file");
-        //reader.scanfromfile();
-        
-//        for (Token tok : reader.tokens) {
-//        	System.out.println(tok);
-//        	System.out.println("index = " + reader.tokens.indexOf(tok));
-//        }
-        
-//        for (int i = 0; i < s.tokens.size(); i++) {
-//        	System.out.println(s.tokens.get(i));
-//        	System.out.println(reader.tokens.get(i));
-//        }
-        System.out.println("From scanner");
-        for (Token tok : tester) {
-	    	System.out.println(tok);
-	    }
-        System.out.println(s.tokens.equals(tester));
-        System.out.println(s.getTokens().equals(tester));
-        
+        for (Token tok : s.getTokens()) {
+        	System.out.println(tok);
+        }
+        //Scanner reader = new Scanner("test/base.tokens");
+//        List<Token> tester = Scanner.scanfromfile("test/base.tokens");
+//        s.scan();
+//        System.out.println("Tokens read from <>.tokens file");
+//        //reader.scanfromfile();
+//        
+////        for (Token tok : reader.tokens) {
+////        	System.out.println(tok);
+////        	System.out.println("index = " + reader.tokens.indexOf(tok));
+////        }
+//        
+////        for (int i = 0; i < s.tokens.size(); i++) {
+////        	System.out.println(s.tokens.get(i));
+////        	System.out.println(reader.tokens.get(i));
+////        }
+//        System.out.println("From scanner");
+//        for (Token tok : tester) {
+//	    	System.out.println(tok);
+//	    }
+//        System.out.println(s.tokens.equals(tester));
+//        System.out.println(s.getTokens().equals(tester));
+//        
     }
 	
 	
