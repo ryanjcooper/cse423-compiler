@@ -1,0 +1,166 @@
+int main() {
+        int a 1;
+        int b = 1;
+        return 1;
+}
+
+Adding "type" to the stack
+
+Current stack: [type]
+
+Adding "identifier" to the stack
+
+Current stack: [type, identifier]
+
+state "type identifier" can become "param"
+state "type identifier" --> "type identifier"
+
+Adding "l_paren" to the stack
+
+Current stack: [type, identifier, l_paren]
+
+Adding "r_paren" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren]
+
+Adding "l_brace" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace]
+
+Adding "type" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type]
+
+Adding "identifier" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier]
+
+state "type identifier" can become "param"
+state "type identifier" --> "type identifier"
+
+Adding "numeric_constant" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, numeric_constant]
+
+state "numeric_constant" can become "factor"
+state "numeric_constant" --> "factor"
+
+state "factor" can become "term"
+state "factor" --> "term"
+
+state "term" can become "addExpression"
+state "term" --> "addExpression"
+
+state "addExpression" can become "simpleExpression"
+state "addExpression" --> "simpleExpression"
+
+state "simpleExpression" can become "expression"
+state "simpleExpression" --> "expression"
+
+Adding "semi" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, expression, semi]
+
+state "expression semi" can become "statement"
+state "expression semi" --> "statement"
+
+state "statement" can become "statementList"
+state "statement" --> "statementList"
+
+Adding "type" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, type]
+
+Adding "identifier" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, type, identifier]
+
+state "type identifier" can become "param"
+state "type identifier" --> "type identifier"
+
+Adding "assign_op" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, type, identifier, assign_op]
+
+Adding "numeric_constant" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, type, identifier, assign_op, numeric_constant]
+
+state "numeric_constant" can become "factor"
+state "numeric_constant" --> "factor"
+
+state "factor" can become "term"
+state "factor" --> "term"
+
+state "term" can become "addExpression"
+state "term" --> "addExpression"
+
+state "addExpression" can become "simpleExpression"
+state "addExpression" --> "simpleExpression"
+
+state "simpleExpression" can become "expression"
+state "simpleExpression" --> "expression"
+
+state "identifier assign_op expression" can become "expression"
+state "identifier assign_op expression" --> "identifier assign_op expression"
+
+state "type identifier assign_op expression" can become "expression"
+state "type identifier assign_op expression" --> "expression"
+
+Adding "semi" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, expression, semi]
+
+state "expression semi" can become "statement"
+state "expression semi" --> "statement"
+
+state "statement" can become "statementList"
+state "statement" --> "statement"
+
+state "statementList statement" can become "statementList"
+state "statementList statement" --> "statementList"
+
+Adding "return" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, return]
+
+Adding "numeric_constant" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, return, numeric_constant]
+
+state "numeric_constant" can become "factor"
+state "numeric_constant" --> "factor"
+
+state "factor" can become "term"
+state "factor" --> "term"
+
+state "term" can become "addExpression"
+state "term" --> "addExpression"
+
+state "addExpression" can become "simpleExpression"
+state "addExpression" --> "simpleExpression"
+
+state "simpleExpression" can become "expression"
+state "simpleExpression" --> "expression"
+
+state "return expression" can become "returnStmt"
+state "return expression" --> "returnStmt"
+
+Adding "semi" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, returnStmt, semi]
+
+state "returnStmt semi" can become "statement"
+state "returnStmt semi" --> "statement"
+
+state "statement" can become "statementList"
+state "statement" --> "statement"
+
+state "statementList statement" can become "statementList"
+state "statementList statement" --> "statementList"
+
+Adding "r_brace" to the stack
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, r_brace]
+
+Current stack: [type, identifier, l_paren, r_paren, l_brace, type, identifier, statementList, r_brace]
