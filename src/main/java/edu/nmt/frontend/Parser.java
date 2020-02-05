@@ -146,12 +146,12 @@ public class Parser {
 			
 			System.out.println("Current stack: " + stack + "\n");
 			
-			/* check if current can become a NT 
-			 * and gather possible NTs in a list 
-			 */
 			state = "";
 			newState = "";
 			
+			/* walk backwards through the stack, constructing the state
+			 * at each iteration and checking if it can be reduced
+			 */
 			for (int i = stack.size() - 1; i >= 0; i--) {
 				state = stack.get(i) + " " + state;
 				state = state.trim();
@@ -161,8 +161,10 @@ public class Parser {
 				}
 				
 				newState = this.reduce(state, lookahead, lookbehind);
+				
 				if (!state.equals(newState))
 					stack = this.replace(newState, state.split(" ").length, stack);
+				
 				state = newState;
 			}
 		}
