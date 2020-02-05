@@ -49,7 +49,6 @@ public class TokenLabelerTest {
 		
 		assertTrue(TokenLabeler.isIdentifier(validString));
 		assertFalse(TokenLabeler.isIdentifier(invalidString));
-		System.out.println("test = " + TokenLabeler.isIdentifier(nullString));
 		assertFalse(TokenLabeler.isIdentifier(nullString));
 	}
 
