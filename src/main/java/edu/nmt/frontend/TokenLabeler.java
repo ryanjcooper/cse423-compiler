@@ -39,12 +39,11 @@ public class TokenLabeler {
 	
 	public static boolean isIdentifier(String str) {		
 		Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z_0-9]*");
-		Matcher matcher = pattern.matcher(str);
-		
-		if (str == null) {
-			return false;
-		} else {
+		if (str != null) {
+			Matcher matcher = pattern.matcher(str);
 			return matcher.matches();
+		} else {
+			return false;
 		}
 	}
 	
