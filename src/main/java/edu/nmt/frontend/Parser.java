@@ -1,13 +1,10 @@
 package edu.nmt.frontend;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import edu.nmt.RuntimeSettings;
 
 public class Parser {
 	
@@ -20,7 +17,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/min.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
@@ -46,7 +43,7 @@ public class Parser {
 	public String reduce(String state, Token lookahead, Token lookbehind) {
 		boolean repeat = true;
 		
-		System.out.println("\nstate = " + state + "\n");
+		//System.out.println("state = " + state + "\n");
 		
 		while (repeat) {
 			ArrayList<String> nts = new ArrayList<String>();	// list of possible non-terminals
@@ -60,26 +57,32 @@ public class Parser {
 				 * add its corresponding LHS non-terminal
 				 */
 				if (rhs.equals(state)) {
-					System.out.println("\nrhs:" + rhs + " lhs: " + rule.getLeftSide());
+					System.out.println("state \"" + rhs + "\" can become \"" + rule.getLeftSide() + "\"");
 					nts.add(rule.getLeftSide());
 				}
 			}
 			
 			/* loop through nts, checking to see if the lookahead matches any of their follow sets */
 			for (String nt : nts) {
-				if (lookahead == null || 
-					 state.contains("semi") || 
-					 this.grammar.getFollowSets().get(nt).isEmpty() || 
-					 this.grammar.getFollowSets().get(nt).contains(lookahead.getTokenLabel()) ||
+				if (lookahead == null || state.contains("semi") || this.grammar.getFollowSets().get(nt).isEmpty() || 
+					 this.grammar.getFollowSets().get(nt).contains(lookahead.getTokenLabel()) 					  ||
 					 this.hasNonTerminal(this.grammar.getFollowSets().get(nt))) {
-					state = nt;
-					System.out.println("lookbehind: " + lookbehind.getTokenLabel());
-					System.out.println("lookbehind firsts: " + this.grammar.getFirstSets().get(lookbehind.getTokenLabel()));
-					if (this.grammar.getFirstSets().get(lookbehind.getTokenLabel()).contains(state))
+					//System.out.println("lookbehind: " + lookbehind.getTokenLabel());
+					//System.out.println("lookbehind firsts: " + this.grammar.getFirstSets().get(lookbehind.getTokenLabel()));
+					//System.out.println(this.grammar.getFirstSets().get(lookbehind.getTokenLabel()).contains(state));
+					if (this.grammar.getFirstSets().get(lookbehind.getTokenLabel()).contains(state) ||
+						(this.grammar.getFirstSets().get(lookbehind.getTokenLabel()).contains(state.split(" ")[0]) &&
+						 !state.split(" ")[0].equals(nt))) {
+						System.out.println("state \"" + state + "\" --> \"" + state + "\"\n");
 						repeat = false;
-					else
+					} else {
+						System.out.println("state \"" + state + "\" --> \"" + nt + "\"\n");
+						state = nt;
 						repeat = true;
+					}
 					break;
+				} else {
+					System.out.println("state \"" + state + "\" --> \"" + state + "\"\n");
 				}
 			}					
 		}		
@@ -135,12 +138,13 @@ public class Parser {
 			}
 			
 			if (token != null) {
+				System.out.println("Adding \"" + token.getTokenLabel() + "\" to the stack\n");
 				stack.add(token.getTokenLabel());
 			} else {
 				repeat = false;
 			}
 			
-			System.out.println(stack);
+			System.out.println("Current stack: " + stack + "\n");
 			
 			/* check if current can become a NT 
 			 * and gather possible NTs in a list 
@@ -153,7 +157,6 @@ public class Parser {
 				state = state.trim();
 
 				if (i > 0) {
-					//System.out.println(stack.get(i-1));
 					lookbehind = new Token(null, stack.get(i-1));
 				}
 				

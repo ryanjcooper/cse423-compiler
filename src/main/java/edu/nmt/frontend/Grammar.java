@@ -103,39 +103,8 @@ public class Grammar {
 	public HashSet<String> getVariables() {
 		return this.variables;
 	}
-	
-	/*private void computeFirstSets() {
-        firstSets = new HashMap<String, HashSet<String>>();
-
-        for (String s : variables) {
-            HashSet<String> temp = new HashSet<String>();
-            firstSets.put(s, temp);
-        }
-        while (true) {
-            boolean isChanged = false;
-            for (String variable : variables) {
-                HashSet<String> firstSet = new HashSet<String>();
-                for (Rule rule : rules) {
-                    if (rule.getLeftSide().equals(variable)) {
-                        HashSet<String> addAll = computeFirst(rule.getRightSide(), 0);
-                        firstSet.addAll(addAll);
-                    }
-                }
-                if (!firstSets.get(variable).containsAll(firstSet)) {
-                    isChanged = true;
-                    firstSets.get(variable).addAll(firstSet);
-                }
-
-            }
-            if (!isChanged) {
-                break;
-            }
-        }
-
-        firstSets.put("S'", firstSets.get(startVariable));
-    }*/
 	 
-	 private void computeFirstSets() {
+	private void computeFirstSets() {
         firstSets = new HashMap<String, HashSet<String>>();
 
         /* init all first sets for all non-terminals */
@@ -165,8 +134,6 @@ public class Grammar {
         		}
         	}
         }
-
-        //firstSets.put("S'", firstSets.get(startVariable));
     }	 
 
      private void computeFollowSet() {
@@ -207,70 +174,6 @@ public class Grammar {
             }
         }
     } 
-	 
-    /*private void computeFollowSet() {
-    	followSets = new HashMap<String, HashSet<String>>();
-    	
-        for (String s : variables) {
-            HashSet<String> temp = getNextTerms(s, null);
-            followSets.put(s, temp);
-        }
-    }*/
-    
-    private HashSet<String> getNextTerms(String nt, String exclude) {
-    	HashSet<String> syms = new HashSet<String>();
-    	
-    	/* search for everything that contains nt */
-    	for (Rule rule : rules) {
-    		for (int i = 0; i < rule.getRightSide().length; i++) {
-    			/* add symbol to set if it is to right of nt */
-    			//System.out.println(nt + " = " + rule.getRightSide()[i] + " == " + rule.getRightSide()[i].equals(nt));
-    			if (rule.getRightSide()[i].equals(nt)) {
-    				if (rule.getRightSide().length == 1)
-    					syms.add(rule.getLeftSide());
-					else if (i+1 < rule.getRightSide().length)
-						syms.add(rule.getRightSide()[i+1]);
-    			}
-    		}
-    	}
-    	
-    	/* break down nt into its components, only care for last entry */
-    	for (Rule rule : this.getRules(nt)) {
-    		if (variables.contains(rule.getRightSide()[rule.getRightSide().length-1]))
-    			syms.add(rule.getRightSide()[rule.getRightSide().length-1]);
-    	}
-    	
-    	
-    	
-    	syms.remove(exclude);
-    	syms.remove(nt);
-    	
-    	HashSet<String> toRemove = new HashSet<String>();
-    	HashSet<String> toAdd = new HashSet<String>();
-    	
-    	/* loop through all gathered symbols */
-    	for (String s : syms) {
-    		/* if they are terminal or excluded, leave them be 
-    		 * else recursively find all of the nts terminals
-    		 */
-    		if (variables.contains(s)) {
-    			for (String s2 : getNextTerms(s, nt)) {
-    				toAdd.add(s2);
-    			}
-    			toRemove.add(s);
-    		}
-    	}
-    	
-    	for (String s : toAdd) {
-    		syms.add(s);
-    	}
-    	
-    	for (String s : toRemove) {
-    		syms.remove(s);
-    	}
-    	
-    	return syms;
-    }
 	    
     public HashSet<String> computeFirst(String[] string, int index) {
         HashSet<String> first = new HashSet<String>();
@@ -300,7 +203,6 @@ public class Grammar {
     public static void main(String[] args) throws IOException {
     	Grammar g = new Grammar("config/grammar.cfg");
     	g.loadGrammar();
-    	System.out.println(g.getNextTerms("statement", null));
     }
 	
 }
