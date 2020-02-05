@@ -85,11 +85,14 @@ public class Grammar {
 		return this.followSets;
 	}
 	
-	 private void computeFirstSets() {
+	public HashMap<String, HashSet<String>> getFirstSets() {
+		return this.firstSets;
+	}
+	
+	/*private void computeFirstSets() {
         firstSets = new HashMap<String, HashSet<String>>();
 
         for (String s : variables) {
-
             HashSet<String> temp = new HashSet<String>();
             firstSets.put(s, temp);
         }
@@ -115,7 +118,41 @@ public class Grammar {
         }
 
         firstSets.put("S'", firstSets.get(startVariable));
-    }
+    }*/
+	 
+	 private void computeFirstSets() {
+        firstSets = new HashMap<String, HashSet<String>>();
+
+        /* init all first sets for all non-terminals */
+        for (String s : variables) {
+            HashSet<String> temp = new HashSet<String>();
+            firstSets.put(s, temp);
+        }
+        
+        /* init all first sets for all terminals */
+        for (String s : terminals) {
+            HashSet<String> temp = new HashSet<String>();
+            firstSets.put(s, temp);
+        }        
+        
+        /* loop through all possible symbols in grammar */
+        for (String sym : firstSets.keySet()) {
+        	/* look through all rules, RHS, and search for the symbol
+        	 * that appears after sym
+        	 */
+        	HashSet<String> firsts = firstSets.get(sym);
+        	for (Rule rule : rules) {
+        		String[] rhs = rule.getRightSide();
+        		for (int i = 0; i < rhs.length; i++) {
+        			if (rhs[i].equals(sym) && i+1 < rhs.length) {
+        				firsts.add(rhs[i+1]);
+        			}
+        		}
+        	}
+        }
+
+        firstSets.put("S'", firstSets.get(startVariable));
+    }	 
 
     private void computeFollowSet() {
     	followSets = new HashMap<String, HashSet<String>>();
@@ -184,7 +221,7 @@ public class Grammar {
     public static void main(String[] args) throws IOException {
     	Grammar g = new Grammar("config/grammar.cfg");
     	g.loadGrammar();
-    	System.out.println(g.followSets.get("param"));
+    	System.out.println(g.terminals);
     }
 	
 }

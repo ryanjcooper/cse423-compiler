@@ -19,7 +19,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/min.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
@@ -42,7 +42,7 @@ public class Parser {
 	 * @param lookahead is the next symbol to be added to the stack
 	 * @return state reduced to a non-terminal
 	 */
-	public String reduce(String state, Token lookahead) {
+	public String reduce(String state, Token lookahead, Token lookbehind) {
 		boolean repeat = true;
 		
 		while (repeat) {
@@ -57,16 +57,21 @@ public class Parser {
 				 * add its corresponding LHS non-terminal
 				 */
 				if (rhs.equals(state)) {
-					//System.out.println("rhs:" + rhs + " lhs: " + rule.getLeftSide());
+					System.out.println("rhs:" + rhs + " lhs: " + rule.getLeftSide());
 					nts.add(rule.getLeftSide());
 				}
 			}
 			
 			/* loop through nts, checking to see if the lookahead matches any of their follow sets */
 			for (String nt : nts) {
-				if (lookahead == null || this.grammar.getFollowSets().get(nt).contains(lookahead.getTokenLabel())) {
+				//System.out.println(this.grammar.getFirstSets().get(lookbehind.getTokenLabel()));
+				if ((lookahead == null || this.grammar.getFollowSets().get(nt).isEmpty() || this.grammar.getFollowSets().get(nt).contains(lookahead.getTokenLabel()))) {
 					state = nt;
-					repeat = true;
+					System.out.println("lookbehind: " + lookbehind.getTokenLabel());
+					if (this.grammar.getFirstSets().get(lookbehind.getTokenLabel()).contains(state))
+						repeat = false;
+					else
+						repeat = true;
 					break;
 				}
 			}					
@@ -97,7 +102,9 @@ public class Parser {
 	public void parse() {
 		ArrayList<String> stack = new ArrayList<String>();
 		Iterator<Token> tokenIt = tokens.iterator();
+		int start = 0;
 		Token lookahead = tokenIt.next();
+		Token lookbehind = null;
 		String state = "";
 		String newState = "";
 		boolean repeat = true;
@@ -128,7 +135,13 @@ public class Parser {
 			for (int i = stack.size() - 1; i >= 0; i--) {
 				state = stack.get(i) + " " + state;
 				state = state.trim();
-				newState = this.reduce(state, lookahead);
+
+				if (i > 0) {
+					//System.out.println(stack.get(i-1));
+					lookbehind = new Token(null, stack.get(i-1));
+				}
+				
+				newState = this.reduce(state, lookahead, lookbehind);
 				if (!state.equals(newState))
 					stack = this.replace(newState, state.split(" ").length, stack);
 				state = newState;
