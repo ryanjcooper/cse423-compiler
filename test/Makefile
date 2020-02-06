@@ -1,61 +1,17 @@
 CC=gcc
 CFLAGS=-g -Wall
 TOKIT=clang -O0 -Xclang -dump-tokens
+list = base add subtract multiply divide while boolean string break assignment_arith assign_bin function goto conditions types for binary switch struct enum pointer exhaustive
 
-targets = ops base hello_world fizzbuzz bubblesort bubblesort2 bubblesortline minimal tokenize exhaustive
+all: $(list)
 
-all: $(targets)
+# Compile all files in list, then set up <>.tokens
+$(list):
+	@$(CC) $(CFLAGS) $@.c -o $@ 2>/dev/null
+	-$(TOKIT) $@.c > $@.tokens 2>&1
+	@sed -i "s/^\(\S* '.*'\).*/\1/" $@.tokens
+	@head -n -3 $@.tokens | tee $@.tokens > /dev/null
 
-hello_world: hello_world.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-exhaustive: exhaustive.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-fizzbuzz: fizzbuzz.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-bubblesort: bubblesort.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-bubblesort2: bubblesort2.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-bubblesortline: bubblesortline.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-minimal: minimal.c
-	$(CC) $(CFLAGS) $@.c -o $@
-base: base.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-ops: ops.c
-	$(CC) $(CFLAGS) $@.c -o $@
-
-tokenize: hello_world.c fizzbuzz.c bubblesort.c bubblesort2.c bubblesortline.c
-	-$(TOKIT) hello_world.c > hello_world.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" hello_world.tokens
-	@head -n -3 hello_world.tokens | tee hello_world.tokens > /dev/null
-	-$(TOKIT) fizzbuzz.c > fizzbuzz.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" fizzbuzz.tokens
-	-$(TOKIT) base.c > base.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" base.tokens
-	@head -n -3 base.tokens | tee base.tokens > /dev/null
-	-$(TOKIT) bubblesort.c > bubblesort.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" bubblesort.tokens
-	-$(TOKIT) bubblesort2.c > bubblesort2.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" bubblesort2.tokens
-	-$(TOKIT) bubblesortline.c > bubblesortline.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" bubblesortline.tokens
-	-$(TOKIT) minimal.c > minimal.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" minimal.tokens
-	@head -n -3 minimal.tokens | tee minimal.tokens > /dev/null
-	-$(TOKIT) exhaustive.c > exhaustive.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" exhaustive.tokens
-	@head -n -3 exhaustive.tokens | tee exhaustive.tokens > /dev/null
-	-$(TOKIT) ops.c > ops.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" ops.tokens
-	@head -n -3 ops.tokens | tee ops.tokens > /dev/null
-
+# deletes executeable and .tokens files
 clean:
-	rm $(targets) *.tokens
+	rm $(list) *.tokens
