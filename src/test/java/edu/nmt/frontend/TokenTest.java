@@ -23,9 +23,9 @@ public class TokenTest {
 	 */
 	@Test
 	public void testTokenString() {
-		Token subject = new Token("float");
-		assertTrue(subject.getTokenString().contentEquals("float"));
-		assertTrue(subject.getTokenLabel().contentEquals("identifier"));
+		Token subject = new Token("int");
+		assertTrue(subject.getTokenString().contentEquals("int"));
+		assertTrue(subject.getTokenLabel().contentEquals("type"));
 	}
 
 	/**
