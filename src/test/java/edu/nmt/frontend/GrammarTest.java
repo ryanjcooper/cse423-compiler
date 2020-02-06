@@ -4,11 +4,19 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Test;
+
+import edu.nmt.util.IOUtil;
 
 public class GrammarTest {
 	String invalidInput = "thisfiledoesnotexist";
@@ -50,25 +58,42 @@ public class GrammarTest {
 	public void testLoadGrammar() throws IOException {
 		Grammar g = new Grammar(validInput);
 		g.loadGrammar();
-//		BufferedReader reader = new BufferedReader(new FileReader(validInput));
-//		String line = null;
 		
-//		reader.mark(0);
-//		do {
-//			line = reader.readLine();
-//			
-//			if (!line.contains("\t") && !(line.trim().isEmpty())) {
-//				
-//			}
-//		} while (line != null);
-//		reader.reset();
+		int i = 0;
+		String fcontents = IOUtil.readFileToString(new File(validInput));
+		String[] lines = fcontents.split("\n");
 		
-		assertNotNull(g.getRules());
+		//testing that rules are set correctly based on grammar file using getRules() method
+		String LHS = null;
+		for (String line : lines) {
+			if (!line.contains("\t") && (!line.trim().isEmpty())) {
+				LHS = line.trim();
+			} else if (line.trim().isEmpty()) {
+				continue;
+			} else {
+				String[] RHS = line.trim().split("\\s+");
+				//once LHS, RHS pair has been formed, perform the following checks:
+				//assert LHS encountered in file matches the i-th LHS
+				assertEquals(g.getRules().get(i).getLeftSide(), LHS);
+				//assert RHS and i-th RHS have matching array lengths
+				boolean len = (g.getRules().get(i).getRightSide().length == RHS.length);
+				assertTrue(len);
+				
+				if (len) {
+					//assert each String in the RHS pairs are equivalent
+					for (int j = 0; j < g.getRules().get(i).getRightSide().length; j++) {
+						assertTrue(g.getRules().get(i).getRightSide()[j].contentEquals(RHS[j]));
+					}
+				}
+				
+				i++;
+			}
+		}
+		
+		
 		assertNotNull(g.getRules("program"));
 		assertNotNull(g.getVariables());
 		assertNotNull(g.getFirstSets());
 		assertNotNull(g.getFollowSets());
-		
-//		reader.close();
 	}
 }
