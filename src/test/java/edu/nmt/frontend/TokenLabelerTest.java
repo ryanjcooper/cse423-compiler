@@ -17,6 +17,8 @@ public class TokenLabelerTest {
 		assertFalse(TokenLabeler.isNumeric(null));
 		assertFalse(TokenLabeler.isNumeric("wrong"));
 		assertFalse(TokenLabeler.isNumeric("42life"));
+		assertTrue(TokenLabeler.isNumeric("0xFF"));
+		assertFalse(TokenLabeler.isNumeric("0xabcdefg"));
 	}
 
 	@Test
