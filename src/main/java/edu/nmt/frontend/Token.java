@@ -68,7 +68,7 @@ public class Token {
 	 */
 	@Override
 	public String toString() {
-		return lineNum + ":" + charPos + " " + tokenLabel + " '" + tokenString + "'";
+		return tokenLabel + " '" + tokenString + "'";
 	}
 	
 	/**
