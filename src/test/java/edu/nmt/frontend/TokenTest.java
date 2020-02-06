@@ -5,6 +5,18 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class TokenTest {
+	
+	/**
+	 * Test the token constructor with 4 fields
+	 */
+	@Test
+	public void testfourcon() {
+		Token subject = new Token("int", "type", 1, 2);
+		assertTrue(subject.getTokenString().contentEquals("int"));
+		assertTrue(subject.getTokenLabel().contentEquals("type"));
+		assertTrue(subject.getLineNum() == 1);
+		assertTrue(subject.getCharPos() == 2);
+	}
 
 	/**
 	 * Test if constructor assigns correct string and detects correct label
@@ -70,8 +82,8 @@ public class TokenTest {
 	 */
 	@Test
 	public void testToString() {
-		Token subject = new Token("int");
-		String baseline = new String("type 'int'");
+		Token subject = new Token("int", 1, 1);
+		String baseline = new String("1:1 type 'int'");
 		assertTrue(subject.toString().contentEquals(baseline));
 	}
 
@@ -80,9 +92,11 @@ public class TokenTest {
 	 */
 	@Test
 	public void testEqualsObject() {
-		Token baseline = new Token("int");
-		Token subject = new Token("int");
-		Token falsehood = new Token("return");
+		Token baseline = new Token("int", 1 ,1);
+		Token subject = new Token("int", 1, 1);
+		Token falsehood = new Token("return", 1, 1);
+		Token wrongline = new Token("int", 2 ,1);
+		Token wrongspot = new Token("int", 1 ,5);
 		Token empty = null;
 		String dog = new String("Mastiff");
 		assertTrue(baseline.equals(subject));
@@ -94,7 +108,49 @@ public class TokenTest {
 		// Same string
 		subject.setTokenLabel("incorrect");
 		assertFalse(baseline.equals(subject));
+		assertFalse(baseline.equals(wrongline));
+		assertFalse(baseline.equals(wrongspot));
 		
+	}
+	
+	/**
+	 * Test if the lineNum is permanently changed
+	 */
+	@Test
+	public void testSetLineNum() {
+		Token subject = new Token("int", "type", 1, 2);
+		subject.setLineNum(3);
+		assertTrue(subject.getLineNum() == 3);
+		
+	}
+	
+	/**
+	 * Test GetLineNum
+	 */
+	@Test
+	public void testGetLineNum() {
+		Token subject = new Token("int", "type", 1, 2);
+		assertTrue(subject.getLineNum() == 1);
+		
+	}
+	
+	/**
+	 * Test SetCharPos
+	 */
+	@Test
+	public void testSetCharPos() {
+		Token subject = new Token("int", "type", 1, 2);
+		subject.setCharPos(5);
+		assertTrue(subject.getCharPos() == 5);
+	}
+	
+	/**
+	 * Tests if getCharPos is returning the expected value
+	 */
+	@Test
+	public void TestGetCharPos() {
+		Token subject = new Token("int", "type", 1, 2);
+		assertTrue(subject.getCharPos() == 2);
 	}
 
 }

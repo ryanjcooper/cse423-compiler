@@ -68,7 +68,7 @@ public class Token {
 	 */
 	@Override
 	public String toString() {
-		return tokenLabel + " '" + tokenString + "'";
+		return lineNum + ":" + charPos + " "  + tokenLabel + " '" + tokenString + "'";
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class Token {
 		if (this.getClass() != t.getClass())
 			return false;
 
-		return (((Token) t).tokenString.equals(this.tokenString) && ((Token) t).tokenLabel.equals(this.tokenLabel));
+		return (((Token) t).tokenString.equals(this.tokenString) && ((Token) t).tokenLabel.equals(this.tokenLabel) && ((Token) t).lineNum.equals(this.lineNum) && ((Token) t).charPos.equals(this.charPos));
 	}
 	
 	

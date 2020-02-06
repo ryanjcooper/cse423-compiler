@@ -9,7 +9,7 @@ all: $(list)
 $(list):
 	@$(CC) $(CFLAGS) $@.c -o $@ 2>/dev/null
 	-$(TOKIT) $@.c > $@.tokens 2>&1
-	@sed -i "s/^\(\S* '.*'\).*/\1/" $@.tokens
+	#@sed -i "s/^\(\S* '.*'\).*/\1/" $@.tokens
 	@head -n -3 $@.tokens | tee $@.tokens > /dev/null
 
 # deletes executeable and .tokens files
