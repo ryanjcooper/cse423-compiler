@@ -132,9 +132,10 @@ public class TokenLabelerTest {
 		assertEquals("bit_op", TokenLabeler.labelToken("^"));
 		assertEquals("bit_op", TokenLabeler.labelToken("&"));
 		assertEquals("bit_op", TokenLabeler.labelToken("|"));
-		assertEquals("bit_op", TokenLabeler.labelToken("!"));
 		assertEquals("bit_op", TokenLabeler.labelToken("<<"));
 		assertEquals("bit_op", TokenLabeler.labelToken(">>"));
+		//exclaim
+		assertEquals("exclaim", TokenLabeler.labelToken("!"));
 		//numeric_constant
 		int c = (int) Math.random() * 2147483647;
 		assertEquals("numeric_constant", TokenLabeler.labelToken(Integer.toString(c)));
