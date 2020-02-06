@@ -17,7 +17,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/conditions.c");
+		Scanner scanner = new Scanner("test/function.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
@@ -42,6 +42,9 @@ public class Parser {
 	 */
 	private boolean canReduce(String nt, String state, Node lookahead, Node lookbehind) {
 		HashSet<String> ntFollowSet = this.grammar.getFollowSets().get(nt);
+		boolean round1 = false;
+		boolean round2 = false;
+		String reason = "";
 		/* 
 		 * state will only reduce if:
 		 * 	(1) if this state contains the last token
@@ -49,32 +52,53 @@ public class Parser {
 		 * 	(3) if the follow set of the non-terminal contains the lookahead
 		 * 	(4) if the follow set of the non-terminal contains a non-terminal
 		 */
-		if (lookahead == null 
-				|| state.contains("semi") 
-				|| state.contains("r_brace")
-				|| ntFollowSet.isEmpty() 
-				|| ntFollowSet.contains(lookahead.toString()) 					  
-				|| this.hasNonTerminal(ntFollowSet)) {
-			
-			HashSet<String> lbFirstSets = (lookbehind != null) ? this.grammar.getFirstSets().get(lookbehind.toString()) : null;	
-			
-			/* 
-			 * state will only reduce for real if:
-			 * 	(1) lookbehind exists and
-			 *  (2) the firstsSet of lookbehind contains state or
-			 *  (3) the firstsSet of lookbehind contains the first element of the state and does not only consist of it
-			 */
-			if (!state.equals("else ifStmt") && (lbFirstSets != null 
-					&& (lbFirstSets.contains(state) 
-					|| (lbFirstSets.contains(state.split(" ")[0]) && !state.split(" ")[0].equals(nt))))
-					|| (nt.equals("program") && lookahead != null)) {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
+		
+		/* check if this state is end of line or block */
+		if (!round1 && (state.contains("semi") || state.contains("r_brace"))) {
+			return true;
+		}
+		
+		/* check follow set of nt for emptiness or non-terminals */
+		if (!round1 && (ntFollowSet.isEmpty() || hasNonTerminal(ntFollowSet))) {
+			round1 = true;
+		}
+		
+		/* check follow set of nt to see if it contains the lookahead symbol */
+		if (!round1 && (lookahead != null && ntFollowSet.contains(lookahead.toString()))) {
+			round1 = true;
+		} else if (!round1) {
+			reason += "follow set of " + nt + " does not contain lookahead symbol " + lookahead.toString(); 
+		}
+		
+		/* if round one fails, this state cannot be reduced */
+		if (!round1) {
+			System.out.println("Rejected because: " + reason);
 			return false;
 		}
+			
+		HashSet<String> lbFirstSets = (lookbehind != null) ? this.grammar.getFirstSets().get(lookbehind.toString()) : null;	
+			
+		/* 
+		 * state will only reduce for real if:
+		 * 	(1) lookbehind exists and
+		 *  (2) the firstsSet of lookbehind contains state or
+		 *  (3) the firstsSet of lookbehind contains the first element of the state and does not only consist of it
+		 */
+		if (nt.equals("program") && lookahead != null) {
+			return false;
+		}
+			
+		if (lbFirstSets != null && !lbFirstSets.contains(nt)) {
+			if (lbFirstSets.contains(state)) {
+				System.out.println("Rejected because the first set of " + lookbehind.toString() + " contains " + state);
+				return false;
+			} else if (lbFirstSets.contains(state.split(" ")[0]) && !state.split(" ")[0].equals(nt)) {
+				System.out.println("Rejected because the first set of " + lookbehind.toString() + " contains " + state.split(" ")[0] + " != " + nt);
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/*
