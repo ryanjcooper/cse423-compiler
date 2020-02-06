@@ -93,7 +93,6 @@ public class GrammarTest {
 		//testing that rules are set correctly based on grammar file using getRules(String lhs) method
 		LHS = null;
 		List<Rule> rules = new ArrayList<Rule>();
-		i = 0;
 		for (String line : lines) {
 			if (!line.contains("\t") && (!line.trim().isEmpty())) {
 				//any time LHS changes, check if all added rules match rules in Grammar object
@@ -116,7 +115,17 @@ public class GrammarTest {
 			}
 		}
 
-		assertNotNull(g.getVariables());
+		//testing that variables are set correctly based on grammar file
+		LHS = null;
+		HashSet<String> variables = new HashSet<String>();
+		for (String line : lines) {
+			if (!line.contains("\t") && (!line.trim().isEmpty())) {
+				variables.add(line.trim());
+			}
+		}
+		assertEquals(variables, g.getVariables());
+		
+		//not sure how to test these
 		assertNotNull(g.getFirstSets());
 		assertNotNull(g.getFollowSets());
 	}
