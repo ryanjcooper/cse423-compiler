@@ -68,36 +68,56 @@ public class ScannerTest {
 		Scanner s = new Scanner("test/base.c");
 		List<Token> tester = Scanner.scanfromfile("test/base.tokens");
 		s.scan();
-		System.out.println(tester);
 		assertEquals(s.getTokens(), tester);
 		
-		//testing bubblesort.c
+		//testing add.c
+		s = new Scanner("test/add.c");
+		tester = Scanner.scanfromfile("test/add.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
 		
-		//testing bubblesort2.c
+		//testing subtract.c
+		s = new Scanner("test/subtract.c");
+		tester = Scanner.scanfromfile("test/subtract.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
 		
-		//testing bubblesortline.c
+		//testing multiply.c
+		s = new Scanner("test/multiply.c");
+		tester = Scanner.scanfromfile("test/multiply.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
 		
-		//testing exhaustive.c
-//		Scanner se = new Scanner("test/exhaustive.c");
-//		List<Token> testere = Scanner.scanfromfile("test/exhaustive.tokens");
-//		se.scan();
-//		assertEquals(se.getTokens(), testere);
+		//testing divide.c
+		s = new Scanner("test/divide.c");
+		tester = Scanner.scanfromfile("test/divide.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
 		
-		//testing fizzbuzz.c
+		//testing while.c
+		s = new Scanner("test/while.c");
+		tester = Scanner.scanfromfile("test/while.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
 		
-		//testing hello_world.c
+		//testing string.c
+		s = new Scanner("test/string.c");
+		tester = Scanner.scanfromfile("test/string.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
 		
-		//testing minimal.c
-		Scanner sm = new Scanner("test/minimal.c");
-		List<Token> testerm = Scanner.scanfromfile("test/minimal.tokens");
-		sm.scan();
-		assertEquals(sm.getTokens(), testerm);
+		//testing break.c
+		s = new Scanner("test/break.c");
+		tester = Scanner.scanfromfile("test/break.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
 		
-		//Testing ops.c
-		Scanner so = new Scanner("test/ops.c");
-		List<Token> testero = Scanner.scanfromfile("test/ops.tokens");
-		so.scan();
-		assertEquals(so.getTokens(), testero);
+		//testing assignment_arith.c
+		s = new Scanner("test/assignment_arith.c");
+		tester = Scanner.scanfromfile("test/assignment_arith.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
 	}
 	
 	/**

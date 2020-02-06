@@ -149,12 +149,16 @@ public class Scanner {
 		Matcher m = Pattern.compile("(.*) '(.*)'").matcher(fcontents);
 		 while (m.find()) {
 			 //Add relevant token to list, re-check the token label
-			 Token tmp = new Token(m.group(2));
-			 tokens.add(tmp);
-		 }
-		 
-		 for (Token tok : tokens) {
-		    	//System.out.println(tok);
+			 
+			 //
+			 if(m.group(1).contentEquals("string_literal")) {
+				 Token tmp = new Token(m.group(2), m.group(1));
+				 tokens.add(tmp);
+			 }
+			 else {
+				 Token tmp = new Token(m.group(2));
+				 tokens.add(tmp);
+			 }
 		 }
 		 
 		 return tokens;
