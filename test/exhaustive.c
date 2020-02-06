@@ -39,24 +39,42 @@ int main (void)
         i&=0;
         i|=1;
 
+        i ^ 0;
+        i & 0;
+        i | 0;
+        i << 1;
+        i >> 1;
+         !i;
+
         i+1;
         i-1;
         i * 5;
         i/2;
         i % 2;
 
+        i == 0;
+        i!= 0 ;
+        i && 0;
+        i || 0;
+        i <= 0;
+        i >= 0;
+        i < 0;
+        i > 0;
+
+        goto NEXT;
         return 0;
+
+        NEXT:
+        return 1;
 }
 
 /*
 variableModifier auto volatile extern register
 controlSpecifier continue goto
-booleanOperator && == || <= >= < > !=
 structStmt struct . ->
 switchStmt switch case default
 enumSpecifier enum
 unionSpecifier union
 typedefSpecifier typedef
-bitOperator ^ & | ! << >>
 preprocessorSpecifier #
 */
