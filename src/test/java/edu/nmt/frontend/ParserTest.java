@@ -224,4 +224,23 @@ public class ParserTest {
 //		assertTrue(p.parse());
 //	}
 	
+	@Test
+	public void bad_addTest() throws IOException {
+		Scanner s = new Scanner("test/bad_add.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertFalse(p.parse());
+	}
+	
+	@Test
+	public void bad_baseTest() throws IOException {
+		Scanner s = new Scanner("test/bad_base.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertFalse(p.parse());
+	}
+	
+	
 }
