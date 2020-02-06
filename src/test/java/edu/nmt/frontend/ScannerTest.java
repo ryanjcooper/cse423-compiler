@@ -157,8 +157,8 @@ public class ScannerTest {
 		assertEquals(s.getTokens(), tester);
 		
 		//testing assign_bin.c
-		s = new Scanner("test/assign_bin.c");
-		tester = Scanner.scanfromfile("test/assign_bin.tokens");
+		s = new Scanner("test/assignment_bin.c");
+		tester = Scanner.scanfromfile("test/assignment_bin.tokens");
 		s.scan();
 		assertEquals(s.getTokens(), tester);
 		
