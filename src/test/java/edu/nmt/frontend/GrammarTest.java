@@ -90,8 +90,32 @@ public class GrammarTest {
 			}
 		}
 		
-		
-		assertNotNull(g.getRules("program"));
+		//testing that rules are set correctly based on grammar file using getRules(String lhs) method
+		LHS = null;
+		List<Rule> rules = new ArrayList<Rule>();
+		i = 0;
+		for (String line : lines) {
+			if (!line.contains("\t") && (!line.trim().isEmpty())) {
+				//any time LHS changes, check if all added rules match rules in Grammar object
+				if (LHS != null) {
+					assertEquals(g.getRules(LHS), rules);
+					rules.clear();
+				}
+				LHS = line.trim();
+			} else if (line.trim().isEmpty()) {
+				continue;
+			} else {
+				//while LHS hasn't changed, add new rules to rules list
+				String[] RHS = line.trim().split("\\s+");
+				Rule r = new Rule(LHS, RHS);
+				if (rules.contains(r)) {
+					System.err.println("Warning: Duplicate rule " + r.toString());
+				} else {
+					rules.add(r);
+				}
+			}
+		}
+
 		assertNotNull(g.getVariables());
 		assertNotNull(g.getFirstSets());
 		assertNotNull(g.getFollowSets());
