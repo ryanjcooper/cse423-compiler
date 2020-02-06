@@ -28,10 +28,18 @@ public class TokenLabeler {
 	        return false;
 	    }
 	    
-	    try {
-	        int d = Integer.parseInt(str);
-	    } catch (NumberFormatException nfe) {
-	        return false;
+	    if (str.startsWith("0x")) {
+	    	try {
+	    		Integer.decode(str);
+	    	} catch (NumberFormatException nfe) {
+		        return false;
+		    }
+	    } else {
+		    try {
+		        int d = Integer.parseInt(str);
+		    } catch (NumberFormatException nfe) {
+		        return false;
+		    }
 	    }
 	    
 	    return true;
@@ -63,6 +71,7 @@ public class TokenLabeler {
 	}
 	
 	public static void main(String argv[]) {
-		System.out.println(isIdentifier("0m__1__ate"));
+//		System.out.println(isIdentifier("0m__1__ate"));
+		System.out.println(isNumeric("0xabcdef"));
 	}
 }
