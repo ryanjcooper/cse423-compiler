@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-g -Wall
 TOKIT=clang -O0 -Xclang -dump-tokens
-list = base add subtract multiply divide while boolean string break assignment_arith assign_bin function goto conditions types for binary switch struct enum pointer exhaustive
+list = base add subtract multiply divide while boolean string break assignment_arith assignment_bin function goto conditions types for binary switch struct enum pointer exhaustive
 
 all: $(list)
 

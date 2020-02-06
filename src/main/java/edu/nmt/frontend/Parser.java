@@ -21,7 +21,7 @@ public class Parser {
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
-		p.parse();
+		System.out.println(p.parse());
 	}
 	
 	public String getSpacedArray(String[] strarr) {
@@ -147,7 +147,7 @@ public class Parser {
 	/*
 	 * parses through a list of tokens, printing interesting messages at each shift
 	 */
-	public void parse() {
+	public boolean parse() {
 		ArrayList<String> stack = new ArrayList<String>();	// stores each token one-at-a-time as they are read in
 		Iterator<Token> tokenIt = tokens.iterator();		// used to iterate through list of tokens
 		Token lookahead = tokenIt.next();					// looks ahead to next token to be read
@@ -185,7 +185,7 @@ public class Parser {
 				state = state.trim();
 
 				if (i > 0) {
-					lookbehind = new Token(null, stack.get(i-1));
+					lookbehind = new Token(null, stack.get(i-1), null, null);
 				} else {
 					lookbehind = null;
 				}
@@ -195,5 +195,7 @@ public class Parser {
 				state = newState;
 			}
 		}
+		
+		return stack.contains("program") && stack.size() == 1;
 	}
 }

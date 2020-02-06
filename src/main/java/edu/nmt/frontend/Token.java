@@ -4,15 +4,31 @@ public class Token {
 
 	private String tokenString;
 	private String tokenLabel;
+	private Integer lineNum;
+	private Integer charPos;
 	
 	public Token(String token) {
-		tokenString = token;
-		tokenLabel = TokenLabeler.labelToken(tokenString);
+		this.tokenString = token;
+		this.tokenLabel = TokenLabeler.labelToken(tokenString);
 	}
 	
 	public Token(String token, String label) {
-		tokenString = token;
-		tokenLabel = label;
+		this.tokenString = token;
+		this.tokenLabel = label;
+	}
+	
+	public Token(String token, Integer lineNum, Integer charPos) {
+		this.tokenString = token;
+		this.tokenLabel = TokenLabeler.labelToken(tokenString);
+		this.lineNum = lineNum;
+		this.charPos = charPos;
+	}
+	
+	public Token(String token, String label, Integer lineNum, Integer charPos) {
+		this.tokenString = token;
+		this.tokenLabel = label;
+		this.lineNum = lineNum;
+		this.charPos = charPos;
 	}
 	
 	public String getTokenString() {
@@ -29,6 +45,22 @@ public class Token {
 	
 	public void setTokenLabel(String tokenLabel) {
 		this.tokenLabel = tokenLabel;
+	}
+	
+	public Integer getLineNum() {
+		return lineNum;
+	}
+
+	public void setLineNum(Integer lineNum) {
+		this.lineNum = lineNum;
+	}
+
+	public Integer getCharPos() {
+		return charPos;
+	}
+
+	public void setCharPos(Integer charPos) {
+		this.charPos = charPos;
 	}
 	
 	/**
