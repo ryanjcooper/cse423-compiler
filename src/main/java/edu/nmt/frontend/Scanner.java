@@ -155,6 +155,10 @@ public class Scanner {
 				 Token tmp = new Token(m.group(2), m.group(1));
 				 tokens.add(tmp);
 			 }
+			 else if(m.group(1).contentEquals("char_constant")) {
+				 Token tmp = new Token(m.group(2), m.group(1));
+				 tokens.add(tmp);
+			 }
 			 else {
 				 Token tmp = new Token(m.group(2));
 				 tokens.add(tmp);

@@ -64,6 +64,8 @@ public class ScannerTest {
 	@Test
 	public void testScan() throws IOException {
 		
+
+		
 		//testing base.c
 		Scanner s = new Scanner("test/base.c");
 		List<Token> tester = Scanner.scanfromfile("test/base.tokens");
@@ -112,12 +114,76 @@ public class ScannerTest {
 		s.scan();
 		assertEquals(s.getTokens(), tester);
 		
+		//testing function.c
+		s = new Scanner("test/function.c");
+		tester = Scanner.scanfromfile("test/function.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
 		//testing assignment_arith.c
 		s = new Scanner("test/assignment_arith.c");
 		tester = Scanner.scanfromfile("test/assignment_arith.tokens");
 		s.scan();
 		assertEquals(s.getTokens(), tester);
 		
+		//testing goto.c
+		s = new Scanner("test/goto.c");
+		tester = Scanner.scanfromfile("test/goto.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
+		//testing conditions.c
+		s = new Scanner("test/conditions.c");
+		tester = Scanner.scanfromfile("test/conditions.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
+		//testing types.c
+//		s = new Scanner("test/types.c");
+//		tester = Scanner.scanfromfile("test/types.tokens");
+//		s.scan();
+//		assertEquals(s.getTokens(), tester);
+		
+		//testing for.c
+		s = new Scanner("test/for.c");
+		tester = Scanner.scanfromfile("test/for.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
+		//testing binary.c
+		s = new Scanner("test/binary.c");
+		tester = Scanner.scanfromfile("test/binary.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
+		//testing assign_bin.c
+		s = new Scanner("test/assign_bin.c");
+		tester = Scanner.scanfromfile("test/assign_bin.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
+		//testing switch.c
+		s = new Scanner("test/switch.c");
+		tester = Scanner.scanfromfile("test/switch.tokens");
+		s.scan();
+		assertEquals(s.getTokens(), tester);
+		
+		//testing struct.c
+		s = new Scanner("test/struct.c");
+		tester = Scanner.scanfromfile("test/struct.tokens");
+		s.scan();
+//		System.out.println(s.getTokens());
+//		System.out.println(tester);
+		assertEquals(s.getTokens(), tester);
+		
+		//testing pointer.c
+		s = new Scanner("test/pointer.c");
+		tester = Scanner.scanfromfile("test/pointer.tokens");
+		s.scan();
+//		System.out.println(s.getTokens());
+//		System.out.println(tester);
+		assertEquals(s.getTokens(), tester);
+
 	}
 	
 	/**
@@ -153,6 +219,7 @@ public class ScannerTest {
 		// Scan a file to populate the test case
 		Scanner s = new Scanner("test/base.c");
 		s.scan();
+		s.offloadToFile();
 		List<Token> baseline = Scanner.scanfromfile("test/base.tokens");
 		List<Token> subject = Scanner.scanfromfile("build/tokens.txt");
 		
