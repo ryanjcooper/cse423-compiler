@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -106,6 +108,8 @@ public class ScannerTest {
 		s = new Scanner("test/string.c");
 		tester = Scanner.scanfromfile("test/string.tokens");
 		s.scan();
+//		System.out.println(s.getTokens());
+//		System.out.println(tester);
 		assertEquals(s.getTokens(), tester);
 		
 		//testing break.c
@@ -196,15 +200,15 @@ public class ScannerTest {
 		List<Token> baseline = new ArrayList<Token>();
 		
 		// Assemble baseline
-		baseline.add(new Token("int"));
-		baseline.add(new Token("main"));
-		baseline.add(new Token("("));
-		baseline.add(new Token(")"));
-		baseline.add(new Token("{"));
-		baseline.add(new Token("return"));
-		baseline.add(new Token("1"));
-		baseline.add(new Token(";"));
-		baseline.add(new Token("}"));
+		baseline.add(new Token("int", 1, 1));
+		baseline.add(new Token("main", 1, 5));
+		baseline.add(new Token("(", 1, 9));
+		baseline.add(new Token(")",1, 10));
+		baseline.add(new Token("{", 2, 1));
+		baseline.add(new Token("return", 3, 9));
+		baseline.add(new Token("1", 3, 16));
+		baseline.add(new Token(";", 3, 17));
+		baseline.add(new Token("}", 4, 1));
 		
 		assertEquals(subject, baseline);
 	}
@@ -217,12 +221,11 @@ public class ScannerTest {
 	@Test
 	public void testOffload() throws IOException {
 		// Scan a file to populate the test case
-		Scanner s = new Scanner("test/base.c");
+		Scanner s = new Scanner("test/string.c");
 		s.scan();
 		s.offloadToFile();
-		List<Token> baseline = Scanner.scanfromfile("test/base.tokens");
-		List<Token> subject = Scanner.scanfromfile("build/tokens.txt");
-		
+		List<Token> baseline = Scanner.scanfromfile("test/string.tokens");
+		List<Token> subject = Scanner.scanfromoffload("build/tokens.txt");
 		assertEquals(subject, baseline);
 	}
 

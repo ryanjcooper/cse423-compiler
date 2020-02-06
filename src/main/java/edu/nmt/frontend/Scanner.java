@@ -180,6 +180,38 @@ public class Scanner {
 
 
 	}
+	
+	/**
+	 * Scans in a token array from the tokens.txt file
+	 * @param verbose specify verbose printing of matches
+	 * @throws IOException
+	 */
+	public static List<Token> scanfromoffload(String fileName) throws IOException {
+		String fcontents = IOUtil.readFileToString(new File(fileName));
+		ArrayList<Token> tokens = new ArrayList<Token>();
+
+		//Set up matching for 2 token fields
+		Matcher m = Pattern.compile("(\\d+):(\\d+)\\s(.*) '(.*)'.*").matcher(fcontents);
+		 while (m.find()) {
+			 //Add relevant token to list, re-check the token label
+
+			 //
+			 if(m.group(3).contentEquals("string_literal")) {
+				 Token tmp = new Token(m.group(4), m.group(3), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+				 tokens.add(tmp);
+			 }
+			 else if(m.group(3).contentEquals("char_constant")) {
+				 Token tmp = new Token(m.group(4), m.group(3), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+				 tokens.add(tmp);
+			 }
+			 else {
+				 Token tmp = new Token(m.group(4), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+				 tokens.add(tmp);
+			 }
+		 }
+
+		 return tokens;
+	}
 
 	/**
 	 * Scans in a token array from a <>.token file
@@ -191,21 +223,19 @@ public class Scanner {
 		ArrayList<Token> tokens = new ArrayList<Token>();
 
 		//Set up matching for 2 token fields
-		Matcher m = Pattern.compile("(.*) '(.*)'").matcher(fcontents);
+		Matcher m = Pattern.compile("(.*) '(.*)'\\D*(\\d+):(\\d+).*").matcher(fcontents);
 		 while (m.find()) {
 			 //Add relevant token to list, re-check the token label
-
-			 //
 			 if(m.group(1).contentEquals("string_literal")) {
-				 Token tmp = new Token(m.group(2), m.group(1));
+				 Token tmp = new Token(m.group(2), m.group(1), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)));
 				 tokens.add(tmp);
 			 }
 			 else if(m.group(1).contentEquals("char_constant")) {
-				 Token tmp = new Token(m.group(2), m.group(1));
+				 Token tmp = new Token(m.group(2), m.group(1), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)));
 				 tokens.add(tmp);
 			 }
 			 else {
-				 Token tmp = new Token(m.group(2));
+				 Token tmp = new Token(m.group(2), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)));
 				 tokens.add(tmp);
 			 }
 		 }
@@ -244,13 +274,18 @@ public class Scanner {
 		return this.tokens;
 	}
 
-    public static void main(String[] args) throws IOException {
-        Scanner s = new Scanner("test/min.c");
-        s.scan();
-        for (Token tok : s.getTokens()) {
-        	System.out.println(tok);
-        }
-    }
+//    public static void main(String[] args) throws IOException {
+//        Scanner s = new Scanner("test/base.c");
+//        s.scan();
+//        List<Token> scanned = Scanner.scanfromfile("test/base.tokens");
+//        for (Token tok : scanned) {
+//        	System.out.println(tok);
+//        }
+//        System.out.println("Next other");
+//        for (Token tok : s.getTokens()) {
+//        	System.out.println(tok);
+//        }
+//    }
 
 
 }
