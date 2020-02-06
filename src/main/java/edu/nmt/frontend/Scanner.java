@@ -245,7 +245,7 @@ public class Scanner {
 	}
 
     public static void main(String[] args) throws IOException {
-        Scanner s = new Scanner("test/min.c");
+        Scanner s = new Scanner("test/assignment_bin.c");
         s.scan();
         for (Token tok : s.getTokens()) {
         	System.out.println(tok);
