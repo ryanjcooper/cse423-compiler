@@ -185,7 +185,7 @@ public class Parser {
 				state = state.trim();
 
 				if (i > 0) {
-					lookbehind = new Token(null, stack.get(i-1));
+					lookbehind = new Token(null, stack.get(i-1), null, null);
 				} else {
 					lookbehind = null;
 				}

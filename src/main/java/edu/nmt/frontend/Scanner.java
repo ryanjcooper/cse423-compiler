@@ -88,11 +88,13 @@ public class Scanner {
 	 */
 	public void scan() throws IOException {
 		String fcontents = IOUtil.readFileToString(finp);
+		String fcontent_orig = fcontents;
 		
 		/* Preprocess input prior to tokenization */
 			
 		// Handle strings
 		 Map<String, String> stringLiteralID = new HashMap<String, String>();
+		 
 		 Matcher m = Pattern.compile("(?s)\\\"[^\\n]*?\\\"").matcher(fcontents);
 		 while (m.find()) {
 			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
@@ -100,7 +102,40 @@ public class Scanner {
 			 fcontents = fcontents.replace(stringLiteral, uuid);
 			 stringLiteralID.put(uuid, stringLiteral);
 		 }
-		
+		 
+		// Handle characters
+		 Map<String, String> charLiteralID = new HashMap<String, String>();
+		 
+		 Matcher m2 = Pattern.compile("(?s)\\\'[^\\n]*?\\\'").matcher(fcontents);
+		 while (m2.find()) {
+			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+			 String charConstant = m2.group();
+			 fcontents = fcontents.replace(charConstant, uuid);
+			 charLiteralID.put(uuid, charConstant);
+		 }
+
+		 
+//		 Matcher m3 = Pattern.compile("(?s)\\\'[^\\n]*?\\\'").matcher(fcontents);
+//		 while (m3.find()) {
+//			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+//			 String stringLiteral = m.group();
+//			 fcontents = fcontents.replace(stringLiteral, uuid);
+//			 stringLiteralID.put(uuid, stringLiteral);
+//		 }
+		 
+//		 Pattern word = Pattern.compile("\n");
+//		 Matcher match = word.matcher(fcontents);
+//		 Integer linenum = 0;
+//		 Map<String, Integer> lineNumberID = new HashMap<String, Integer>();
+//		 
+//		 while (match.find()) {
+//			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+//			 fcontents = match.replaceFirst(" " + uuid + " ");
+//			 lineNumberID.put(uuid, linenum++);
+//			 match = word.matcher(fcontents);
+//			 
+//		 }
+		 
 		// Remove single line comments
 		fcontents = fcontents.replaceAll("//.*\n", " ");
 		
@@ -124,16 +159,21 @@ public class Scanner {
 		// Send processed code to tokenizer
 		tokens = tokenize(fcontents);
 		
-		// Convert string id placeholders back to unmoddified literals
+		// Convert id placeholders back to unmodified literals
 		for (Token tok : tokens) {
 			// Case where the current token is a string literal placeholder
 			if (stringLiteralID.containsKey(tok.getTokenString())) {
 				tok.setTokenString(stringLiteralID.get(tok.getTokenString()));
 				tok.setTokenLabel("string_literal");
 			}
+			
+			// Case where the current token is a char_constant placeholder
+			if (charLiteralID.containsKey(tok.getTokenString())) {
+				tok.setTokenString(charLiteralID.get(tok.getTokenString()));
+				tok.setTokenLabel("char_constant");
+			}
+			
 		}
-	
-		offloadToFile();
 	}
 	
 	/**
@@ -149,7 +189,7 @@ public class Scanner {
 		Matcher m = Pattern.compile("(.*) '(.*)'").matcher(fcontents);
 		 while (m.find()) {
 			 //Add relevant token to list, re-check the token label
-			 Token tmp = new Token(m.group(2));
+			 Token tmp = new Token(m.group(2), null, null);
 			 tokens.add(tmp);
 		 }
 		 
@@ -170,7 +210,7 @@ public class Scanner {
 		StringTokenizer st = new StringTokenizer(s);
         
 		while (st.hasMoreTokens()) 
-        	tokens.add(new Token(st.nextToken()));
+        	tokens.add(new Token(st.nextToken(), null, null));
         
         return tokens;
 	}
@@ -193,33 +233,11 @@ public class Scanner {
 	}
 	
     public static void main(String[] args) throws IOException {
-        Scanner s = new Scanner("test/base.c");
+        Scanner s = new Scanner("test/min.c");
         s.scan();
         for (Token tok : s.getTokens()) {
         	System.out.println(tok);
         }
-        //Scanner reader = new Scanner("test/base.tokens");
-//        List<Token> tester = Scanner.scanfromfile("test/base.tokens");
-//        s.scan();
-//        System.out.println("Tokens read from <>.tokens file");
-//        //reader.scanfromfile();
-//        
-////        for (Token tok : reader.tokens) {
-////        	System.out.println(tok);
-////        	System.out.println("index = " + reader.tokens.indexOf(tok));
-////        }
-//        
-////        for (int i = 0; i < s.tokens.size(); i++) {
-////        	System.out.println(s.tokens.get(i));
-////        	System.out.println(reader.tokens.get(i));
-////        }
-//        System.out.println("From scanner");
-//        for (Token tok : tester) {
-//	    	System.out.println(tok);
-//	    }
-//        System.out.println(s.tokens.equals(tester));
-//        System.out.println(s.getTokens().equals(tester));
-//        
     }
 	
 	
