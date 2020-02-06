@@ -29,4 +29,18 @@ public class Node {
 	public void addChild(Node n) {
 		this.children.add(n);
 	}
+	
+	// TODO
+	/**
+	 * using this node as root, pretty print the tree
+	 * to console and to file
+	 */
+	public void printTree() {
+		
+	}
+	
+	@Override
+	public String toString() {
+		return this.token.getTokenLabel();
+	}
 }

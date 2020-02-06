@@ -17,14 +17,14 @@ public class ParserTest {
 		grammar.loadGrammar();
 	}
 	
-//	@Test
-//	public void addTest() throws IOException {
-//		Scanner s = new Scanner("test/add.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void addTest() throws IOException {
+		Scanner s = new Scanner("test/add.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
 //	
 //	@Test
 //	public void assign_binTest() throws IOException {
@@ -35,15 +35,15 @@ public class ParserTest {
 //		assertTrue(p.parse());
 //	}
 //	
-//	@Test
-//	public void assign_arithTest() throws IOException {
-//		Scanner s = new Scanner("test/assignment_arith.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
-//	
+	@Test
+	public void assign_arithTest() throws IOException {
+		Scanner s = new Scanner("test/assignment_arith.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
+	
 	@Test
 	public void baseTest() throws IOException {
 		Scanner s = new Scanner("test/base.c");
@@ -52,16 +52,16 @@ public class ParserTest {
 		
 		assertTrue(p.parse());
 	}
-//	
-//	@Test
-//	public void binaryTest() throws IOException {
-//		Scanner s = new Scanner("test/binary.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
-//	
+	
+	@Test
+	public void binaryTest() throws IOException {
+		Scanner s = new Scanner("test/binary.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
+	
 	@Test
 	public void booleanTest() throws IOException {
 		Scanner s = new Scanner("test/boolean.c");
@@ -70,16 +70,16 @@ public class ParserTest {
 		
 		assertTrue(p.parse());
 	}
-//	
-//	@Test
-//	public void breakTest() throws IOException {
-//		Scanner s = new Scanner("test/break.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
-//	
+	
+	@Test
+	public void breakTest() throws IOException {
+		Scanner s = new Scanner("test/break.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
+	
 //	@Test
 //	public void conditionsTest() throws IOException {
 //		Scanner s = new Scanner("test/conditions.c");
@@ -88,15 +88,15 @@ public class ParserTest {
 //		
 //		assertTrue(p.parse());
 //	}
-//	
-//	@Test
-//	public void divideTest() throws IOException {
-//		Scanner s = new Scanner("test/divide.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
+	
+	@Test
+	public void divideTest() throws IOException {
+		Scanner s = new Scanner("test/divide.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
 //	
 //	@Test
 //	public void enumTest() throws IOException {
