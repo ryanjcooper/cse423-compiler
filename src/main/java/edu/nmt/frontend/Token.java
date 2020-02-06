@@ -47,12 +47,28 @@ public class Token {
 		this.tokenLabel = tokenLabel;
 	}
 	
+	public Integer getLineNum() {
+		return lineNum;
+	}
+
+	public void setLineNum(Integer lineNum) {
+		this.lineNum = lineNum;
+	}
+
+	public Integer getCharPos() {
+		return charPos;
+	}
+
+	public void setCharPos(Integer charPos) {
+		this.charPos = charPos;
+	}
+	
 	/**
 	 * Converts a token into the clang string format
 	 */
 	@Override
 	public String toString() {
-		return tokenLabel + " '" + tokenString + "'";
+		return lineNum + ":" + charPos + " " + tokenLabel + " '" + tokenString + "'";
 	}
 	
 	/**

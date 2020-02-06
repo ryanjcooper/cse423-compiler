@@ -114,28 +114,6 @@ public class Scanner {
 			 charLiteralID.put(uuid, charConstant);
 		 }
 
-		 
-//		 Matcher m3 = Pattern.compile("(?s)\\\'[^\\n]*?\\\'").matcher(fcontents);
-//		 while (m3.find()) {
-//			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-//			 String stringLiteral = m.group();
-//			 fcontents = fcontents.replace(stringLiteral, uuid);
-//			 stringLiteralID.put(uuid, stringLiteral);
-//		 }
-		 
-//		 Pattern word = Pattern.compile("\n");
-//		 Matcher match = word.matcher(fcontents);
-//		 Integer linenum = 0;
-//		 Map<String, Integer> lineNumberID = new HashMap<String, Integer>();
-//		 
-//		 while (match.find()) {
-//			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-//			 fcontents = match.replaceFirst(" " + uuid + " ");
-//			 lineNumberID.put(uuid, linenum++);
-//			 match = word.matcher(fcontents);
-//			 
-//		 }
-		 
 		// Remove single line comments
 		fcontents = fcontents.replaceAll("//.*\n", " ");
 		
@@ -172,8 +150,35 @@ public class Scanner {
 				tok.setTokenString(charLiteralID.get(tok.getTokenString()));
 				tok.setTokenLabel("char_constant");
 			}
-			
 		}
+		
+		// Label token position and line number (TODO: extremely hacky, please fix this -- ryan)
+		Integer curTokIdx = 0;
+		Integer curLinePos = 0;
+		String[] lines = fcontent_orig.split("\n");
+		Boolean stillGoing = true;
+		for (Integer lineNum = 0; lineNum < lines.length; lineNum++) {
+			curLinePos = 0;
+			stillGoing = true;
+			while(stillGoing) {
+				if (curTokIdx >= tokens.size()) {
+					stillGoing = false;
+					break;
+				}
+				Integer charPos = lines[lineNum].indexOf(tokens.get(curTokIdx).getTokenString());
+				if (charPos == -1) {
+					stillGoing = false;
+				} else {
+					lines[lineNum] = lines[lineNum].substring(charPos + tokens.get(curTokIdx).getTokenString().length());
+					curLinePos += charPos + tokens.get(curTokIdx).getTokenString().length();
+					tokens.get(curTokIdx).setLineNum(lineNum + 1);
+					tokens.get(curTokIdx).setCharPos(curLinePos - tokens.get(curTokIdx).getTokenString().length() + 1);
+					curTokIdx++;
+				}
+			}
+		}
+		
+		
 	}
 	
 	/**
@@ -222,7 +227,6 @@ public class Scanner {
 	public void offloadToFile() throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(tokenOffloadFile));
 	    for (Token tok : tokens) {
-//	    	System.out.println(tok);
 	    	writer.write(tok.toString() + '\n');
 	    }     
 	    writer.close();
