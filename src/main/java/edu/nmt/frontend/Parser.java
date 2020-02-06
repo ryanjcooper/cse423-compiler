@@ -10,6 +10,7 @@ public class Parser {
 	
 	private Grammar grammar;
 	private List<Token> tokens;
+	private Node parseTree;
 	
 	public Parser(Grammar g, List<Token> tok) {
 		grammar = g;
@@ -187,6 +188,10 @@ public class Parser {
 		return stack;
 	}
 	
+	public Node getParseTree() {
+		return this.parseTree;
+	}
+	
 	private ArrayList<Node> tokensToNodes() {
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		
@@ -247,6 +252,8 @@ public class Parser {
 				state = newState;
 			}
 		}
+		
+		this.parseTree = stack.get(0);
 		
 		return stack.size() == 1 && stack.get(0).toString().equals("program");
 	}
