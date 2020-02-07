@@ -93,11 +93,9 @@ public class Parser {
 	public String reduceTo(String src, String dest) {
 		String tmp = src;
 		
-		//System.out.println("src: " + src + " to dest: " + dest);
-		
 		while (!tmp.equals(dest)) {
 			String next = this.grammar.getReducedEquil(tmp);
-			//System.out.println("next: " + next);
+			System.out.println("state \"" + tmp + "\" --> \"" + next + "\"\n");
 			replace(next, tmp, stack);
 			tmp = next;
 		}
@@ -143,7 +141,7 @@ public class Parser {
 				return state;
 			}
 			
-			System.out.println("state \"" + state + "\" can become \"" + nt + "\"");
+			System.out.println("state \"" + state + "\" can become \"" + nt + "\"\n");
 			if (lookahead == null 
 					|| lookahead.toString().equals("semi") 
 					|| this.grammar.getFollowSets().get(nt).isEmpty()
@@ -268,8 +266,14 @@ public class Parser {
 				lookahead = null;
 			}
 			
+			if (!stack.isEmpty()) {
+				//state = stack.get(0).toString();
+				//state = this.reduce(state, lookahead, lookbehind);
+			}
+			
 			/* add token to stack */
 			if (token != null) {
+				System.out.println("\n------------------------------------------------------------------------------------------------------");
 				System.out.println("Adding \"" + token + "\" to the stack\n");
 				stack.add(token);
 			} else if (!lockedStack.isEmpty()) {
@@ -312,10 +316,18 @@ public class Parser {
 				if (canBeReduced(state)) {
 					
 				} else if (lookahead != null) {
+					System.out.println("Locking current stack\n");
 					Node tmp = stack.remove(stack.size()-1);
 					lockedStack.push(stack);
 					stack = new ArrayList<Node>();
 					stack.add(tmp);
+					System.out.println("stack is now: " + stack);
+					
+					lookbehind = null;
+					state = stack.get(0).toString();
+					state = this.reduce(state, lookahead, lookbehind);
+					System.out.println("state is now: " + state);
+					
 					lookbehind = tmp.toString();
 					break;
 				}
