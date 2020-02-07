@@ -1,6 +1,7 @@
 package edu.nmt.frontend;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,21 +12,27 @@ public class Parser {
 	private Grammar grammar;
 	private List<Token> tokens;
 	private Node parseTree;
+	private ArrayList<Node> stack;	// stores each token as a node as they are read in
+	private LockedStack lockedStack; 
 	
 	public Parser(Grammar g, List<Token> tok) {
 		grammar = g;
 		tokens = tok;
+		stack = new ArrayList<Node>();
+		lockedStack = new LockedStack();
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/divide.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
+		//System.out.println(p.canBeReduced("type identifier l_par"));
 		System.out.println(p.parse());
+		//System.out.println(p.getCommonAncestor(p.grammar.getFirstSets().get("return"), "l_brace"));
 	}
 	
-	public String getSpacedArray(String[] strarr) {
+	public static String getSpacedArray(String[] strarr) {
 		String output = "";
 		
 		for (String s : strarr) {
@@ -41,65 +48,61 @@ public class Parser {
 	 * @param lookahead is the next symbol to be added to the stack
 	 * @return state reduced to a non-terminal
 	 */
-	private boolean canReduce(String nt, String state, Node lookahead, Node lookbehind) {
+	private boolean canReduce(String nt, String state, Node lookahead, String lookbehind) {
+		HashSet<String> lbFirstSets = (lookbehind != null) ? this.grammar.getFirstSets().get(lookbehind) : null;	
 		HashSet<String> ntFollowSet = this.grammar.getFollowSets().get(nt);
-		boolean round1 = false;
-		boolean round2 = false;
-		String reason = "";
-		/* 
-		 * state will only reduce if:
-		 * 	(1) if this state contains the last token
-		 * 	(2) if this state contains a semi
-		 * 	(3) if the follow set of the non-terminal contains the lookahead
-		 * 	(4) if the follow set of the non-terminal contains a non-terminal
-		 */
 		
-		/* check if this state is end of line or block */
-		if (!round1 && (state.contains("semi") || state.contains("r_brace"))) {
-			return true;
-		}
-		
-		/* check follow set of nt for emptiness or non-terminals */
-		if (!round1 && (ntFollowSet.isEmpty() || hasNonTerminal(ntFollowSet))) {
-			round1 = true;
-		}
-		
-		/* check follow set of nt to see if it contains the lookahead symbol */
-		if (!round1 && (lookahead != null && ntFollowSet.contains(lookahead.toString()))) {
-			round1 = true;
-		} else if (!round1) {
-			reason += "follow set of " + nt + " does not contain lookahead symbol " + lookahead.toString(); 
-		}
-		
-		/* if round one fails, this state cannot be reduced */
-		if (!round1) {
-			System.out.println("Rejected because: " + reason);
+		/* nt or nt ancestor must be in lookbehind first set */
+		if (lbFirstSets == null || getCommonAncestor(lbFirstSets, nt) != null) {
+			/* lookahead must be in nt's follow set */
+			if (lookahead == null || ntFollowSet.contains(lookahead.toString())) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
 			return false;
 		}
-			
-		HashSet<String> lbFirstSets = (lookbehind != null) ? this.grammar.getFirstSets().get(lookbehind.toString()) : null;	
-			
-		/* 
-		 * state will only reduce for real if:
-		 * 	(1) lookbehind exists and
-		 *  (2) the firstsSet of lookbehind contains state or
-		 *  (3) the firstsSet of lookbehind contains the first element of the state and does not only consist of it
-		 */
-		if (nt.equals("program") && lookahead != null) {
-			return false;
-		}
-			
-		if (lbFirstSets != null && !lbFirstSets.contains(nt)) {
-			if (lbFirstSets.contains(state)) {
-				System.out.println("Rejected because the first set of " + lookbehind.toString() + " contains " + state);
-				return false;
-			} else if (lbFirstSets.contains(state.split(" ")[0]) && !state.split(" ")[0].equals(nt)) {
-				System.out.println("Rejected because the first set of " + lookbehind.toString() + " contains " + state.split(" ")[0] + " != " + nt);
-				return false;
+	}
+	
+	/* short for "can ever be reduced" 
+	 * checks if this state exists on the rhs of any rules
+	 * @param state is the current state to check for reduction
+	 * @return true if the state can eventually be reduced, false else
+	 */
+	public boolean canBeReduced(String state) {
+		for (Rule rule : this.grammar.getRules()) {
+			if (getSpacedArray(rule.getRightSide()).contains(state)) {
+				return true;
 			}
 		}
 		
-		return true;
+		return false;
+	}
+	
+	public boolean isRHS(String state) {
+		for (Rule rule : this.grammar.getRules()) {
+			if (getSpacedArray(rule.getRightSide()).equals(state)) {
+				return true;
+			}
+		}
+		
+		return false;		
+	}
+	
+	public String reduceTo(String src, String dest) {
+		String tmp = src;
+		
+		//System.out.println("src: " + src + " to dest: " + dest);
+		
+		while (!tmp.equals(dest)) {
+			String next = this.grammar.getReducedEquil(tmp);
+			//System.out.println("next: " + next);
+			replace(next, tmp, stack);
+			tmp = next;
+		}
+		
+		return dest;
 	}
 	
 	/*
@@ -109,40 +112,64 @@ public class Parser {
 	 * @param stack is the stack of tokens
 	 * @return state reduced to a non-terminal
 	 */
-	public String reduce(String state, Node lookahead, Node lookbehind, ArrayList<Node> stack) {
-		boolean repeat = true;
+	public String reduce(String state, Node lookahead, String lookbehind) {
+		/* loop through nts, checking to see if to change the state or not */
+		String nt;
+		boolean lsFlag = false;
 		
-		//System.out.println("state = " + state + "\n");
+		if (lookbehind == null) {
+			lookbehind = lockedStack.peekString();
+			lsFlag = true;
+		}
 		
-		while (repeat) {
-			ArrayList<String> nts = new ArrayList<String>();	// list of possible non-terminals
-			repeat = false;
+		//System.out.println("lookbehind: " + lookbehind);
+		//System.out.println("lookahead: " + lookahead);
+		//System.out.println("state: " + state);
+		
+		if (lookbehind != null) {
+			nt = getCommonAncestor(this.grammar.computeFirsts(lookbehind), state);
 			
-			for (Rule rule : this.grammar.getRules()) {
-				/* convert right side to space-spaced string */
-				String rhs = getSpacedArray(rule.getRightSide());
+			if (nt == null) {
+				String tmp;
+				nt = this.grammar.getReducedEquil(state);
+				tmp = getCommonAncestor(this.grammar.computeFirsts(lookbehind), nt + " " + lookahead);
 				
-				/* get all possible non-terminals the currrent state can become */
-				if (rhs.equals(state)) {
-					System.out.println("state \"" + rhs + "\" can become \"" + rule.getLeftSide() + "\"");
-					nts.add(rule.getLeftSide());
-				}
+				if (tmp == null)
+					nt = null;
 			}
 			
-			/* loop through nts, checking to see if to change the state or not */
-			for (String nt : nts) {
-					if (!this.canReduce(nt, state, lookahead, lookbehind)) {
-						System.out.println("state \"" + state + "\" --> \"" + state + "\"\n");
-						repeat = false;
-					} else {
-						System.out.println("state \"" + state + "\" --> \"" + nt + "\"\n");
-						this.replace(nt, state, stack);
-						state = nt;
-						repeat = true;
-						break;
-					}
-			}					
-		}		
+			if (nt == null || nt.equals(state)) {
+				//System.out.println("Rejected state \"" + state + "\" because there were not common ancestors");
+				return state;
+			}
+			
+			System.out.println("state \"" + state + "\" can become \"" + nt + "\"");
+			if (lookahead == null 
+					|| lookahead.toString().equals("semi") 
+					|| this.grammar.getFollowSets().get(nt).isEmpty()
+					|| hasNonTerminal(this.grammar.getFollowSets().get(nt))
+					|| this.grammar.getFollowSets().get(nt).contains(lookahead.toString())) {
+				
+				nt = reduceTo(state, nt);
+				
+				String withLock = lockedStack.peekString() + " " + nt;
+				
+				if (isRHS(withLock)) {
+					System.out.println(withLock);
+					stack = lockedStack.morph(stack);
+					nt = reduceTo(withLock, this.grammar.getReducedEquil(withLock));
+					System.out.println(stack);
+				}
+				
+				return nt;
+			} else {
+				System.out.println("Rejected due to follow sets");
+			}
+		} else if (lookbehind == null) {
+			if (this.grammar.getAncestors(state).contains("program")) {
+				return "program";
+			}
+		}
 		
 		return state;
 	}
@@ -162,6 +189,25 @@ public class Parser {
 	}
 	
 	/*
+	 * checks if set contains sym or ancestors of sym
+	 * ancestor = reduced equivalent of sym
+	 * @param hs is the set to be evaluated
+	 * @param sym is the symbol to check hs for
+	 * @return common ancestor
+	 */	
+	public String getCommonAncestor(HashSet<String> hs, String sym) {
+		HashSet<String> ancestors = this.grammar.getAncestors(sym);
+
+		for (String s : hs) {
+			if (ancestors.contains(s)) {
+				return s;
+			}
+		}
+		
+		return null;
+	}
+	
+	/*
 	 * replace the last n elements on the stack with nt
 	 * @param nt is the newest symbol to be added to the stack
 	 * @param n are the symbols to be replaced by nt
@@ -175,15 +221,15 @@ public class Parser {
 		}
 		
 		/* every successful call to replace adds a new node to the tree */
-		Node node = new Node(new Token(null, nt, null, null));	// new non-terminal node
+		Node parent = new Node(new Token(null, nt, null, null));	// new non-terminal node
 		
 		/* pop n nodes off stack and add them to parent node */
 		for (int i = 0; i < n.split(" ").length; i++) {
-			node.addChild(stack.remove(stack.size()-1));
+			parent.addChild(stack.remove(stack.size()-1));
 		}
 		
 		/* push nt node onto the stack */
-		stack.add(node);
+		stack.add(parent);
 		
 		return stack;
 	}
@@ -206,7 +252,6 @@ public class Parser {
 	 * parses through a list of tokens, printing interesting messages at each shift
 	 */
 	public boolean parse() {
-		ArrayList<Node> stack = new ArrayList<Node>();		// stores each token as a node as they are read in
 		ArrayList<Node> nodes = tokensToNodes();
 		Iterator<Node> tokenIt = nodes.iterator();			// used to iterate through list of tokens
 		Node lookahead = tokenIt.next();					// looks ahead to next token to be read
@@ -214,7 +259,7 @@ public class Parser {
 		
 		while (repeat) {
 			Node token = lookahead;							// current token to be added to stack
-			Node lookbehind = null;							// looks behind at the previous read token
+			String lookbehind = null;							// looks behind at the previous read token
 			String state = "";								// represents the stack at each inverse iteration
 			
 			try {
@@ -227,34 +272,58 @@ public class Parser {
 			if (token != null) {
 				System.out.println("Adding \"" + token + "\" to the stack\n");
 				stack.add(token);
+			} else if (!lockedStack.isEmpty()) {
+				System.out.println("Adding \"" + lockedStack.peekString() + "\" to the stack\n");
+				stack = lockedStack.morph(stack);
 			} else {
 				repeat = false;
 			}
 			
 			System.out.println("Current stack: " + stack + "\n");
-			
+				
 			/* 
 			 * walk backwards through the stack, constructing the state
 			 * at each iteration and checking if it can be reduced
 			 */
 			for (int i = stack.size() - 1; i >= 0; i--) {
-				String newState; // tmp variable used to represent the result from reduce
 				state = stack.get(i) + " " + state;
 				state = state.trim();
-
+				
 				if (i > 0) {
-					lookbehind = stack.get(i-1);
+					lookbehind = stack.get(i-1).toString();
 				} else {
-					lookbehind = null;
+					lookbehind = lockedStack.peekString();
 				}
 				
-				newState = this.reduce(state, lookahead, lookbehind, stack);
-				state = newState;
+				/* 
+				 * check if state can be reduced 
+				 * if true, see if it SHOULD be reduced
+				 * else, store the current stack and renew it
+				 */
+				state = this.reduce(state, lookahead, lookbehind);
+				
+				//System.out.println("\nstate: " + state + "\n");
+				
+				if (state.equals("program")) {
+					parseTree = stack.get(0);
+					return true;
+				}
+				
+				if (canBeReduced(state)) {
+					
+				} else if (lookahead != null) {
+					Node tmp = stack.remove(stack.size()-1);
+					lockedStack.push(stack);
+					stack = new ArrayList<Node>();
+					stack.add(tmp);
+					lookbehind = tmp.toString();
+					break;
+				}
 			}
 		}
 		
-		this.parseTree = stack.get(0);
-		
-		return stack.size() == 1 && stack.get(0).toString().equals("program");
+		/* parsing is successful if program is last on the stack */
+		parseTree = null;
+		return false;
 	}
 }

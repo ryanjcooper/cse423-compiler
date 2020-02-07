@@ -26,6 +26,9 @@ public class LockedStack {
 	}
 	
 	public String peekString() {
+		if (this.stack.isEmpty())
+			return null;
+		
 		String peek = "";
 		
 		for (Node node : this.stack.peek()) {
@@ -38,6 +41,16 @@ public class LockedStack {
 	public HashSet<String> peekFirsts(Grammar g) {
 		return g.computeFirsts(this.peekString());
 	}
+	
+	public ArrayList<Node> morph(ArrayList<Node> oldStack) {
+		ArrayList<Node> tmp = this.pop();
+		
+		for (Node n : oldStack) {
+			tmp.add(n);
+		}		
+		
+		return tmp;
+	}
 
 	public static void main(String[] args) throws IOException {
 		LockedStack ls = new LockedStack();
@@ -49,4 +62,7 @@ public class LockedStack {
 		System.out.println(ls.peekFirsts(g));
 	}
 
+	public boolean isEmpty() {
+		return this.stack.isEmpty();
+	}
 }
