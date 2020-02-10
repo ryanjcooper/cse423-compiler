@@ -23,14 +23,19 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/divide.c");
+		Scanner scanner = new Scanner("test/test.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
 		//System.out.println(p.canBeReduced("type identifier l_par"));
 		//System.out.println(p.getCommonAncestor(p.grammar.computePrevs("bool_op"), "identifier"));
-		System.out.println(p.parse());
+		//System.out.println(p.parse());
+		System.out.println(p.predictGoal(p.tokensToNodes()));
 		//System.out.println("output: " + p.test(p.tokensToNodes(), "statement", true));
+		//List<List<List<Node>>> frags = new ArrayList<List<List<Node>>>();
+		//List<String> layout = new ArrayList<String>();
+		//p.reduceFragments(p.parseString(p.tokensToNodes()), frags, layout);
+		//System.out.println(frags);
 		//System.out.println(p.parseString(p.tokensToNodes()));
 		//System.out.println(p.getCommonAncestor(p.grammar.computeFirsts("while l_paren"), "expression"));
 	}
@@ -45,7 +50,7 @@ public class Parser {
 		return output.trim();		
 	}
 	
-	public static String getSpacedArray(ArrayList<Node> strarr) {
+	public static String getSpacedArray(List<Node> strarr) {
 		String output = "";
 		
 		for (Node s : strarr) {
@@ -53,79 +58,6 @@ public class Parser {
 		}
 		
 		return output.trim();		
-	}	
-
-	/*
-	 * determines whether a symbol can be reduced to a non-terminal
-	 * @param state is the stack state at a specific iteration
-	 * @param lookahead is the next symbol to be added to the stack
-	 * @return state reduced to a non-terminal
-	 */
-	private boolean canReduce(String nt, String state, Node lookahead, String lookbehind) {
-		HashSet<String> lbFirstSets = (lookbehind != null) ? this.grammar.getFirstSets().get(lookbehind) : null;	
-		HashSet<String> ntFollowSet = this.grammar.getFollowSets().get(nt);
-		
-		/* nt or nt ancestor must be in lookbehind first set */
-		if (lbFirstSets == null || getCommonAncestor(lbFirstSets, nt) != null) {
-			/* lookahead must be in nt's follow set */
-			if (lookahead == null || ntFollowSet.contains(lookahead.toString())) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-	
-	public boolean isRHS(String state) {
-		for (Rule rule : this.grammar.getRules()) {
-			if (getSpacedArray(rule.getRightSide()).equals(state)) {
-				return true;
-			}
-		}
-		
-		return false;		
-	}
-	
-	public String reduceTo(String src, String dest) {
-		String tmp = src;
-		
-		//System.out.println("state \"" + src + "\" to \"" + dest + "\"");
-		
-		if (src.equals(dest) || dest == null) {
-			return src;
-		}
-		
-		while (!tmp.equals(dest)) {
-			String next = this.grammar.getReducedEquil(tmp);
-			
-			if (tmp.equals(next))
-				break;
-			
-			System.out.println("state \"" + tmp + "\" --> \"" + next + "\"\n");
-			replace(tmp, next);
-			
-			
-			
-			tmp = next;
-		}
-		
-		return dest;
-	}
-	
-	/*
-	 * checks if set contains non-terminal
-	 * @param hs is the set to be evaluated
-	 * @return true if set contains nt, else false
-	 */	
-	public boolean hasNonTerminal(HashSet<String> hs) {
-		for (String s : hs) {
-			if (this.grammar.getVariables().contains(s))
-				return true;
-		}
-		
-		return false;
 	}
 	
 	/*
@@ -147,60 +79,18 @@ public class Parser {
 		return null;
 	}
 	
-	/*
-	 * replace the last n elements on the stack with nt
-	 * @param nt is the newest symbol to be added to the stack
-	 * @param n are the symbols to be replaced by nt
-	 * @param stack is the stack to be manipulated
-	 * @return altered stack
-	 */
-	public ArrayList<Node> replace(String n, String nt) {
-		/* check if nt and n are identical else continue */
-		if (nt.equals(n)) {
-			return stack;
-		}
-		
-		/* every successful call to replace adds a new node to the tree */
-		Node parent = new Node(new Token(null, nt, null, null));	// new non-terminal node
-		
-		/* pop n nodes off stack and add them to parent node */
-		for (int i = 0; i < n.split(" ").length; i++) {
-			parent.addChild(stack.remove(stack.size()-1));
-		}
-		
-		/* push nt node onto the stack */
-		stack.add(parent);
-		
-		return stack;
-	}
-	
 	public Node getParseTree() {
 		return this.parseTree;
 	}
 	
-	private ArrayList<Node> tokensToNodes() {
-		ArrayList<Node> nodes = new ArrayList<Node>();
+	private List<Node> tokensToNodes() {
+		List<Node> nodes = new ArrayList<Node>();
 		
 		for (Token token : tokens) {
 			nodes.add(new Node(token));
 		}
 		
 		return nodes;
-	}
-	
-	/* short for "can ever be reduced" 
-	 * checks if this state exists on the rhs of any rules
-	 * @param state is the current state to check for reduction
-	 * @return true if the state can eventually be reduced, false else
-	 */
-	public boolean canBeReduced(String state) {
-		for (Rule rule : this.grammar.getRules()) {
-			if (getSpacedArray(rule.getRightSide()).contains(state)) {
-				return true;
-			}
-		}
-		
-		return false;
 	}
 	
 	public boolean stackContains(String sym) {
@@ -212,172 +102,16 @@ public class Parser {
 		return false;
 	}
 	
-	public String newReduce(String state, String lookahead) {
-		String lookbehind = lockedStack.peekString();
-		HashSet<String> lbWants = new HashSet<String>();
-		String lbWant = "lbwant";
-		String laWant = "lawant";
-		HashSet<String> laWants = new HashSet<String>();
-		String nt = this.grammar.getReducedEquil(state);
-		boolean useLB = false;
-		boolean useLA = false;
-		int flag = 0;
+	public List<List<Node>> groupTokens(List<Node> nodes) {
+		List<List<Node>> trees = new ArrayList<List<Node>>();
 		
-		//System.out.println("Attempting to reduce " + state + "...\n");
+		System.out.println("ps input: " + nodes);
 		
-		if (state.equals("declarationList") && !lockedStack.isEmpty() && lookahead != null) {
-			return state;
-		}
-		
-		if ((state.contains("r_brace") && !state.contains("l_brace"))
-				|| (state.contains("r_paren") && !state.contains("l_paren"))) {
-			flag = 2;
-			//System.out.println("flag set to 2");
-		}
-		
-		/* check if state can be reduced */
-		if (nt.equals(state)) {
-			//System.out.println("state \"" + state + "\"" + " cannot be reduced\n");
-		}
-		
-		//System.out.println("\"" + state + "\" can be reduced to " + nt + "\n");
-		
-		/* get what lookbehind wants */
-		if (lookbehind != null) {
-			lbWants = this.grammar.computeFirsts(lookbehind);
-			//System.out.println("Wants: " + lbWants + "\n");
-			
-			/* check if it can become something lb wants */
-			lbWant = getCommonAncestor(this.grammar.computeFirsts(lookbehind), state);
-			//System.out.println("Want: " + lbWant + "\n");
-			
-			if (lbWant != null)
-				useLB = true;
-		}
-		
-		/* get what lookahead wants */
-		if (lookahead != null) {
-			laWants = this.grammar.computePrevs(lookahead);
-			//System.out.println("le Wants: " + laWants + "\n");
-			laWant = getCommonAncestor(laWants, state);
-			//System.out.println("le Want " + laWant + "\n");
-			
-			if (laWants.contains(state) 
-				|| !laWants.contains("$") 
-				|| lookahead.equals("l_paren") 
-				|| lookahead.equals("l_brace"))
-				useLA = true;
-		}
-		
-		//System.out.println("useLB " + useLB);
-		//System.out.println("useLA " + useLA);
-		//System.out.println("laWant " + laWant);
-		//System.out.println("lbWant " + lbWant);
-		
-		/* determine what to do based on lookahead and lookbehind */
-		if (flag == 0 && (useLA || useLB)) {
-			/* first check both */
-			
-			if (useLA && useLB && laWant != null && lbWant != null) {
-				if (laWant != null && laWant.equals(lbWant)) {
-					//System.out.println("why");
-					if (state.equals(laWant)) {
-						return state;
-					}
-					
-					nt = laWant;
-					flag = 2;
-				} else {
-					nt = this.grammar.greaterPrecedence(laWant, lbWant);
-					
-					if (nt.equals(lbWant)) {
-						//System.out.println(lookbehind.contains("l_paren") && !state.contains("r_paren"));
-						
-						if (lookbehind.contains("l_paren") && !state.contains("r_paren")) {
-							flag = 1;
-						} else {
-							flag = 2;
-						}
-					} else
-						flag = 1;
-				}
-			} else if (useLB) {
-				nt = lbWant;
-				state = reduceTo(state, lbWant);
-				
-				flag = 2;
-			} else if (useLA) {
-				nt = laWant;
-				if (this.grammar.computePrevs(lookahead).contains(nt)) {
-					flag = 1;
-				} else {
-					//System.out.println("Rejected because \"" + nt + "\" not valid with lookahead \"" + lookahead + "\"");
-					return state;
-				}
-			}
-		}
-		
-		switch (flag) {
-		default:
-		case 2:
-			//System.out.println(2);
-			state = reduceTo(state, nt);
-			/* get lookbehind state */
-			String lbState = lookbehind + " " + state;
-			
-			while (true) {
-				lookbehind = lockedStack.peekString();
-				
-				lbState = lookbehind + " " + state;
-				lbState = lbState.trim();
-						
-				/* check if lookbehind state can be reduced */
-				nt = this.grammar.getReducedEquil(lbState);
-				
-				if (lookbehind != null && !nt.equals(lbState)) {	// not reducible
-					
-					System.out.println("lbState : " + lbState + " != nt :" + nt);
-					
-					state = lookbehind + " " + state;
-					state = state.trim();
-					
-					nt = this.grammar.getReducedEquil(state);
-					
-					if (!lockedStack.isEmpty())
-						stack = lockedStack.morph(stack);	
-					
-					state = reduceTo(state, nt);
-				} else {
-					nt = this.grammar.getReducedEquil(state);
-					
-					if (state.equals(nt))
-						break;					
-					
-					nt = newReduce(state, lookahead);
-					
-					if (state.equals(nt))
-						break;
-					
-					state = nt;
-				}
-			}
-			
-			return state;
-		case 1:
-			return reduceTo(state, nt);
-		}
-	}
-	
-	public ArrayList<ArrayList<Node>> parseString(ArrayList<Node> nodes) {
-		ArrayList<ArrayList<Node>> trees = new ArrayList<ArrayList<Node>>();
-		
-		System.out.println("ps nodes: " + nodes);
-		
-		ArrayList<Node> tmp = new ArrayList<Node>();
-		ArrayList<String> open = new ArrayList<String>();
+		List<Node> tmp = new ArrayList<Node>();
+		List<String> open = new ArrayList<String>();
 		
 		for (Node node : nodes) {
-			if (node.token.getTokenLabel().equals("l_paren")) {		
+			if (node.token.getTokenLabel().equals("l_paren")) {
 				
 				if (open.isEmpty()) {
 					if (!tmp.isEmpty()) {
@@ -406,15 +140,15 @@ public class Parser {
 					open.add("l_brace");
 				}				
 			} else if (node.token.getTokenLabel().equals("r_paren")) {
+				tmp.add(node);
 				if (open.isEmpty() || (open.contains("l_paren") && open.size() == 1)) {
-					tmp.add(node);
 					trees.add(tmp);
 					tmp = new ArrayList<Node>();
 				}
 				open.remove("l_paren");
 			} else if (node.token.getTokenLabel().equals("r_brace")) {
+				tmp.add(node);
 				if (open.isEmpty() || (open.contains("l_brace") && open.size() == 1)) {
-					tmp.add(node);
 					trees.add(tmp);
 					tmp = new ArrayList<Node>();
 				}
@@ -435,61 +169,62 @@ public class Parser {
 		return trees;
 	}
 	
-	public ArrayList<Node> fuse(ArrayList<Node> src, ArrayList<Node> dest) {
-		for (Node node : src) {
-			dest.add(node);
+	public List<Node> fuse(List<Node> nd, List<Node> checkStack) {
+		for (Node node : nd) {
+			checkStack.add(node);
 		}
 		
-		return dest;
+		return checkStack;
 	}
 	
-	public Node newParse(ArrayList<ArrayList<Node>> trees) {
-		ArrayList<String> map = new ArrayList<String>();
-		ArrayList<ArrayList<ArrayList<Node>>> reducesTrees = new ArrayList<ArrayList<ArrayList<Node>>>();
-		HashSet<String> choicesString;
+	/**
+	 * reduce groups of tokens into specific categories defined by grammar
+	 * @param fragments are the group of tokens
+	 * @param reducedFrags : output subset of token stream with desired goal in mind
+	 * @param layout       : output list of goals associated with reducedFrags
+	 */
+	public void reduceFragments(List<List<Node>> fragments, List<List<List<Node>>> reducedFrags, List<String> layout) {
+		HashSet<String> choicesString = new HashSet<String>();
 		int i = 0;
 		
-		System.out.println(trees.get(i+1).get(0).toString());
+		System.out.println("\nREDUCED FRAGS\n");
+		System.out.println("input: " + fragments + "\n");
 		
-		while (i < trees.size()) {
-			String state = getSpacedArray(trees.get(i));
+		while (i < fragments.size()) {
+			String state = getSpacedArray(fragments.get(i));
 			String lookahead = "";
-			ArrayList<ArrayList<Node>> tmp = new ArrayList<ArrayList<Node>>();
+			List<List<Node>> reduction = new ArrayList<List<Node>>();
 			int j = 0;
 			
-			System.out.println(trees.get(i));
-			
 			if (state.contains("semi")) {
-				map.add("varDeclaration");
-				tmp.add(trees.get(i));
-				reducesTrees.add(tmp);
+				layout.add("varDeclaration");
+				reduction.add(fragments.get(i));
+				reducedFrags.add(reduction);
 				i++;
 				continue;
 			}
 			
-			choicesString = new HashSet<String>();
+			/* get a set of possible choices that contain the state */
 			HashSet<Rule> choices = this.grammar.getPossibleRules(state);
+			
+			System.out.println("choices: " + choices);
 			
 			for (Rule choice : choices) {
 				choicesString.add(choice.getLeftSide());
 			}
 			
-			//System.out.println(choicesString);
+			reduction.add(fragments.get(i+j));
 			
-			
-			tmp.add(trees.get(i+j));
-			
+			/* loop until there is until one choice left */
 			while (choicesString.size() > 1) {
-				
 				j++;
 				
-				 lookahead = trees.get(i+j).get(0).toString();
-				 
-				 if (lookahead.equals("l_brace")) {
+				/* get the lookahead */
+				lookahead = fragments.get(i+j).get(0).toString();
+			 
+				if (lookahead.equals("l_brace")) {
 					 lookahead = "compoundStmt";
-				 }
-				 
-				 //System.out.println("lookahead " + lookahead);
+				}
 				 
 				for (Rule choice : choices) {
 					String laState = state + " " + lookahead;
@@ -504,43 +239,58 @@ public class Parser {
 					}
 				}	
 				
-				tmp.add(trees.get(i+j));
+				reduction.add(fragments.get(i+j));
 			}
 			
-			reducesTrees.add(tmp);
+			System.out.println("chose: " + choicesString + "\n");
+			
+			reducedFrags.add(reduction);
 			
 			for (String s : choicesString) {
-				map.add(s);
+				layout.add(s);
 			}
 			
 			i += j+1;
 		}
 		
-		System.out.println(map);
-		System.out.println(reducesTrees);
+		System.out.println("layout is : " + layout);
+		System.out.println("reduced frags : " + reducedFrags);
+	}
+	
+	/**
+	 * parse a list of fragments
+	 * @param fragments are specific groups of token from groupTokens
+	 * @return the root node of tree if parsing is successful
+	 */
+	public Node parse(List<List<Node>> fragments) {
+		List<String> layout = new ArrayList<String>();
+		List<List<List<Node>>> reducedFrags = new ArrayList<List<List<Node>>>();
+		List<Node> finalNodes = new ArrayList<Node>();
 		
-		ArrayList<Node> finalNodes = new ArrayList<Node>();
+		/* reduce fragments into a top-down set */
+		reduceFragments(fragments, reducedFrags, layout);
 		
-		System.out.println(reducesTrees.size());
-		
-		for (i = 0; i < reducesTrees.size(); i++) {
-			System.out.println("\n----------------------\n");
-			Node checked = checkParse(reducesTrees.get(i), map.get(i));
+		/* 
+		 * for each goal specified by the layout
+		 * determine if each subset of tokens are able to reach the goal 
+		 */
+		for (int i = 0; i < reducedFrags.size(); i++) {
+			/* this is the check */
+			Node checked = checkParse(reducedFrags.get(i), layout.get(i));
 			
+			/* if any of subsets fail to reach goal, parsing will fail */
 			if (checked == null) {
 				return null;
 			} else {
 				finalNodes.add(checked);
-				System.out.println("finalNiodes: " + finalNodes + "\n");
 			}
 		}
 		
-		System.out.println("wtf\n");
-		
-		return parse(finalNodes, "program");
+		/* reduce the final set mapped by layout into a program node */
+		return reduce(finalNodes, "program", true);
 	}
 	
-	public boolean evalStack(ArrayList<Node> check, String goal, int index) {
+	public boolean evalStack(List<Node> check, String goal, int index) {
 		String[] test = goal.split(" ");
 		boolean isValid = true;
 		
@@ -557,8 +307,8 @@ public class Parser {
 		return isValid;
 	}
 	
-	public ArrayList<String> toArrayList(String[] arr) {
-		ArrayList<String> out = new ArrayList<String>();
+	public List<String> toArrayList(String[] arr) {
+		List<String> out = new ArrayList<String>();
 		
 		for (int i = 0; i < arr.length; i++) {
 			out.add(arr[i]);
@@ -567,7 +317,7 @@ public class Parser {
 		return out;
 	} 
 	
-	public String arraySubstring(ArrayList<Node> nodes, int start, int end) {
+	public String arraySubstring(List<Node> nodes, int start, int end) {
 		String out = "";
 		
 		for (int i = start; i < end; i++) {
@@ -586,7 +336,69 @@ public class Parser {
 		return false;
 	}
 	
-	public Node test(ArrayList<Node> nodes, String goal, boolean root) {
+	public Rule predictGoal(List<Node> nodes) {
+		Rule prediction = null;
+		boolean stop = false;
+		
+		for (int i = nodes.size() - 1; i >= 0; i--) {
+			for (Rule rule : this.grammar.getRules()) {
+				String rhs = getSpacedArray(rule.getRightSide());
+				
+				if (nodes.size() == 1) {
+					if (rhs.equals(nodes.get(0).toString())) {
+						prediction = rule;
+						stop = true;
+						break;
+					} 					
+				} else if (rule.getRightSide().length > 1) {
+					if (i > 0 && rhs.contains(arraySubstring(nodes, 0, i+1))) {
+						prediction = rule;
+						stop = true;
+						break;
+					} else if (i == 0 && arrContains(rule.getRightSide(), nodes.get(i).toString())) {
+						prediction = rule;
+						stop = true;
+						break;					
+					}					
+				}
+			}
+			
+			if (stop)
+				break;
+		} 
+		
+		if (prediction == null)
+			System.out.println("Prediction failed first phase");
+		
+		/* there should exist a rule where at least the first or second terminal exist */
+		if (prediction == null) {
+			for (int i = 0; i < nodes.size(); i++) {
+				for (Rule rule : this.grammar.getRules()) {
+					String rhs = getSpacedArray(rule.getRightSide());
+					
+					if (rhs.contains(nodes.get(i).toString()) 
+							&& (rule.getRightSide().length == nodes.size() 
+									|| rule.getRightSide().length > 1)) {
+						prediction = rule;
+						stop = true;
+						break;
+					}
+				}						
+			}			
+		}
+		
+		System.out.println("choice " + prediction);
+		return prediction;
+	}
+	
+	/**
+	 * bottom-up reduction of a list of tokens to a specific goal
+	 * @param nodes is the list of tokens to reduce
+	 * @param goal is the goal to ultimately achieve
+	 * @param root is true if the reduction is directly achieving for goal
+	 * @return the root node of label goal
+	 */
+	public Node reduce(List<Node> nodes, String goal, boolean root) {
 		/* attempt to reduce the stream of symbols into the goal */
 		stack = new ArrayList<Node>();
 		lockedStack = new LockedStack();
@@ -596,7 +408,6 @@ public class Parser {
 		System.out.println("nodes " + nodes + " wants " + goal);
 		
 		if (goal.equals("statement")) {
-			System.out.println("statement ya");
 			if (!nodes.get(nodes.size()-1).toString().equals("semi")) {
 				return null;
 			} else {
@@ -604,6 +415,9 @@ public class Parser {
 				goal = "statementsemi";
 			}			
 		}
+		
+		if (nodes.get(0).toString().equals(goal)) 
+			return nodes.get(0);
 		
 		if (goal.equals("statementsemi") && this.grammar.computePrevs("semi").contains(nodes.get(0).toString())) {
 			parent = nodes.get(0);
@@ -617,68 +431,9 @@ public class Parser {
 		}
 		
 		//HashSet<Rule> choices = new HashSet<Rule>();
-		Rule choice = null;
+		Rule choice = predictGoal(nodes);
 		
-		System.out.println(nodes);
-		
-		if (nodes.get(0).toString().equals(goal)) 
-			return nodes.get(0);
-		
-		/* there should exist a rule where at least the first or second terminal exist */
-		
-		for (int i = nodes.size() - 1; i >= 0; i--) {
-			boolean stop = false;
-			
-			for (Rule rule : this.grammar.getRules()) {
-				String rhs = getSpacedArray(rule.getRightSide());
-				
-				//System.out.println(nodes.size());
-				//System.out.println(rhs);
-				//System.out.println(nodes.size() == 1 && rhs.equals(nodes.get(0).toString()));
-				
-				if (nodes.size() == 1) {
-					if (rhs.equals(nodes.get(0).toString())) {
-						choice = rule;
-						stop = true;
-						break;
-					} 					
-				} else {
-					if (i > 0 && rhs.contains(arraySubstring(nodes, 0, i+1))) {
-						//choices.add(rule);
-						choice = rule;
-						stop = true;
-						break;
-					} else if (i == 0 && arrContains(rule.getRightSide(), nodes.get(i).toString())) {
-						//choices.add(rule);
-						choice = rule;
-						stop = true;
-						break;					
-					}					
-				}
-			}
-			
-			if (choice == null) {
-				for (Rule rule : this.grammar.getRules()) {
-					String rhs = getSpacedArray(rule.getRightSide());
-					
-					if (rhs.contains(arraySubstring(nodes, 1, 2))) {
-						choice = rule;
-						stop = true;
-						break;
-					}
-				}				
-			}
-			
-			if (stop)
-				break;
-		} 
-		
-		System.out.println("choice " + choice);
-		
-		if (choice == null || choice.getLeftSide().equals("elifList"))
-			return null;
-		
-		ArrayList<Integer> indexes = new ArrayList<Integer>();
+		List<Integer> indexes = new ArrayList<Integer>();
 		int i = 0;
 		
 		for (Node n : nodes) {
@@ -706,13 +461,13 @@ public class Parser {
 		
 		System.out.println(indexes);
 		
-		ArrayList<Node> next = new ArrayList<Node>();
+		List<Node> next = new ArrayList<Node>();
 		
 		if (nodes.get(0).toString().equals(goal)) {
 			return nodes.get(0);
 		} else {			
 			for (i = 0; i < choice.getRightSide().length; i++) {
-				ArrayList<Node> tmp = new ArrayList<Node>();				
+				List<Node> tmp = new ArrayList<Node>();				
 				if (choice.getRightSide().length > 1) {
 					parent = new Node(new Token(null,  choice.getRightSide()[i], null, null));
 					
@@ -723,13 +478,13 @@ public class Parser {
 					}
 					
 					System.out.println("tmp: " + tmp);
-					parent.addChild(test(tmp, choice.getRightSide()[i], false));
+					parent.addChild(reduce(tmp, choice.getRightSide()[i], false));
 					next.add(parent);					
 				} else {
 					parent = new Node(new Token(null,  choice.getLeftSide(), null, null));
 					parent.addChild(nodes.get(i));
 					tmp.add(parent);
-					next.add(test(tmp, goal, false));
+					next.add(reduce(tmp, goal, false));
 				}
 			}
 				
@@ -746,9 +501,9 @@ public class Parser {
 		}
 		
 		if (!parent.toString().equals(goal) && root) {
-			ArrayList<Node> finalTest = new ArrayList<Node>();
+			List<Node> finalTest = new ArrayList<Node>();
 			finalTest.add(parent);
-			return test(finalTest, goal, true);
+			return reduce(finalTest, goal, true);
 		}
 		
 		//System.out.println("Final parent " + parent);
@@ -759,10 +514,16 @@ public class Parser {
 		return parent;
 	}
 	
-	public Node checkParse(ArrayList<ArrayList<Node>> nodes, String goal) {
-		ArrayList<Node> checkStack = new ArrayList<Node>();
+	/**
+	 * checks if a subset of tokens can reach a specific goal
+	 * @param list is the subset of tokens
+	 * @param goal is the goal to achieve
+	 * @return root node of the subset with label goal
+	 */
+	public Node checkParse(List<List<Node>> list, String goal) {
+		List<Node> checkStack = new ArrayList<Node>();
 		
-		System.out.println(nodes);
+		System.out.println("checkParse nodes : " + list);
 		
 		List<Rule> options = this.grammar.getRules(goal);
 		String lgoal = "";
@@ -770,7 +531,7 @@ public class Parser {
 		
 		int i = 0;
 		
-		for (ArrayList<Node> nd : nodes) {
+		for (List<Node> nd : list) {
 			String state = getSpacedArray(nd);
 			System.out.println("state = " + state);	
 			
@@ -792,8 +553,6 @@ public class Parser {
 			
 			System.out.println("lgoal is " + lgoal);
 			System.out.println("rgoal is " + rgoal);
-			//System.out.println(nd.get(0).toString().equals("l_paren"));
-			//System.out.println(nd.get(1).toString().equals("r_paren"));
 			
 			if (rgoal.contains(state)) {
 				System.out.println("fused");
@@ -816,7 +575,7 @@ public class Parser {
 					System.out.println("nd = " + nd);
 					System.out.println("newGoal = " + newGoal);
 					
-					Node parsed = parse(nd, newGoal);
+					Node parsed = reduce(nd, newGoal, true);
 					
 					if (parsed != null && parsed.toString().equals(newGoal)) {
 						checkStack.add(parsed);
@@ -839,28 +598,47 @@ public class Parser {
 					/* get new goal */
 					String newGoal = "statement";
 					
-					System.out.println("nd = " + nd);
-					System.out.println("newGoal = " + newGoal);
+					//System.out.println("nd = " + nd);
+					//System.out.println("newGoal = " + newGoal);
 					
-					//Node parsed = test(nd, newGoal, true);
-					Node parsed = parse(nd, "compoundStmt");
+					Node stmtList = null;
 					
-					//if (parsed.equals("statement")) {
-						Node parent = new Node(new Token(null, "compoundStmt", null, null));
-						//Node stmt = new Node(new Token(null, "statementList", null, null));
-						//stmt.addChild(parsed);
-						parent.addChild(left);
-						//parent.addChild(stmt);
-						parent.addChild(parsed);
-						parent.addChild(right);
-						parsed = parent;
-					//}
+					/* everything in this split should return a statement */
+					List<List<Node>> ndFrags = groupTokens(nd);
+					List<List<List<Node>>> ndReduced = new ArrayList<List<List<Node>>>();
+					List<String> goals = new ArrayList<String>();
 					
-					if (parsed != null && parsed.toString().equals("compoundStmt")) {
-						checkStack.add(parsed);
-					} else {
-						return null;
+					reduceFragments(ndFrags, ndReduced, goals);
+					
+					ndFrags = ndReduced.get(0);
+					
+					for (i = 0; i < ndFrags.size(); i++) {
+						System.out.println("ndSplit " + ndFrags.get(i));
+						Node parsed = reduce(ndFrags.get(i), goals.get(i), true);
+						
+						System.out.println("parsed is " + parsed + "\n");
+						
+						if (parsed.toString().equals("statement")) {
+							if (stmtList == null) {
+								stmtList = new Node(new Token(null, "statementList", null, null));
+								stmtList.addChild(parsed);
+							} else {
+								Node stmt = new Node(new Token(null, "statementList", null, null));
+								stmt.addChild(stmtList);
+								stmt.addChild(parsed);
+								stmtList = stmt;
+							}
+						} else {
+							return null;
+						}
 					}
+					
+					Node compound = new Node(new Token(null, "compoundStmt", null, null));
+					compound.addChild(left);
+					compound.addChild(stmtList);
+					compound.addChild(right);
+					
+					checkStack.add(compound);
 					
 					System.out.println("stack est " + checkStack);
 					
@@ -870,7 +648,7 @@ public class Parser {
 				}				
 			} else {
 				System.out.println("nd = " + nd);
-				parse(nd, goal);
+				reduce(nd, goal, true);
 			}
 			
 			System.out.println("checkSTack " + checkStack);
@@ -894,74 +672,12 @@ public class Parser {
 	}
 	
 	public boolean parse() {
-		ArrayList<ArrayList<Node>> tmp = parseString(tokensToNodes());
-		Node root = newParse(tmp);
+		List<List<Node>> tmp = groupTokens(tokensToNodes());
+		Node root = parse(tmp);
 		
 		if (tmp == null || tmp.isEmpty() || root == null)
 			return false;
 		else
 			return root.toString().equals("program");
-	}
-	
-	public Node parse(ArrayList<Node> nodes, String goal) {
-		Iterator<Node> tokenIt = nodes.iterator();	// used to iterate through list of tokens
-		Node lookahead = tokenIt.next();						// looks ahead to next token to be read
-		Node token = lookahead;
-		stack = new ArrayList<Node>();
-		lockedStack = new LockedStack();
-		
-		System.out.println(nodes);
-		
-		while (token != null) {
-			/* establish token, lookahead, and lookbehind */
-			token = lookahead;
-			String lookbehind = lockedStack.peekString();
-			String state = "";
-			
-			try {
-				lookahead = tokenIt.next();
-			} catch (Exception e) {
-				lookahead = null;
-			}
-			
-			if (token != null) {
-				/* push token onto stack */
-				//System.out.println("\n------------------------------------------------------------------------------------------------------");
-				//System.out.println("Adding \"" + token + "\" to the stack\n");
-				stack.add(token);
-			}
-			
-			//System.out.println("Current stack: " + stack + "\n");
-			//System.out.println("Current locked stack: " + lockedStack + "\n");
-			
-			/* set state of the stack */
-			state = getSpacedArray(stack);
-			
-			//System.out.println("state = "  + state + "\n");
-			
-			/* 
-			 * check if state can be reduced 
-			 * if true, check if it should be reduced
-			 * else, lock the stack
-			 */
-			if (canBeReduced(state)) {
-				state = newReduce(state, lookahead == null ? null : lookahead.toString());
-			} else {
-				//System.out.println("Locking current stack\n");
-				Node tmp = stack.remove(stack.size()-1);
-				lockedStack.push(stack);
-				stack = new ArrayList<Node>();
-				stack.add(tmp);
-				state = newReduce(tmp.toString(), lookahead == null ? null : lookahead.toString());
-				//System.out.println("stack is now: " + stack);				
-			}
-			
-			if (stack.size() == 1 && stackContains(goal) && lockedStack.isEmpty()) {
-				System.out.println("Returning " + stack);
-				return stack.get(0);
-			}
-		}
-		
-		return null;
 	}
 }
