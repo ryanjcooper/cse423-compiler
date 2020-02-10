@@ -1,8 +1,5 @@
 package edu.nmt.frontend;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,39 +48,12 @@ public class Node {
 	 * to console and to file
 	 * @throws IOException 
 	 */
-	public void printTree() throws IOException {
-		File graphFile = new File("test.dot");
-		graphFile.createNewFile();
+	public void printTree() {
 		this.recursiveSetDepth();
-		this.createDotFile(graphFile);
 		
-//		int maxDepth = this.getMaxDepth();
-//		System.out.println("maxDepth: " + maxDepth);
-//		System.out.println(this.printSubtree());
-	}
-	
-	private void createDotFile(File graphFile) throws IOException {
-		PrintWriter out = new PrintWriter(graphFile);
-		out.write("graph {\n");
-		out.write(this.createDotRanks());
-		out.write("\n");
-		out.write(this.buildGraph());
-		out.write("}\n");
-		out.close();
-	}
-	
-	private String createDotRanks() {
-		StringBuilder builder = new StringBuilder();
-		int depth = this.getMaxDepth();
-		for (int i = 0; i <= depth; i++) {
-			builder.append("\t{ rank=same; ");
-			builder.append(this.returnMatchingDepth(i));
-			builder.deleteCharAt(builder.length() - 1);
-			builder.deleteCharAt(builder.length() - 1);
-			builder.append("}\n");
-		}
-		
-		return builder.toString();
+		int maxDepth = this.getMaxDepth();
+		System.out.println("maxDepth: " + maxDepth);
+		System.out.println(this.printSubtree());
 	}
 	
 	private String returnMatchingDepth(int depth) {
@@ -127,30 +97,14 @@ public class Node {
 		}
 	}
 	
-	private String buildGraph() {
-		StringBuilder builder = new StringBuilder();
-		if (!this.getChildren().isEmpty()) {
-			for (Node x : this.getChildren()) {
-				builder.append("\t" + this + " -- " + x + "\n");
-			}
-			if (this.getParent() == null) {
-				builder.append("\n");
-			}
-			for (Node x : this.getChildren()) {
-				builder.append(x.buildGraph());
-			}
-		}
-		
-		return builder.toString();
-	}
-	
 	private String printSubtree() {
-		StringBuilder builder = new StringBuilder();
 		if (this.getChildren().isEmpty()) {
 			return this.toString();
 		}
+		StringBuilder builder = new StringBuilder();
+		
 		for (Node c : this.getChildren()) {
-			builder.append(c.printSubtree() + "\t");
+			builder.append(c.printSubtree());
 		}
 		builder.deleteCharAt(builder.length() - 1).insert(0, this.toString() + "\n");
 		return builder.toString();
