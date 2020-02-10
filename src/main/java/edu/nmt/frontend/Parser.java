@@ -18,7 +18,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		System.out.println("printing tokenList");
 		for (Token tok : scanner.getTokens()) {

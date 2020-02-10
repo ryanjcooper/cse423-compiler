@@ -1,5 +1,7 @@
 package edu.nmt.frontend;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,13 +9,13 @@ import java.util.List;
 public class Node {
 	Token token;
 	Node parent;
-	Integer level;
+	Integer depth;
 	List<Node> children;
 	
 	Node(Token t) {
 		this.token = t;
 		this.parent = null;
-		this.level = 0;
+		this.depth = 0;
 		this.children = new ArrayList<Node>();
 	}
 	
@@ -29,97 +31,129 @@ public class Node {
 		return this.children;
 	}
 	
-	public void setLevel(Integer lvl) {
-		this.level = lvl;
+	public void setDepth(Integer depth) {
+		this.depth = depth;
 	}
 	
-	public Integer getLevel() {
-		return this.level;
+	public Integer getDepth() {
+		return this.depth;
 	}
 	
 	public void addChild(Node n) {
 		n.setParent(this);
+		n.setDepth(this.getDepth() + 1); //for some reason, this doesn't properly set the depth of all children, so recursiveSetDepth was made
 		this.children.add(n);
-		
-		//if no children, height is incremented
-		if (this.children.isEmpty()) {
-			this.setLevel(this.getLevel() + 1);
-		} else {
-			int maxHeight = 0;
-			for (Node x : this.getChildren()) {
-				if (x.getLevel() > maxHeight) {
-					maxHeight = x.getLevel();
-				}
-			}
-			//if has children, height is maxHeight among children + 1
-			this.setLevel(maxHeight + 1);
-		}
-		
-		Node p = this;
-		//increment height of all parent nodes going up tree
-		while (p.getParent() != null) {
-			p = p.getParent();
-			int maxHeight = 0;
-			for (Node x : p.getChildren()) {
-				if (x.getLevel() > maxHeight) {
-					maxHeight = x.getLevel();
-				}
-			}
-			p.setLevel(maxHeight + 1);
-		}
-	}
-	
-	private void setLeafLevel() {
-		if (this.getLevel() != 0) {
-			for (Node x : this.getChildren()) {
-				x.setLeafLevel();
-			}
-		} else {
-			this.setLevel(this.getParent().getLevel() - 1);
-		}
 	}
 	
 	// TODO
 	/**
 	 * using this node as root, pretty print the tree
 	 * to console and to file
+	 * @throws IOException 
 	 */
-	public void printTree() {
-		this.setLeafLevel();
-		String graph = buildGraph(this);
-		System.out.println(graph);
+	public void printTree() throws IOException {
+		File graphFile = new File("test.dot");
+		graphFile.createNewFile();
+		this.recursiveSetDepth();
+		this.createDotFile(graphFile);
 		
-		for (int i = this.getLevel(); i >= 0; i--) {
-			System.out.println("level " + (6 - i) + ":");
-			printTreeLevel(this, i);
-			System.out.println();
-		}
-		
+//		int maxDepth = this.getMaxDepth();
+//		System.out.println("maxDepth: " + maxDepth);
+//		System.out.println(this.printSubtree());
 	}
 	
-	private String buildGraph(Node n) {
+	private void createDotFile(File graphFile) throws IOException {
+		PrintWriter out = new PrintWriter(graphFile);
+		out.write("graph {\n");
+		out.write(this.createDotRanks());
+		out.write("\n");
+		out.write(this.buildGraph());
+		out.write("}\n");
+		out.close();
+	}
+	
+	private String createDotRanks() {
 		StringBuilder builder = new StringBuilder();
-		if (!n.getChildren().isEmpty()) {
-			for (Node x : n.getChildren()) {
-				builder.append(n + "->" + x + ";");
-				builder.append(buildGraph(x));
+		int depth = this.getMaxDepth();
+		for (int i = 0; i <= depth; i++) {
+			builder.append("\t{ rank=same; ");
+			builder.append(this.returnMatchingDepth(i));
+			builder.deleteCharAt(builder.length() - 1);
+			builder.deleteCharAt(builder.length() - 1);
+			builder.append("}\n");
+		}
+		
+		return builder.toString();
+	}
+	
+	private String returnMatchingDepth(int depth) {
+		if (this.getDepth() == depth) {
+			return this.toString() + "; ";
+		} else if (this.getDepth() < depth) {
+			StringBuilder builder = new StringBuilder();
+			for (Node c : this.getChildren()) {
+				builder.append(c.returnMatchingDepth(depth));
+			}
+			return builder.toString();
+		} else {
+			return null;
+		}
+	}
+	
+	private void recursiveSetDepth() {
+		if (this.getChildren().isEmpty()) {
+			return;
+		} else {
+			int depth = this.getDepth() + 1;
+			for (Node c : this.getChildren()) {
+				c.setDepth(depth);
+				c.recursiveSetDepth();
+			}
+		}
+	}
+	
+	private int getMaxDepth() {
+		if (this.getChildren().isEmpty()) {
+			return this.getDepth();
+		} else {
+			int maxDepth = 0;
+			for (Node x : this.getChildren()) {
+				int xDepth = x.getMaxDepth();
+				if (maxDepth < xDepth) {
+					maxDepth = xDepth;
+				}
+			}
+			return maxDepth;
+		}
+	}
+	
+	private String buildGraph() {
+		StringBuilder builder = new StringBuilder();
+		if (!this.getChildren().isEmpty()) {
+			for (Node x : this.getChildren()) {
+				builder.append("\t" + this + " -- " + x + "\n");
+			}
+			if (this.getParent() == null) {
+				builder.append("\n");
+			}
+			for (Node x : this.getChildren()) {
+				builder.append(x.buildGraph());
 			}
 		}
 		
 		return builder.toString();
 	}
 	
-	private void printTreeLevel(Node n, Integer lvl) {
-		if (n == null) {
-			return;
+	private String printSubtree() {
+		StringBuilder builder = new StringBuilder();
+		if (this.getChildren().isEmpty()) {
+			return this.toString();
 		}
-		if (n.getLevel().equals(lvl)) {
-			System.out.print(n + "\t");
-		} else {
-			for (Node c : n.getChildren()) {
-				printTreeLevel(c, lvl);
-			}
+		for (Node c : this.getChildren()) {
+			builder.append(c.printSubtree() + "\t");
 		}
+		builder.deleteCharAt(builder.length() - 1).insert(0, this.toString() + "\n");
+		return builder.toString();
 	}
 	
 	@Override
