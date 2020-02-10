@@ -22,6 +22,8 @@ public class TokenLabeler {
 	 * isNumeric function copied from baeldung
 	 * ref: https://www.baeldung.com/java-check-string-number
 	 * Section 3.
+	 * @param str is string to check for values
+	 * @return true if the string can be converted, else false
 	 */
 	public static boolean isNumeric(String str) {
 	    if (str == null) {
@@ -45,6 +47,11 @@ public class TokenLabeler {
 	    return true;
 	}
 	
+	/**
+	 * Checks if a token is an identifier
+	 * @param str is string to check
+	 * @return boolean true if it matches the ident. pattern, else false
+	 */
 	public static boolean isIdentifier(String str) {		
 		Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z_0-9]*");
 		if (str != null) {
@@ -55,6 +62,11 @@ public class TokenLabeler {
 		}
 	}
 	
+	/**
+	 * Driver function to set up naming
+	 * @param tokenString is token to auto-label
+	 * @return String with auto-generated label
+	 */
 	public static String labelToken(String tokenString) {
 		String label = RuntimeSettings.labeledTokenMap.get(tokenString);
 		
