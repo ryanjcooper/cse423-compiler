@@ -18,7 +18,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
