@@ -1,0 +1,18 @@
+int 'int'	 [StartOfLine]	Loc=<string.c:1:1>
+identifier 'main'	 [LeadingSpace]	Loc=<string.c:1:5>
+l_paren '('		Loc=<string.c:1:9>
+r_paren ')'		Loc=<string.c:1:10>
+l_brace '{'	 [StartOfLine]	Loc=<string.c:2:1>
+char 'char'	 [StartOfLine] [LeadingSpace]	Loc=<string.c:3:9>
+identifier 'string'	 [LeadingSpace]	Loc=<string.c:3:14>
+l_square '['		Loc=<string.c:3:20>
+r_square ']'		Loc=<string.c:3:21>
+equal '='	 [LeadingSpace]	Loc=<string.c:3:23>
+string_literal '"This is a string\n"'	 [LeadingSpace]	Loc=<string.c:3:25>
+semi ';'		Loc=<string.c:3:45>
+char 'char'	 [StartOfLine] [LeadingSpace]	Loc=<string.c:4:9>
+identifier 'letter'	 [LeadingSpace]	Loc=<string.c:4:14>
+equal '='	 [LeadingSpace]	Loc=<string.c:4:21>
+char_constant ''a''	 [LeadingSpace]	Loc=<string.c:4:23>
+semi ';'		Loc=<string.c:4:26>
+r_brace '}'	 [StartOfLine]	Loc=<string.c:5:1>

@@ -1,0 +1,32 @@
+int 'int'	 [StartOfLine]	Loc=<for.c:1:1>
+identifier 'main'	 [LeadingSpace]	Loc=<for.c:1:5>
+l_paren '('		Loc=<for.c:1:9>
+r_paren ')'		Loc=<for.c:1:10>
+l_brace '{'	 [StartOfLine]	Loc=<for.c:2:1>
+int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<for.c:3:9>
+identifier 'i'	 [LeadingSpace]	Loc=<for.c:3:13>
+equal '='	 [LeadingSpace]	Loc=<for.c:3:15>
+numeric_constant '0'	 [LeadingSpace]	Loc=<for.c:3:17>
+semi ';'		Loc=<for.c:3:18>
+for 'for'	 [StartOfLine] [LeadingSpace]	Loc=<for.c:4:9>
+l_paren '('		Loc=<for.c:4:12>
+identifier 'i'		Loc=<for.c:4:13>
+equal '='	 [LeadingSpace]	Loc=<for.c:4:15>
+numeric_constant '1'	 [LeadingSpace]	Loc=<for.c:4:17>
+semi ';'		Loc=<for.c:4:18>
+identifier 'i'	 [LeadingSpace]	Loc=<for.c:4:20>
+less '<'	 [LeadingSpace]	Loc=<for.c:4:22>
+numeric_constant '25'	 [LeadingSpace]	Loc=<for.c:4:24>
+semi ';'		Loc=<for.c:4:26>
+identifier 'i'	 [LeadingSpace]	Loc=<for.c:4:28>
+plusplus '++'		Loc=<for.c:4:29>
+r_paren ')'		Loc=<for.c:4:31>
+l_brace '{'	 [LeadingSpace]	Loc=<for.c:4:33>
+identifier 'i'	 [StartOfLine] [LeadingSpace]	Loc=<for.c:5:17>
+plusplus '++'		Loc=<for.c:5:18>
+semi ';'		Loc=<for.c:5:20>
+r_brace '}'	 [StartOfLine] [LeadingSpace]	Loc=<for.c:6:9>
+return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<for.c:8:9>
+numeric_constant '0'	 [LeadingSpace]	Loc=<for.c:8:16>
+semi ';'		Loc=<for.c:8:17>
+r_brace '}'	 [StartOfLine]	Loc=<for.c:9:1>
