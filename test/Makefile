@@ -8,8 +8,7 @@ all: $(list)
 # Compile all files in list, then set up <>.tokens
 $(list):
 	@$(CC) $(CFLAGS) $@.c -o $@ 2>/dev/null
-	-$(TOKIT) $@.c > $@.tokens 2>&1
-	#@sed -i "s/^\(\S* '.*'\).*/\1/" $@.tokens
+	-@$(TOKIT) $@.c > $@.tokens 2>&1
 	@head -n -3 $@.tokens | tee $@.tokens > /dev/null
 
 # deletes executeable and .tokens files
