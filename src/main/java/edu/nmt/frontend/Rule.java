@@ -7,19 +7,35 @@ public class Rule {
 	protected String leftSide;
     protected String[] rightSide;
 
+    /**
+     * Constructor for rules
+     * @param leftSide
+     * @param rightSide
+     */
     public Rule(String leftSide, String[] rightSide) {
         this.rightSide = rightSide;
         this.leftSide = leftSide;
     }
     
+    /**
+     * Gets left side of rule
+     * @return String
+     */
     public String getLeftSide() {
         return leftSide;
     }
 
+    /**
+     * List of strings from right side
+     * @return List of strings
+     */
     public String[] getRightSide() {
         return rightSide;
     }
     
+    /**
+     * Creates a hash for the children
+     */
     @Override
     public int hashCode() {
         int hash = 3;
@@ -28,6 +44,10 @@ public class Rule {
         return hash;
     }
 
+    /**
+     * Allow for comparing of nodes
+     * @return true if equivalent, else false
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -49,6 +69,9 @@ public class Rule {
         return true;
     }
 
+    /**
+     * Allow printing of Nodes and their children
+     */
     @Override
     public String toString() {
         String str = leftSide + " -> ";

@@ -11,6 +11,11 @@ public class Parser {
 	private Grammar grammar;
 	private List<Token> tokens;
 	
+	/**
+	 * Default constructor
+	 * @param g is grammar to parse with
+	 * @param tok is token list from Scanner
+	 */
 	public Parser(Grammar g, List<Token> tok) {
 		grammar = g;
 		tokens = tok;
@@ -24,6 +29,11 @@ public class Parser {
 		System.out.println(p.parse());
 	}
 	
+	/**
+	 * Returns an array with space delimiters
+	 * @param strarr to delimit
+	 * @return String object
+	 */
 	public String getSpacedArray(String[] strarr) {
 		String output = "";
 		
@@ -34,7 +44,7 @@ public class Parser {
 		return output.trim();		
 	}
 	
-	/*
+	/**
 	 * reduces a state to a non-terminal based on lookahead
 	 * @param state is the stack state at a specific iteration
 	 * @param lookahead is the next symbol to be added to the stack
@@ -104,7 +114,7 @@ public class Parser {
 		return state;
 	}
 	
-	/*
+	/**
 	 * checks if set contains non-terminal
 	 * @param hs is the set to be evaluated
 	 * @return true if set contains nt, else false
@@ -118,7 +128,7 @@ public class Parser {
 		return false;
 	}
 	
-	/*
+	/**
 	 * replace the last n elements on the stack with nt
 	 * @param nt is the newest symbol to be added to the stack
 	 * @param n are the symbols to be replaced by nt
