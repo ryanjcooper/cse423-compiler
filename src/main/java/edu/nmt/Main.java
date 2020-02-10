@@ -45,12 +45,16 @@ public class Main {
 
             if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
+            } else if (arglist.size() == 0) {
+                formatter.printHelp("java -jar compiler.jar main.c [-t] [-o] outputname", options);
+
+                System.exit(0);
             } else { 
             	throw new ParseException("Too many files given: " + arglist.toString());
             }            
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("utility-name", options);
+            formatter.printHelp("java -jar compiler.jar main.c [-t] [-o] outputname", options);
 
             System.exit(1);
         }
@@ -73,6 +77,7 @@ public class Main {
     	
     	// Start parser
     	Parser p = new Parser(grammar, s.getTokens());
+    	p.parse();
     	
     	
     }
