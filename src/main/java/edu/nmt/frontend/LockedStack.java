@@ -38,6 +38,15 @@ public class LockedStack {
 		return peek.trim();
 	}
 	
+	public String peekTip() {
+		if (this.stack.isEmpty())
+			return null;
+		
+		ArrayList<Node> peek = this.peek();
+		
+		return peek.get(peek.size()-1).toString().trim();
+	}
+	
 	public HashSet<String> peekFirsts(Grammar g) {
 		return g.computeFirsts(this.peekString());
 	}
@@ -64,5 +73,10 @@ public class LockedStack {
 
 	public boolean isEmpty() {
 		return this.stack.isEmpty();
+	}
+	
+	@Override
+	public String toString() {
+		return this.stack.toString();
 	}
 }
