@@ -5,5 +5,6 @@ int main()
         int b = 1;
         2 / 1;
         a / b;
+        a % b;
         return 0;
 }
