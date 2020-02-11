@@ -8,6 +8,8 @@ int main()
         i << 1;
         i >> 1;
         !i;
+        ~i;
+        !1;
         ~1;
 
         return 0;

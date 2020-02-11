@@ -21,14 +21,14 @@ public class Grammar {
 	private File finp;
 	private String fcontents;
 	
-	public Grammar(File file) throws IOException { 
+	public Grammar(File file) throws FileNotFoundException { 
 		finp = file;
 		if (!finp.exists()) {
 			throw new FileNotFoundException();
 		}
 	}
 	
-	public Grammar(String fileName) throws IOException { 
+	public Grammar(String fileName) throws FileNotFoundException { 
 		finp = new File(fileName);
 		if (!finp.exists()) {
 			throw new FileNotFoundException();
