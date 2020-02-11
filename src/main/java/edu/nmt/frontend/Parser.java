@@ -32,8 +32,9 @@ public class Parser {
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
 		System.out.println(p.parse());
+		p.parseTree.recursiveSetDepth();
 		System.out.println("printTree test:\n");
-		p.parseTree.printTree();
+		System.out.println(Node.printTree(p.parseTree, "", false));
 	}
 	
 	/**

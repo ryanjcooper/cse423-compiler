@@ -58,13 +58,16 @@ public class Node {
 	public static String printTree(Node node, String indent, Boolean last) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(indent);
-		if (last) {
-			sb.append("\\-");
-			indent += "  ";
-		} else {
-			sb.append("|-");
-			indent += "| ";
+		if (node.getParent() != null) {
+			if (last) {
+				sb.append("`-");
+				indent += "  ";
+			} else {
+				sb.append("|-");
+				indent += "| ";
+			}
 		}
+		
 		sb.append(node.toString() + "\n");
 
 		List<Node> children = node.getChildren();
@@ -75,21 +78,21 @@ public class Node {
 		return sb.toString();
 	}
 	
-	private String returnMatchingDepth(int depth) {
-		if (this.getDepth() == depth) {
-			return this.toString() + "; ";
-		} else if (this.getDepth() < depth) {
-			StringBuilder builder = new StringBuilder();
-			for (Node c : this.getChildren()) {
-				builder.append(c.returnMatchingDepth(depth));
-			}
-			return builder.toString();
-		} else {
-			return null;
-		}
-	}
+//	private String returnMatchingDepth(int depth) {
+//		if (this.getDepth() == depth) {
+//			return this.toString() + "; ";
+//		} else if (this.getDepth() < depth) {
+//			StringBuilder builder = new StringBuilder();
+//			for (Node c : this.getChildren()) {
+//				builder.append(c.returnMatchingDepth(depth));
+//			}
+//			return builder.toString();
+//		} else {
+//			return null;
+//		}
+//	}
 	
-	private void recursiveSetDepth() {
+	public void recursiveSetDepth() {
 		if (this.getChildren().isEmpty()) {
 			return;
 		} else {
@@ -116,18 +119,18 @@ public class Node {
 		}
 	}
 	
-	private String printSubtree() {
-		if (this.getChildren().isEmpty()) {
-			return this.toString();
-		}
-		StringBuilder builder = new StringBuilder();
-		
-		for (Node c : this.getChildren()) {
-			builder.append(c.printSubtree());
-		}
-		builder.deleteCharAt(builder.length() - 1).insert(0, this.toString() + "\n");
-		return builder.toString();
-	}
+//	private String printSubtree() {
+//		if (this.getChildren().isEmpty()) {
+//			return this.toString();
+//		}
+//		StringBuilder builder = new StringBuilder();
+//		
+//		for (Node c : this.getChildren()) {
+//			builder.append(c.printSubtree());
+//		}
+//		builder.deleteCharAt(builder.length() - 1).insert(0, this.toString() + "\n");
+//		return builder.toString();
+//	}
 	
 	@Override
 	public String toString() {
