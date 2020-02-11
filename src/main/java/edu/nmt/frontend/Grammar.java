@@ -305,8 +305,7 @@ public class Grammar {
 		/* get every rule that contains sym on rhs */
 		for (Rule rule : rules) {
 			if (Parser.getSpacedArray(rule.getRightSide()).contains(sym)) {
-				
-				if (!fam.contains(rule.getLeftSide()) && rule.getRightSide().length < 3) {
+				if (!fam.contains(rule.getLeftSide())) {
 					computeLineage(rule.getLeftSide(), fam);
 				}
 			}			
@@ -349,15 +348,50 @@ public class Grammar {
 	    return first;
 	}
 	
+	public boolean isTerminal(String sym) {
+		return this.terminals.contains(sym);
+	}
+	
+	public HashSet<String> getStartStates(String sym) {
+		HashSet<String> starts = new HashSet<String>();
+		HashSet<String> out = new HashSet<String>();
+		
+		if (terminals.contains(sym)) {
+			out.add(sym);
+			return out;
+		}
+		
+		for (Rule rule : this.getRules(sym)) {
+			String[] rhs = rule.getRightSide();
+			
+			if (variables.contains(rhs[0]) && !sym.equals(rhs[0])) {
+				for (String s : getStartStates(rhs[0])) {
+					starts.add(s);
+				}
+			} else {
+				starts.add(rhs[0]);
+			}
+		}
+		
+		for (String s : starts) {
+			if (!variables.contains(s)) {
+				out.add(s);
+			}
+		}
+		
+		return out;
+	}
+	
     public static void main(String[] args) throws IOException {
     	Grammar g = new Grammar("config/grammar.cfg");
     	g.loadGrammar();
     	//g.getLineage("numeric_constant", tmp);
-    	//System.out.println(g.precedence("factor", "expression"));
+    	System.out.println(g.greaterPrecedence("declarationList", "statement"));
     	//System.out.println(g.getPossibleRules("l_brace"));
     	String tmp = "type identifier l_paren params r_paren semi";
     	//System.out.println(tmp.substring(tmp.indexOf("l_paren") + 7, tmp.lastIndexOf("r_paren")));
-    	System.out.println(g.computePrevs("semi"));
+    	System.out.println(g.followSets.get("expression"));
+    	System.out.println(g.getStartStates("declarationList"));
     	//System.out.println(g.getAncestors("argList"));
     }
 	
