@@ -25,9 +25,16 @@ public class Parser {
 	public static void main(String argv[]) throws IOException {
 		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
+		System.out.println("printing tokenList");
+		for (Token tok : scanner.getTokens()) {
+			System.out.println(tok);
+		}
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
 		System.out.println(p.parse());
+		p.parseTree.recursiveSetDepth();
+		System.out.println("printTree test:\n");
+		System.out.println(Node.printTree(p.parseTree, "", false));
 	}
 	
 	/**
