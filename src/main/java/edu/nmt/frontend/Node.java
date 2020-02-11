@@ -133,6 +133,11 @@ public class Node {
 //	}
 	
 	@Override
+	public boolean equals(Object obj) {
+		return obj.toString().equals(this.toString());
+	}
+	
+	@Override
 	public String toString() {
 		return this.token.getTokenLabel();
 	}
