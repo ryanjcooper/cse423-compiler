@@ -1,9 +1,6 @@
 package edu.nmt.frontend;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,12 +26,18 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/conditions.c");
+		Scanner scanner = new Scanner("test/while.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
 		//Goto.init(p.grammar);
 		System.out.println(p.parse());
+		//System.out.println(p.parseTree.getChildren().get(0).getChildren());
+		p.printParseTree();
+	}
+	
+	public void printParseTree() {
+		System.out.println(Node.printTree(this.parseTree, " ", false));
 	}
 	
 	public boolean parse() {
@@ -58,10 +61,10 @@ public class Parser {
 				}
 				
 			case REPEAT:
-				action.next(token, lookahead);
+				this.action.shift(token, lookahead);
 				break;
 			case REDUCE:
-				System.out.println(action.reduce());
+				this.parseTree = this.action.reduce();
 				break;
 			}
 		}

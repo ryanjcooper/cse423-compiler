@@ -28,7 +28,7 @@ public class Action {
 		this.type = type;
 	}
 	
-	public void next(Token token, Token lookahead) {
+	public void shift(Token token, Token lookahead) {
 		
 		System.out.println("Shifting to " + token + " from state " + this.state + "\n");
 		
@@ -121,38 +121,69 @@ public class Action {
 	}
 	
 	public Node reduce() {
-		Goto reduceTo = this.state.terminateTo();
+		Goto parent = this.state.terminateTo();
+		List<Node> children = new ArrayList<Node>();
 		
-		System.out.println("state \"" + this.state + "\" wants to reduce to \"" + reduceTo + "\"\n");
+		System.out.println("state \"" + this.state + "\" wants to reduce to \"" + parent + "\"\n");
 		
-		if (reduceTo.toString().equals(this.goals.peek())) {
-			this.goals.pop();
+		if (parent.toString().equals(this.goals.peek())) {
+			String goal = this.goals.pop();
+			
+			System.out.println("choice 1\n");
 			
 			if (this.stack.size() > 1) {
 				while (!this.stack.isEmpty()) {
 					Goto g = this.stack.pop();
 					
+					System.out.println("Popped \"" + g + "\" off the stack!");
+					
 					if (g.toString().equals("$")) {
 						break;
 					}
-				}				
+					
+					children.add(g.getToken());
+				}
+				
+				parent = this.stack.pop();
+				
+				// add all nodes to parent
+				for (Node child : children) {
+					parent.getToken().addChild(child);
+				}
+			} else {
+				System.out.println("choice 2\n");
+				parent = new Goto(new Token(null, goal, null, null));
+				children.add(this.state.getToken());
 			}			
 			
-			Goto back = this.stack.pop();
-			// set backs node to reduceTos
-			this.state = back;
+			// add all nodes to parent
+			for (Node child : children) {
+				parent.getToken().addChild(child);
+			}
+			
+			this.state = parent;
 		} else {
+			System.out.println("choice 3\n");
 			while (!this.stack.isEmpty()) {
 				Goto g = this.stack.pop();
 				
-				System.out.println("Popped \"" + g + " stack!");
+				System.out.println("Popped \"" + g + "\" off the stack!");
 				
 				if (g.toString().equals("$")) {
 					break;
 				}
+				
+				children.add(g.getToken());
 			}
 			
-			this.state = Goto.gotoTable.get(reduceTo.toString());
+			parent = Goto.gotoTable.get(parent.toString());
+			
+			// add all nodes to parent
+			for (Node child : children) {
+				parent.getToken().addChild(child);
+			}
+			
+			this.state = parent;
 			
 			if (!this.stack.isEmpty())
 				stack.push(new Goto(new Token(null, "$", null, null)));
@@ -163,11 +194,11 @@ public class Action {
 		System.out.println(stack);
 		System.out.println(goals);
 		
-		if (this.goals.isEmpty())
+		if (parent.toString().equals("program"))
 			this.setType(ActionType.ACCEPT);
 		else
 			this.setType(ActionType.REPEAT);	
 		
-		return null;
+		return parent.getToken();
 	}
 }

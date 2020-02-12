@@ -12,29 +12,33 @@ public class Goto {
 	public static HashMap<String, Goto> gotoTable; 
 	
 	private HashMap<String, Goto> transitions;
-	private Token token;
+	private Node token;
 	private boolean isEndState;
 	private boolean repeat;
 	
 	Goto(Token tok) {
 		this.transitions = new HashMap<String, Goto>();
-		this.token = tok;
+		this.token = new Node(tok);
 		this.isEndState = false;
 		this.repeat = false;
 	}	
 	
 	Goto(Token tok, boolean end) {
 		this.transitions = new HashMap<String, Goto>();
-		this.token = tok;
+		this.token = new Node(tok);
 		this.isEndState = end;
 		this.repeat = false;
 	}
 	
+	/**
+	 * initialize automata from grammar
+	 * @param g is the grammar from which the automata spawns
+	 */
 	public static void init(Grammar g) {
 		grammar = g;
 		gotoTable = new HashMap<String, Goto>();
 		
-		/* for each rule */
+		/* loop through all rules, adding states and transitions */
 		for (Rule rule : grammar.getRules()) {
 			String rhs = rule.getRightSide()[0];
 			String lhs = rule.getLeftSide();
@@ -67,7 +71,7 @@ public class Goto {
 		return this.transitions;
 	}
 	
-	public Token getToken() {
+	public Node getToken() {
 		return this.token;
 	}
 	
@@ -95,7 +99,7 @@ public class Goto {
 	
 	public boolean canRepeat() {
 		try {
-			return gotoTable.get(this.token.getTokenLabel()).repeat;
+			return gotoTable.get(this.token.toString()).repeat;
 		} catch (NullPointerException npe) {
 			return false;
 		}
@@ -133,7 +137,7 @@ public class Goto {
 	
 	@Override
 	public String toString() {
-		return this.token.getTokenLabel();
+		return this.token.toString();
 	}
 	
 	public static void main(String[] argv) throws IOException {
