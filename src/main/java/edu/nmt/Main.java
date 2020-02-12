@@ -20,10 +20,17 @@ public class Main {
 	
 	private static String sourceFilename;
 	private static Boolean storeTokens;
+	private static Boolean printParseTree;
+	private static String writeParseFile;
 	
 	private static void parseArgs(String[] args) {
+		
+        String helpStatement = "java -jar compiler.jar main.c [-t] [-o] outputname [-pp] [-wp] outputfile";
 
         Options options = new Options();
+        
+        Option help = new Option("help", "print this message");
+        options.addOption(help);
 
         Option tok = new Option("t", "tokens", false, "dump tokens to file");
         tok.setRequired(false);
@@ -33,6 +40,14 @@ public class Main {
         output.setRequired(false);
         options.addOption(output);
         
+        Option ppt = new Option("pp", "print-parsetree", false, "print the parse tree");
+        ppt.setRequired(false);
+        options.addOption(ppt);
+        
+        Option wpt = new Option("wp", "write-parsetree", true, "write parse tree to file");
+        wpt.setRequired(false);
+        options.addOption(wpt);
+        
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd;
@@ -40,13 +55,25 @@ public class Main {
         try {
             cmd = parser.parse(options, args);
             List<String> arglist = cmd.getArgList();
+            
+            if (cmd.hasOption("help")) {
+            	formatter.printHelp(helpStatement, options);
+            	
+            	System.exit(1);
+            }
 
             storeTokens = cmd.hasOption("t");
+            printParseTree = cmd.hasOption("pp");
+            if (cmd.hasOption("wp")) {
+            	writeParseFile = cmd.getOptionValue("wp");
+            } else {
+            	writeParseFile = null;
+            }
 
             if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
             } else if (arglist.size() == 0) {
-                formatter.printHelp("java -jar compiler.jar main.c [-t] [-o] outputname", options);
+                formatter.printHelp(helpStatement, options);
 
                 System.exit(0);
             } else { 
@@ -54,7 +81,7 @@ public class Main {
             }            
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("java -jar compiler.jar main.c [-t] [-o] outputname", options);
+            formatter.printHelp(helpStatement, options);
 
             System.exit(1);
         }
@@ -71,6 +98,7 @@ public class Main {
     		s.offloadToFile();
     	}
     	
+    	
     	// Initialize grammar
     	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
     	grammar.loadGrammar();
@@ -78,7 +106,13 @@ public class Main {
     	// Start parser
     	Parser p = new Parser(grammar, s.getTokens());
     	//p.parse();
+    	if (printParseTree) {
+    		p.printParseTree();
+    	}
     	
+    	if (writeParseFile != null) {
+    		p.writeParseTree(writeParseFile);
+    	}
     	
     }
 	

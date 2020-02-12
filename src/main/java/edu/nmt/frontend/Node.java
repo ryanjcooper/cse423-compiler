@@ -1,5 +1,8 @@
 package edu.nmt.frontend;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,6 +79,13 @@ public class Node {
 			sb.append(printTree(children.get(i), indent, i == children.size() - 1));
 		}
 		return sb.toString();
+	}
+	
+	public static void writeFile(String fileName, Node node) throws IOException {
+		String out = printTree(node, " ", false);
+		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+		writer.write(out);
+		writer.close();
 	}
 	
 //	private String returnMatchingDepth(int depth) {

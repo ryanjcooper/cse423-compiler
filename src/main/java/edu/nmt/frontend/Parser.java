@@ -26,7 +26,7 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/while.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
 		p.grammar.loadGrammar();
@@ -38,6 +38,10 @@ public class Parser {
 	
 	public void printParseTree() {
 		System.out.println(Node.printTree(this.parseTree, " ", false));
+	}
+	
+	public void writeParseTree(String fileName) throws IOException {
+		Node.writeFile(fileName, this.parseTree);
 	}
 	
 	public boolean parse() {
