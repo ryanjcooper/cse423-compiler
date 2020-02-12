@@ -77,7 +77,7 @@ public class Main {
     	
     	// Start parser
     	Parser p = new Parser(grammar, s.getTokens());
-    	p.parse();
+    	//p.parse();
     	
     	
     }

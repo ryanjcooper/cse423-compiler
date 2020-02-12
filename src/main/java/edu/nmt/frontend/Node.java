@@ -136,6 +136,4 @@ public class Node {
 	public String toString() {
 		return this.token.getTokenLabel();
 	}
-	
-	
 }

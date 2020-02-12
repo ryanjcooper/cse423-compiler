@@ -116,23 +116,23 @@ public class ParserTest {
 //		assertTrue(p.parse());
 //	}
 	
-//	@Test
-//	public void forTest() throws IOException {
-//		Scanner s = new Scanner("test/for.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void forTest() throws IOException {
+		Scanner s = new Scanner("test/for.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
 	
-//	@Test
-//	public void functionTest() throws IOException {
-//		Scanner s = new Scanner("test/function.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void functionTest() throws IOException {
+		Scanner s = new Scanner("test/function.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
 
 	@Test
 	public void gotoTest() throws IOException {
