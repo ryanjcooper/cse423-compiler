@@ -1,0 +1,38 @@
+int 'int'	 [StartOfLine]	Loc=<boolean.c:2:1>
+identifier 'main'	 [LeadingSpace]	Loc=<boolean.c:2:5>
+l_paren '('		Loc=<boolean.c:2:9>
+r_paren ')'		Loc=<boolean.c:2:10>
+l_brace '{'	 [StartOfLine]	Loc=<boolean.c:3:1>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:4:9>
+equalequal '=='	 [LeadingSpace]	Loc=<boolean.c:4:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:4:14>
+semi ';'		Loc=<boolean.c:4:15>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:5:9>
+exclaimequal '!='	 [LeadingSpace]	Loc=<boolean.c:5:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:5:14>
+semi ';'	 [LeadingSpace]	Loc=<boolean.c:5:16>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:6:9>
+ampamp '&&'	 [LeadingSpace]	Loc=<boolean.c:6:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:6:14>
+semi ';'		Loc=<boolean.c:6:15>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:7:9>
+pipepipe '||'	 [LeadingSpace]	Loc=<boolean.c:7:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:7:14>
+semi ';'		Loc=<boolean.c:7:15>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:8:9>
+lessequal '<='	 [LeadingSpace]	Loc=<boolean.c:8:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:8:14>
+semi ';'		Loc=<boolean.c:8:15>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:9:9>
+greaterequal '>='	 [LeadingSpace]	Loc=<boolean.c:9:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:9:14>
+semi ';'		Loc=<boolean.c:9:15>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:10:9>
+less '<'	 [LeadingSpace]	Loc=<boolean.c:10:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:10:13>
+semi ';'		Loc=<boolean.c:10:14>
+numeric_constant '1'	 [StartOfLine] [LeadingSpace]	Loc=<boolean.c:11:9>
+greater '>'	 [LeadingSpace]	Loc=<boolean.c:11:11>
+numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:11:13>
+semi ';'		Loc=<boolean.c:11:14>
+r_brace '}'	 [StartOfLine]	Loc=<boolean.c:12:1>

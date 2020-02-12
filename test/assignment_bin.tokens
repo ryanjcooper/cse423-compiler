@@ -1,0 +1,34 @@
+int 'int'	 [StartOfLine]	Loc=<assignment_bin.c:1:1>
+identifier 'main'	 [LeadingSpace]	Loc=<assignment_bin.c:1:5>
+l_paren '('		Loc=<assignment_bin.c:1:9>
+r_paren ')'		Loc=<assignment_bin.c:1:10>
+l_brace '{'	 [StartOfLine]	Loc=<assignment_bin.c:2:1>
+int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<assignment_bin.c:3:9>
+identifier 'i'	 [LeadingSpace]	Loc=<assignment_bin.c:3:13>
+equal '='	 [LeadingSpace]	Loc=<assignment_bin.c:3:15>
+numeric_constant '0'	 [LeadingSpace]	Loc=<assignment_bin.c:3:17>
+semi ';'		Loc=<assignment_bin.c:3:18>
+identifier 'i'	 [StartOfLine] [LeadingSpace]	Loc=<assignment_bin.c:5:9>
+caretequal '^='		Loc=<assignment_bin.c:5:10>
+numeric_constant '0xFF'		Loc=<assignment_bin.c:5:12>
+semi ';'		Loc=<assignment_bin.c:5:16>
+identifier 'i'	 [StartOfLine] [LeadingSpace]	Loc=<assignment_bin.c:6:9>
+greatergreaterequal '>>='		Loc=<assignment_bin.c:6:10>
+numeric_constant '32'		Loc=<assignment_bin.c:6:13>
+semi ';'		Loc=<assignment_bin.c:6:15>
+identifier 'i'	 [StartOfLine] [LeadingSpace]	Loc=<assignment_bin.c:7:9>
+lesslessequal '<<='		Loc=<assignment_bin.c:7:10>
+numeric_constant '1'		Loc=<assignment_bin.c:7:13>
+semi ';'		Loc=<assignment_bin.c:7:14>
+identifier 'i'	 [StartOfLine] [LeadingSpace]	Loc=<assignment_bin.c:8:9>
+ampequal '&='		Loc=<assignment_bin.c:8:10>
+numeric_constant '0'		Loc=<assignment_bin.c:8:12>
+semi ';'		Loc=<assignment_bin.c:8:13>
+identifier 'i'	 [StartOfLine] [LeadingSpace]	Loc=<assignment_bin.c:9:9>
+pipeequal '|='		Loc=<assignment_bin.c:9:10>
+numeric_constant '1'		Loc=<assignment_bin.c:9:12>
+semi ';'		Loc=<assignment_bin.c:9:13>
+return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<assignment_bin.c:11:9>
+numeric_constant '0'	 [LeadingSpace]	Loc=<assignment_bin.c:11:16>
+semi ';'		Loc=<assignment_bin.c:11:17>
+r_brace '}'	 [StartOfLine]	Loc=<assignment_bin.c:12:1>
