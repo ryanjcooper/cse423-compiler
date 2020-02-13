@@ -1,7 +1,6 @@
 package edu.nmt.frontend;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -10,14 +9,15 @@ public class Action {
 	private ActionType type;
 	private Goto state;
 	private Stack<Goto> stack;
-	private Stack<String> goals;
+	private Stack<Goto> goals;
+	private Token token;
+	private Token lookahead;
 	
 	Action(String goal) {
 		this.type = ActionType.SHIFT;
 		this.state = null;
 		this.stack = new Stack<Goto>();
-		this.goals = new Stack<String>();
-		this.goals.push(goal);
+		this.goals = new Stack<Goto>();
 	}
 	
 	public ActionType getType() {
@@ -28,177 +28,186 @@ public class Action {
 		this.type = type;
 	}
 	
-	public void shift(Token token, Token lookahead) {
+	private void lockState(Goto lstate) {
+		System.out.println("Pushing " + lstate + " onto the stack!");
+		this.stack.push(lstate);
+		this.stack.push(Goto.getLock());
+	}
+	
+	public void shift(Token token, Token lookahead) throws NullPointerException {
 		
-		System.out.println("Shifting to " + token + " from state " + this.state + "\n");
+		this.token = token;
+		this.lookahead = lookahead;
 		
-		if (token == null && lookahead == null) {
-			if (this.state.terminateTo() != null) {
-				this.setType(ActionType.REDUCE);
-				return;
-			} else {
-				this.setType(ActionType.REJECT);
-			}
-		/* if state is null, begin there */
-		} else if (this.state == null) {
-			
-			if (!stack.isEmpty()) {
-				this.setType(ActionType.REJECT);
-				return;
-			}
-			
-			this.state = Goto.gotoTable.get(token.getTokenLabel());
-			
-			/* push current state to stack */
+		System.out.println("shifting from " + this.state + " to " + token);
+		System.out.println(stack);
+		
+		if (this.state == null) {
+			// first call to sets the start state
+			this.state = Goto.get(token.getTokenLabel());
+			this.stack.push(Goto.getLock());
 			this.stack.push(this.state);
-			
-			/* 
-			 * check if this state can transition to the lookahead 
-			 * if it can transition, add it to stack
-			 * else, set the reduce flag
-			 */
-			if (this.state.canTransition(lookahead.getTokenLabel())) {
-				System.out.println("Adding state \"" + this.state + "\" to the stack\n");
-			} else {
-				this.setType(ActionType.REDUCE);	
-			}
-		} else if (!this.state.canTransition(token.getTokenLabel()) && this.state.terminateTo() != null) {
-			System.out.println("reduce");
-			this.setType(ActionType.REDUCE);
+			this.setType(ActionType.SHIFT);
+			return;
+		} else if (token == null) {
+			// end of token stream
+			this.setType(ActionType.REPLACE);
+			return;			
 		} else {
-			/* else first check if current state can transition to token */
+			// check if this state can directly transition to token
+			System.out.println("Transition from " + this.state + " to " + token + "\n");
 			
-			System.out.println("Attempting to shift from " + this.state + " to " + token.getTokenLabel());
+			System.out.println(this.state.getTransitions());
 			
 			Goto nextState = this.state.makeTransition(token.getTokenLabel());
-			
-			System.out.println("nextState is " + nextState);
-			
-			/* if next state is null, there is no direct path to token */
+	
 			if (nextState == null) {
-				/* 
-				 * check if there are any non-terminals to transition to 
-				 * if not empty, add current state to stack and lock it
-				 * else, reject
-				 */
+				// cannot transition to token
 				
-				System.out.println(this.state.getNonTerminalTransitions().isEmpty());
-				
-				if (!this.state.getNonTerminalTransitions().isEmpty() || this.state.canRepeat()) {	
+				if (this.state.terminateTo() != null) {
+					// can transition to end state
 					
-					Goto nextNT = null;
+					/*
+					if (!Goto.canStart(token.toString()) && !this.state.terminateTo().isEndState()) {
+						// if the lookahead is not a start symbol
+						this.lockState(this.state.terminateTo());
+						this.lockState(this.state);
+						
+						if (this.state.canTransition(token.getTokenLabel())) {
+							nextState = this.state.makeTransition(token.getTokenLabel());
+							this.lockState(nextState);
+							this.state = Goto.get(token.getTokenLabel());
+							this.setType(ActionType.SHIFT);
+							return;							
+						} else {
+							this.setType(ActionType.REJECT);
+							return;
+						}
+					} 
+					*/
 					
-					if (this.state.canRepeat())
-						nextNT = this.state;
-					else
-						nextNT = this.state.getNonTerminalTransitions().get(0);
-					
-					stack.push(nextNT);
-					goals.push(nextNT.toString());
-					nextState = Goto.gotoTable.get(token.getTokenLabel());
-	
-					/* lock it */
-					this.stack.push(new Goto(new Token(null, "$", null, null)));
-					
-					this.stack.push(nextState);
-	
-					System.out.println(stack);
-					
+					System.out.println(this.state + " can transition to end state " + this.state.terminateTo());
+					this.setType(ActionType.REPLACE);
+					return;
+				} else if (this.state.canRepeat()) {
+					this.stack.push(Goto.getLock());
+					this.goals.push(this.state);
+					nextState = Goto.get(token.getTokenLabel());
 					this.state = nextState;
+					this.stack.push(this.state);
 					this.setType(ActionType.SHIFT);
+					return;
 				} else {
-					System.out.println("Rejected");
-					this.setType(ActionType.REJECT);
+					System.out.println("can transition to non terminal");
+					// else push non-terminal to stack and goals stack and lock
+					//this.stack.push(this.state);
+					nextState = this.state.nextState(true);
+					this.stack.push(nextState);
+					//System.out.println(this.stack.peek());
+					
+					System.out.println("Pushing " + nextState + " to goals");
+					
+					System.out.println(nextState.getToken().getChildren());
+					
+					this.goals.push(nextState);
+					this.stack.push(Goto.getLock());
+					
+					// this state will now begin at the token symbol start state
+					this.state = Goto.get(token.getTokenLabel());
+					
+					// push this state to the stack
+					this.stack.push(this.state);
+					this.setType(ActionType.SHIFT);
+					return;					
 				}
 			} else {
-				/* add nextState to the stack */
-				System.out.println("Adding state \"" + nextState + "\" to the stack\n");
+				// this state can transition to token, so add it to stack
+				System.out.println("Adding " + nextState + " to the stack");
 				this.state = nextState;
 				this.stack.push(nextState);
 				this.setType(ActionType.SHIFT);
+				return;
 			}
 		}
-	}
+	} 
 	
 	public Node reduce() {
-		Goto parent = this.state.terminateTo();
-		List<Node> children = new ArrayList<Node>();
-		
-		System.out.println("state \"" + this.state + "\" wants to reduce to \"" + parent + "\"\n");
-		
-		if (parent.toString().equals(this.goals.peek())) {
-			String goal = this.goals.pop();
-			
-			System.out.println("choice 1\n");
-			
-			if (this.stack.size() > 1) {
-				while (!this.stack.isEmpty()) {
-					Goto g = this.stack.pop();
-					
-					System.out.println("Popped \"" + g + "\" off the stack!");
-					
-					if (g.toString().equals("$")) {
-						break;
-					}
-					
-					children.add(g.getToken());
-				}
-				
-				parent = this.stack.pop();
-				
-				// add all nodes to parent
-				for (Node child : children) {
-					parent.getToken().addChild(child);
-				}
-			} else {
-				System.out.println("choice 2\n");
-				parent = new Goto(new Token(null, goal, null, null));
-				children.add(this.state.getToken());
-			}			
-			
-			// add all nodes to parent
-			for (Node child : children) {
-				parent.getToken().addChild(child);
-			}
-			
-			this.state = parent;
-		} else {
-			System.out.println("choice 3\n");
-			while (!this.stack.isEmpty()) {
-				Goto g = this.stack.pop();
-				
-				System.out.println("Popped \"" + g + "\" off the stack!");
-				
-				if (g.toString().equals("$")) {
-					break;
-				}
-				
-				children.add(g.getToken());
-			}
-			
-			parent = Goto.gotoTable.get(parent.toString());
-			
-			// add all nodes to parent
-			for (Node child : children) {
-				parent.getToken().addChild(child);
-			}
-			
-			this.state = parent;
-			
-			if (!this.stack.isEmpty())
-				stack.push(new Goto(new Token(null, "$", null, null)));
-			
-			stack.push(this.state);			
-		}
+		// this state can transition to an end state
+		List<Goto> storage = new ArrayList<Goto>();
 		
 		System.out.println(stack);
-		System.out.println(goals);
 		
-		if (parent.toString().equals("program"))
-			this.setType(ActionType.ACCEPT);
-		else
+		// pop all children off the stack
+		while (!this.stack.peek().toString().equals("$")) {
+			Goto tmp = this.stack.pop(); 
+			storage.add(tmp);
+		}
+		
+		System.out.println("transitions " + this.state.getTransitions());
+		
+		// push new parent onto the stack
+		Goto tmp = this.state.terminateTo();
+		if (tmp == null)
+			tmp = this.state.getEpsilonTransition();
+		
+		if (tmp.toString().equals("program") && this.token != null) {
+			this.stack.push(this.state);
+			this.goals.push(this.state);
+			this.stack.push(Goto.getLock());
+			this.state = Goto.get(token.getTokenLabel());
+			this.stack.push(this.state);
+			this.setType(ActionType.SHIFT);
+			return this.state.getToken();
+		}
+		
+		System.out.println("tmp is " + tmp);
+		
+		System.out.println("goals " + this.goals);
+		
+		if (!this.goals.isEmpty() && tmp.toString().equals(this.goals.peek().toString())) {
+			System.out.println("goals " + this.goals);
+			// remove the lock
+			this.stack.pop();
+			this.stack.pop();
+			
+			Goto original = this.goals.pop();
+			//original.setToken(tmp.getToken());
+			
+			System.out.println("original transitions " + original);
+			
+			//original.setToken(new Node(new Token(null, original.toString(), null, null)));
+			
+			System.out.println("original children should be empty " + original.getToken().getChildren());
+			
+			this.state = original;
+			this.setType(ActionType.REPEAT);
+		} else {
+			// set the current state to the parent
+			this.state = Goto.get(tmp.toString());
+			
+			//System.out.println("this should be empty " + this.state.getToken().getChildren());
+			
+			if (this.state == null)
+				this.state = tmp;
+			
 			this.setType(ActionType.REPEAT);	
+		}
 		
-		return parent.getToken();
+		// push the children back on the stack
+		for (int i = 0; i < storage.size(); i++) {
+			System.out.println("Adding child " + storage.get(i).getToken() + " to " + this.state + "\n");
+			this.state.getToken().addChild(storage.get(i).getToken());
+		}
+		
+		System.out.println("parent " + this.state);
+		//System.out.println(Node.printTree(this.state.getToken(), " ", false));
+		
+		this.stack.push(this.state);
+		
+		if (stack.get(1).toString().equals("program")) {
+			this.setType(ActionType.ACCEPT);			
+		}
+		
+		return stack.get(1).getToken();
 	}
 }

@@ -80,14 +80,14 @@ public class ParserTest {
 		assertTrue(p.parse());
 	}
 	
-	/*@Test
-	public void conditionsTest() throws IOException {
-		Scanner s = new Scanner("test/conditions.c");
-		s.scan();
-		Parser p = new Parser(grammar, s.getTokens());
-		
-		assertTrue(p.parse());
-	}*/
+	//@Test
+	//public void conditionsTest() throws IOException {
+	//	Scanner s = new Scanner("test/conditions.c");
+	//	s.scan();
+	//	Parser p = new Parser(grammar, s.getTokens());
+	//	
+	//	assertTrue(p.parse());
+	//}
 	
 	@Test
 	public void divideTest() throws IOException {
@@ -106,7 +106,7 @@ public class ParserTest {
 //		
 //		assertTrue(p.parse());
 //	}
-//	
+	
 //	@Test
 //	public void exhaustiveTest() throws IOException {
 //		Scanner s = new Scanner("test/exhaustive.c");
@@ -116,14 +116,14 @@ public class ParserTest {
 //		assertTrue(p.parse());
 //	}
 	
-	/*@Test
+	@Test
 	public void forTest() throws IOException {
 		Scanner s = new Scanner("test/for.c");
 		s.scan();
 		Parser p = new Parser(grammar, s.getTokens());
 		
 		assertTrue(p.parse());
-	}*/
+	}
 	
 	@Test
 	public void functionTest() throws IOException {
@@ -224,14 +224,14 @@ public class ParserTest {
 		assertTrue(p.parse());
 	}
 	
-	/*@Test
+	@Test
 	public void bad_addTest() throws IOException {
 		Scanner s = new Scanner("test/bad_add.c");
 		s.scan();
 		Parser p = new Parser(grammar, s.getTokens());
 		
 		assertFalse(p.parse());
-	}*/
+	}
 	
 	@Test
 	public void bad_baseTest() throws IOException {
