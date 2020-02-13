@@ -67,8 +67,7 @@ public class Action {
 				if (this.state.terminateTo() != null) {
 					// can transition to end state
 					
-					/*
-					if (!Goto.canStart(token.toString()) && !this.state.terminateTo().isEndState()) {
+					/*if (!Goto.canStart(token.getTokenLabel()) && ) {
 						// if the lookahead is not a start symbol
 						this.lockState(this.state.terminateTo());
 						this.lockState(this.state);
@@ -83,8 +82,7 @@ public class Action {
 							this.setType(ActionType.REJECT);
 							return;
 						}
-					} 
-					*/
+					} */
 					
 					System.out.println(this.state + " can transition to end state " + this.state.terminateTo());
 					this.setType(ActionType.REPLACE);
