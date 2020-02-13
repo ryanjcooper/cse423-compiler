@@ -6,4 +6,5 @@ public enum ActionType {
 	ACCEPT,
 	REJECT,
 	REPEAT,
+	REPLACE,
 }
