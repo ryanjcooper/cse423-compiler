@@ -1,3 +1,1 @@
-int main() {
-	return 1;
-}
+enum days {monday, tuesday};

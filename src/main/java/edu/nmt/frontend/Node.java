@@ -1,5 +1,8 @@
 package edu.nmt.frontend;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -78,6 +81,13 @@ public class Node {
 		return sb.toString();
 	}
 	
+	public static void writeFile(String fileName, Node node) throws IOException {
+		String out = printTree(node, " ", false);
+		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+		writer.write(out);
+		writer.close();
+	}
+	
 //	private String returnMatchingDepth(int depth) {
 //		if (this.getDepth() == depth) {
 //			return this.toString() + "; ";
@@ -133,14 +143,7 @@ public class Node {
 //	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		return obj.toString().equals(this.toString());
-	}
-	
-	@Override
 	public String toString() {
 		return this.token.getTokenLabel();
 	}
-	
-	
 }

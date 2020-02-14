@@ -1,0 +1,93 @@
+program
+`-declarationList
+  `-declaration
+    `-funcSpecification
+      |-type
+      |-identifier
+      |-l_paren
+      |-r_paren
+      `-compoundStmt
+        |-l_brace
+        |-statementList
+        | |-statementList
+        | | |-statementList
+        | | | |-statementList
+        | | | | |-statementList
+        | | | | | |-statementList
+        | | | | | | |-declarationList
+        | | | | | | | |-declarationList
+        | | | | | | | | `-declaration
+        | | | | | | | |   `-varDeclaration
+        | | | | | | | |     |-type
+        | | | | | | | |     |-identifier
+        | | | | | | | |     `-semi
+        | | | | | | | `-declaration
+        | | | | | | |   `-varDeclaration
+        | | | | | | |     |-type
+        | | | | | | |     |-identifier
+        | | | | | | |     `-semi
+        | | | | | | `-statementList
+        | | | | | |   `-statement
+        | | | | | |     |-expression
+        | | | | | |     | `-simpleExpression
+        | | | | | |     |   `-addExpression
+        | | | | | |     |     |-addExpression
+        | | | | | |     |     | `-term
+        | | | | | |     |     |   `-factor
+        | | | | | |     |     |     `-numeric_constant
+        | | | | | |     |     |-add_op
+        | | | | | |     |     `-term
+        | | | | | |     |       `-factor
+        | | | | | |     |         `-numeric_constant
+        | | | | | |     `-semi
+        | | | | | `-statement
+        | | | | |   |-expression
+        | | | | |   | |-identifier
+        | | | | |   | |-assign_op
+        | | | | |   | `-expression
+        | | | | |   |   `-simpleExpression
+        | | | | |   |     `-addExpression
+        | | | | |   |       `-term
+        | | | | |   |         `-factor
+        | | | | |   |           `-numeric_constant
+        | | | | |   `-semi
+        | | | | `-statement
+        | | | |   |-expression
+        | | | |   | |-identifier
+        | | | |   | |-assign_op
+        | | | |   | `-expression
+        | | | |   |   `-simpleExpression
+        | | | |   |     `-addExpression
+        | | | |   |       `-term
+        | | | |   |         `-factor
+        | | | |   |           `-numeric_constant
+        | | | |   `-semi
+        | | | `-statement
+        | | |   |-expression
+        | | |   | `-simpleExpression
+        | | |   |   `-addExpression
+        | | |   |     |-addExpression
+        | | |   |     | `-term
+        | | |   |     |   `-factor
+        | | |   |     |     `-identifier
+        | | |   |     |-add_op
+        | | |   |     `-term
+        | | |   |       `-factor
+        | | |   |         `-identifier
+        | | |   `-semi
+        | | `-statement
+        | |   |-expression
+        | |   | |-identifier
+        | |   | `-unary_op
+        | |   `-semi
+        | `-statement
+        |   |-returnStmt
+        |   | |-return
+        |   | `-expression
+        |   |   `-simpleExpression
+        |   |     `-addExpression
+        |   |       `-term
+        |   |         `-factor
+        |   |           `-numeric_constant
+        |   `-semi
+        `-r_brace

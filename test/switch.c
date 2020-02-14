@@ -3,14 +3,11 @@ int main() {
 
         switch (i) {
                 case 0:
-                return 0;
-                break;
-                case -1:
-                return -1;
-                break;
+                	return 0;
+            	case 1:
+                	return 1;
                 default:
-                return -2;
-                break;
+                	return 2;
         }
 
         return 0;

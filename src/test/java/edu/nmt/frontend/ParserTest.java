@@ -106,7 +106,7 @@ public class ParserTest {
 //		
 //		assertTrue(p.parse());
 //	}
-//	
+	
 //	@Test
 //	public void exhaustiveTest() throws IOException {
 //		Scanner s = new Scanner("test/exhaustive.c");
@@ -197,14 +197,14 @@ public class ParserTest {
 		assertTrue(p.parse());
 	}
 	
-//	@Test
-//	public void switchTest() throws IOException {
-//		Scanner s = new Scanner("test/switch.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void switchTest() throws IOException {
+		Scanner s = new Scanner("test/switch.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
 	
 	@Test
 	public void typesTest() throws IOException {

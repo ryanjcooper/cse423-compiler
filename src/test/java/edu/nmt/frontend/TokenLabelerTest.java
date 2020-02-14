@@ -129,7 +129,7 @@ public class TokenLabelerTest {
 		//semi ;
 		assertEquals("semi", TokenLabeler.labelToken(";"));
 		// colon :
-		assertEquals("semi", TokenLabeler.labelToken(":"));		
+		assertEquals("colon", TokenLabeler.labelToken(":"));		
 		//bit_op ^ & | ! << >>
 		assertEquals("bit_op", TokenLabeler.labelToken("^"));
 		assertEquals("bit_op", TokenLabeler.labelToken("&"));
