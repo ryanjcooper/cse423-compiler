@@ -262,6 +262,6 @@ public class Goto implements Cloneable {
 		Goto test = Goto.get("else");
 		//Goto test2 = Goto.get("expression");
 		//test2.nextState().addTransition(new Goto(new Token(null, "hell", null, null)));
-		System.out.println(Goto.canStart("if"));
+		System.out.println(Goto.canStart("identifier"));
 	}
 }

@@ -4,101 +4,108 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Stack;
 
+import edu.nmt.util.Debugger;
+
+/**
+ * Converts a token stream into a parse tree
+ * @author Terence
+ * 
+ */
 public class Parser {
 	
 	private Grammar grammar;
 	private List<Token> tokens;
 	private Node parseTree;
 	private Action action;
-	private Stack<Goto> stack;
+	private Debugger debugger;
 	
 	public Parser(Grammar g, List<Token> tok) {
-		grammar = g;
-		tokens = tok;
-		action = new Action("program");
-		this.stack = new Stack();
+		this.grammar = g;
+		this.tokens = tok;
+		this.action = new Action();
+		this.debugger = new Debugger(false);
+		
 		try {
 			grammar.loadGrammar();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		Goto.init(g);
 	}
 	
-	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/test.c");
-		scanner.scan();
-		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens());
-		p.grammar.loadGrammar();
-		//Goto.init(p.grammar);
-		System.out.println(p.parse());
-		//System.out.println(p.parseTree.getChildren().get(0).getChildren());
-		p.printParseTree();
+	public Parser(Grammar g, List<Token> tok, boolean debug) {
+		this.grammar = g;
+		this.tokens = tok;
+		this.action = new Action();
+		this.debugger = new Debugger(debug);
+		
+		try {
+			grammar.loadGrammar();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Goto.init(g);
 	}
 	
+	/**
+	 * prints the parse tree to console
+	 */
 	public void printParseTree() {
 		System.out.println(Node.printTree(this.parseTree, " ", false));
 	}
 
+	/**
+	 * iterate through stream of tokens and parse them
+	 * at each iteration, perform an action based on action type
+	 * @return true if successful parse, false else
+	 */
 	public boolean parse() {
 		Iterator<Token> tokenIt = tokens.iterator();
 		Token token = null;
-		Token lookahead = tokenIt.next();
 		
 		while (true) {
-			
-			//if (token != null  && token.getTokenLabel().equals("return"))
-				//return false;
-			
 			switch (this.action.getType()) {
 			case ACCEPT:
+				this.parseTree = action.getRoot();
 				return true;
 			case REJECT:
 				return false;
 			case SHIFT:		
-				token = lookahead;
-				
 				try {
-					lookahead = tokenIt.next();
+					token = tokenIt.next();
 				} catch (NoSuchElementException nse) {
-					lookahead = null;
+					token = null;
 				}
-				
 			case REPEAT:
-				System.out.println("\n----------------------------------------------");
-				System.out.println("SHIFT PHASE");
-				System.out.println("----------------------------------------------\n");	
+				debugger.printPhase(ActionType.SHIFT);
 				
 				try {
-					this.action.shift(token, lookahead);
+					action.setType(this.action.shift(token));
 				} catch (NullPointerException npe) {
-					npe.printStackTrace();
+					debugger.printStackTrace(npe);
 					return false;
 				}
 				
 				break;
-			case REPLACE:
-				System.out.println("----------------------------------------------");
-				System.out.println("REPLACE PHASE");
-				System.out.println("----------------------------------------------\n");
-				this.parseTree = this.action.reduce();
-				break;
 			case REDUCE:
+				debugger.printPhase(ActionType.REDUCE);
+				
+				action.setType(this.action.reduce());
 				break;
 			}
 		}
 	}
 	
-	public static String getSpacedArray(String[] arr) {
-		String out = "";
-		
-		for (String s : arr) {
-			out += s + " ";
-		}
-		
-		return out.trim();
+	
+	public static void main(String argv[]) throws IOException {
+		Scanner scanner = new Scanner("test/base.c");
+		scanner.scan();
+		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens(), false);
+		p.grammar.loadGrammar();
+		System.out.println("Output of parse(): " + p.parse() + "\n");
+		p.printParseTree();
 	}
 }

@@ -80,14 +80,14 @@ public class ParserTest {
 		assertTrue(p.parse());
 	}
 	
-	//@Test
-	//public void conditionsTest() throws IOException {
-	//	Scanner s = new Scanner("test/conditions.c");
-	//	s.scan();
-	//	Parser p = new Parser(grammar, s.getTokens());
-	//	
-	//	assertTrue(p.parse());
-	//}
+	@Test
+	public void conditionsTest() throws IOException {
+		Scanner s = new Scanner("test/conditions.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
 	
 	@Test
 	public void divideTest() throws IOException {
@@ -197,14 +197,14 @@ public class ParserTest {
 		assertTrue(p.parse());
 	}
 	
-//	@Test
-//	public void switchTest() throws IOException {
-//		Scanner s = new Scanner("test/switch.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s.getTokens());
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void switchTest() throws IOException {
+		Scanner s = new Scanner("test/switch.c");
+		s.scan();
+		Parser p = new Parser(grammar, s.getTokens());
+		
+		assertTrue(p.parse());
+	}
 	
 	@Test
 	public void typesTest() throws IOException {
