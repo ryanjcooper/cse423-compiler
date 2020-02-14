@@ -10,6 +10,7 @@ import edu.nmt.util.Debugger;
 /**
  * Converts a token stream into a parse tree
  * @author Terence
+ * 
  */
 public class Parser {
 	
@@ -49,21 +50,18 @@ public class Parser {
 		Goto.init(g);
 	}
 	
-	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/base.c");
-		scanner.scan();
-		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens(), false);
-		p.grammar.loadGrammar();
-		//Goto.init(p.grammar);
-		System.out.println(p.parse());
-		//System.out.println(p.parseTree.getChildren().get(0).getChildren());
-		p.printParseTree();
-	}
-	
+	/**
+	 * prints the parse tree to console
+	 */
 	public void printParseTree() {
 		System.out.println(Node.printTree(this.parseTree, " ", false));
 	}
 
+	/**
+	 * iterate through stream of tokens and parse them
+	 * at each iteration, perform an action based on action type
+	 * @return true if successful parse, false else
+	 */
 	public boolean parse() {
 		Iterator<Token> tokenIt = tokens.iterator();
 		Token token = null;
@@ -101,13 +99,13 @@ public class Parser {
 		}
 	}
 	
-	public static String getSpacedArray(String[] arr) {
-		String out = "";
-		
-		for (String s : arr) {
-			out += s + " ";
-		}
-		
-		return out.trim();
+	
+	public static void main(String argv[]) throws IOException {
+		Scanner scanner = new Scanner("test/base.c");
+		scanner.scan();
+		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens(), false);
+		p.grammar.loadGrammar();
+		System.out.println("Output of parse(): " + p.parse() + "\n");
+		p.printParseTree();
 	}
 }

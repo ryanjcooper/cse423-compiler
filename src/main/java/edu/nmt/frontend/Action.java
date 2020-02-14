@@ -6,6 +6,11 @@ import java.util.Stack;
 
 import edu.nmt.util.Debugger;
 
+/**
+ * handles interactions with the automata
+ * @author Terence
+ *
+ */
 public class Action {
 
 	private ActionType type;
@@ -34,14 +39,11 @@ public class Action {
 		this.root = null;
 	}
 	
-	public ActionType getType() {
-		return this.type;
-	}
-	
-	public void setType(ActionType type) {
-		this.type = type;
-	}
-	
+	/**
+	 * push lstate onto the stack, push a lock behind it, and 
+	 * push lstate to the goals stack
+	 * @param lstate is the state to push
+	 */
 	private void lockState(Goto lstate) {
 		debugger.print("Pushing " + lstate + " onto the stack!");
 		
@@ -53,7 +55,7 @@ public class Action {
 	/**
 	 * attempt to transition current state to lookahead
 	 * @param lookahead is the next token to transition to
-	 * @return
+	 * @return the type of the next action phase
 	 * @throws NullPointerException
 	 */
 	public ActionType shift(Token lookahead) throws NullPointerException {
@@ -122,7 +124,8 @@ public class Action {
 	/**
 	 * reduce items on stack until empty or lock symbol
 	 * into non-terminal end state
-	 * @return current parse tree up to this point
+	 * update root node of parse tree as side effect
+	 * @return the type of the next action phase
 	 */
 	public ActionType reduce() {
 		List<Goto> storage = new ArrayList<Goto>();
@@ -179,5 +182,13 @@ public class Action {
 	
 	public Node getRoot() {
 		return this.root;
+	}
+	
+	public ActionType getType() {
+		return this.type;
+	}
+	
+	public void setType(ActionType type) {
+		this.type = type;
 	}
 }
