@@ -4,20 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import edu.nmt.util.Debugger;
+
 public class Action {
 
 	private ActionType type;
 	private Goto state;
 	private Stack<Goto> stack;
 	private Stack<Goto> goals;
-	private Token token;
 	private Token lookahead;
+	private Debugger debugger;
+	private Node root;
 	
-	Action(String goal) {
+	Action() {
 		this.type = ActionType.SHIFT;
-		this.state = null;
+		this.debugger = new Debugger(false);
 		this.stack = new Stack<Goto>();
 		this.goals = new Stack<Goto>();
+		this.state = null;
+		this.root = null;
+	}
+	
+	Action(Debugger db) {
+		this.type = ActionType.SHIFT;
+		this.debugger = db;
+		this.stack = new Stack<Goto>();
+		this.goals = new Stack<Goto>();
+		this.state = null;
+		this.root = null;
 	}
 	
 	public ActionType getType() {
@@ -29,183 +43,141 @@ public class Action {
 	}
 	
 	private void lockState(Goto lstate) {
-		System.out.println("Pushing " + lstate + " onto the stack!");
+		debugger.print("Pushing " + lstate + " onto the stack!");
+		
 		this.stack.push(lstate);
 		this.stack.push(Goto.getLock());
+		this.goals.push(lstate);
 	}
 	
-	public void shift(Token token, Token lookahead) throws NullPointerException {
+	/**
+	 * attempt to transition current state to lookahead
+	 * @param lookahead is the next token to transition to
+	 * @return
+	 * @throws NullPointerException
+	 */
+	public ActionType shift(Token lookahead) throws NullPointerException {
 		
-		this.token = token;
 		this.lookahead = lookahead;
 		
-		System.out.println("shifting from " + this.state + " to " + token);
-		System.out.println(stack);
+		debugger.print("shifting from " + this.state + " to " + lookahead);
+		debugger.print(stack);
 		
 		if (this.state == null) {
 			// first call to sets the start state
-			this.state = Goto.get(token.getTokenLabel());
+			this.state = Goto.get(lookahead.getTokenLabel());
 			this.stack.push(Goto.getLock());
 			this.stack.push(this.state);
-			this.setType(ActionType.SHIFT);
-			return;
-		} else if (token == null) {
+			return ActionType.SHIFT;
+		} else if (lookahead == null) {
 			// end of token stream
-			this.setType(ActionType.REPLACE);
-			return;			
+			return ActionType.REDUCE;			
 		} else {
 			// check if this state can directly transition to token
-			System.out.println("Transition from " + this.state + " to " + token + "\n");
+			debugger.print("Transition from " + this.state + " to " + lookahead + "\n");
 			
-			System.out.println(this.state.getTransitions());
-			
-			Goto nextState = this.state.makeTransition(token.getTokenLabel());
+			Goto nextState = this.state.makeTransition(lookahead.getTokenLabel());
 	
 			if (nextState == null) {
 				// cannot transition to token
 				
 				if (this.state.terminateTo() != null) {
 					// can transition to end state
+					debugger.print(this.state + " can transition to end state " + this.state.terminateTo());
 					
-					/*if (!Goto.canStart(token.getTokenLabel()) && ) {
-						// if the lookahead is not a start symbol
-						this.lockState(this.state.terminateTo());
-						this.lockState(this.state);
-						
-						if (this.state.canTransition(token.getTokenLabel())) {
-							nextState = this.state.makeTransition(token.getTokenLabel());
-							this.lockState(nextState);
-							this.state = Goto.get(token.getTokenLabel());
-							this.setType(ActionType.SHIFT);
-							return;							
-						} else {
-							this.setType(ActionType.REJECT);
-							return;
-						}
-					} */
-					
-					System.out.println(this.state + " can transition to end state " + this.state.terminateTo());
-					this.setType(ActionType.REPLACE);
-					return;
+					return ActionType.REDUCE;
 				} else if (this.state.canRepeat()) {
+					// is a repeat state
+					
 					this.stack.push(Goto.getLock());
 					this.goals.push(this.state);
-					nextState = Goto.get(token.getTokenLabel());
-					this.state = nextState;
-					this.stack.push(this.state);
-					this.setType(ActionType.SHIFT);
-					return;
+					this.state = this.stack.push(Goto.get(lookahead.getTokenLabel()));
+					
+					return ActionType.SHIFT;
 				} else {
-					System.out.println("can transition to non terminal");
-					// else push non-terminal to stack and goals stack and lock
-					//this.stack.push(this.state);
+					// push non-terminal to stack and goals stack and lock
 					nextState = this.state.nextState(true);
-					this.stack.push(nextState);
-					//System.out.println(this.stack.peek());
 					
-					System.out.println("Pushing " + nextState + " to goals");
+					debugger.print(this.state + " can transition to non terminal " + nextState);
 					
-					System.out.println(nextState.getToken().getChildren());
-					
-					this.goals.push(nextState);
-					this.stack.push(Goto.getLock());
+					this.lockState(nextState);
 					
 					// this state will now begin at the token symbol start state
-					this.state = Goto.get(token.getTokenLabel());
+					this.state = this.stack.push(Goto.get(lookahead.getTokenLabel()));
 					
-					// push this state to the stack
-					this.stack.push(this.state);
-					this.setType(ActionType.SHIFT);
-					return;					
+					return ActionType.SHIFT;					
 				}
 			} else {
-				// this state can transition to token, so add it to stack
-				System.out.println("Adding " + nextState + " to the stack");
-				this.state = nextState;
-				this.stack.push(nextState);
-				this.setType(ActionType.SHIFT);
-				return;
+				// this state can transition to lookahead, so add it to stack
+				debugger.print("Adding " + nextState + " to the stack");
+				debugger.print(this.stack);
+				
+				this.state = this.stack.push(nextState);
+				
+				return ActionType.SHIFT;
 			}
 		}
 	} 
 	
-	public Node reduce() {
-		// this state can transition to an end state
+	/**
+	 * reduce items on stack until empty or lock symbol
+	 * into non-terminal end state
+	 * @return current parse tree up to this point
+	 */
+	public ActionType reduce() {
 		List<Goto> storage = new ArrayList<Goto>();
 		
-		System.out.println(stack);
+		debugger.print(stack);
 		
-		// pop all children off the stack
+		// pop all children off the stack until lock symbol
 		while (!this.stack.peek().toString().equals("$")) {
 			Goto tmp = this.stack.pop(); 
 			storage.add(tmp);
 		}
 		
-		System.out.println("transitions " + this.state.getTransitions());
-		
-		// push new parent onto the stack
-		Goto tmp = this.state.terminateTo();
-		if (tmp == null)
-			tmp = this.state.getEpsilonTransition();
-		
-		if (tmp.toString().equals("program") && this.token != null) {
+		// get the non-terminal end state
+		Goto nt = this.state.terminateTo();
+	
+		if (nt.toString().equals("program") && this.lookahead != null) {
+			// prevent the first declarationList from becoming a program
+			this.lockState(this.state);
+			this.state = Goto.get(lookahead.getTokenLabel());
 			this.stack.push(this.state);
-			this.goals.push(this.state);
-			this.stack.push(Goto.getLock());
-			this.state = Goto.get(token.getTokenLabel());
-			this.stack.push(this.state);
-			this.setType(ActionType.SHIFT);
-			return this.state.getToken();
+			
+			return ActionType.SHIFT;
 		}
 		
-		System.out.println("tmp is " + tmp);
 		
-		System.out.println("goals " + this.goals);
-		
-		if (!this.goals.isEmpty() && tmp.toString().equals(this.goals.peek().toString())) {
-			System.out.println("goals " + this.goals);
+		if (!this.goals.isEmpty() && nt.toString().equals(this.goals.peek().toString())) {
 			// remove the lock
 			this.stack.pop();
 			this.stack.pop();
-			
-			Goto original = this.goals.pop();
-			//original.setToken(tmp.getToken());
-			
-			System.out.println("original transitions " + original);
-			
-			//original.setToken(new Node(new Token(null, original.toString(), null, null)));
-			
-			System.out.println("original children should be empty " + original.getToken().getChildren());
-			
-			this.state = original;
-			this.setType(ActionType.REPEAT);
+			this.state = this.goals.pop();
 		} else {
 			// set the current state to the parent
-			this.state = Goto.get(tmp.toString());
-			
-			//System.out.println("this should be empty " + this.state.getToken().getChildren());
+			this.state = Goto.get(nt.toString());
 			
 			if (this.state == null)
-				this.state = tmp;
-			
-			this.setType(ActionType.REPEAT);	
+				this.state = nt;
 		}
 		
 		// push the children back on the stack
 		for (int i = 0; i < storage.size(); i++) {
-			System.out.println("Adding child " + storage.get(i).getToken() + " to " + this.state + "\n");
 			this.state.getToken().addChild(storage.get(i).getToken());
 		}
 		
-		System.out.println("parent " + this.state);
-		//System.out.println(Node.printTree(this.state.getToken(), " ", false));
-		
 		this.stack.push(this.state);
 		
-		if (stack.get(1).toString().equals("program")) {
-			this.setType(ActionType.ACCEPT);			
+		if (this.stack.peek().toString().equals("program")) {
+			// check if top of the stack is our goal
+			this.root = stack.get(1).getToken();
+			return ActionType.ACCEPT;			
 		}
 		
-		return stack.get(1).getToken();
+		return ActionType.REPEAT;
+	}
+	
+	public Node getRoot() {
+		return this.root;
 	}
 }

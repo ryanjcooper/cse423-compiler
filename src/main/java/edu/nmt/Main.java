@@ -111,7 +111,7 @@ public class Main {
     	}
     	
     	if (writeParseFile != null) {
-    		p.writeParseTree(writeParseFile);
+    		//p.writeParseTree(writeParseFile);
     	}
     	
     }
