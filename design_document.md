@@ -27,7 +27,7 @@
 * [] Switch statements
 #### Stretch-goal Features
 * [] Pointers, arrays, strings
-* [] Struct, enum
+* ~~Struct, enum~~
 * ~~Preprocessor statements~~
 * ~~Casting, type promotion~~
 * ~~Type specs~~
@@ -37,4 +37,6 @@
 * TODO
 
 ### Parser Design
-* TODO
+The parser went through several iterations of design, but the final implementation is based on the LR(1). This is not an implementation of LR(1), but it utilizes concepts such as lookahead, action, goto, and automata.
+
+The parser takes in a stream of tokens and is given two objectives: check if this is a valid C file for our subset of C and if so create a parse tree. Another input used by the parser is the grammar, which is a slightly tweaked version of the C- grammar. Our Grammar class reads in the grammar file and converts each line to a useful data structure called a Rule, which contains left-hand-side and right-hand-side symbols.
