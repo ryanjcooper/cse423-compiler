@@ -23,8 +23,8 @@ public class Parser {
 	public Parser(Grammar g, List<Token> tok) {
 		this.grammar = g;
 		this.tokens = tok;
-		this.action = new Action();
 		this.debugger = new Debugger(false);
+		this.action = new Action(this.debugger);
 		
 		try {
 			grammar.loadGrammar();
@@ -38,8 +38,8 @@ public class Parser {
 	public Parser(Grammar g, List<Token> tok, boolean debug) {
 		this.grammar = g;
 		this.tokens = tok;
-		this.action = new Action();
 		this.debugger = new Debugger(debug);
+		this.action = new Action(this.debugger);
 		
 		try {
 			grammar.loadGrammar();
@@ -99,11 +99,10 @@ public class Parser {
 		}
 	}
 	
-	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/test.c");
 		scanner.scan();
-		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens(), false);
+		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens(), true);
 		p.grammar.loadGrammar();
 		System.out.println("Output of parse(): " + p.parse() + "\n");
 		p.printParseTree();
