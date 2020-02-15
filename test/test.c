@@ -1,1 +1,1 @@
-enum days {monday, tuesday};
+enum days {monday, tuesday, wednesday};
