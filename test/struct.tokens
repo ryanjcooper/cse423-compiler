@@ -34,3 +34,4 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<struct.c:13:9>
 numeric_constant '0'	 [LeadingSpace]	Loc=<struct.c:13:16>
 semi ';'		Loc=<struct.c:13:17>
 r_brace '}'	 [StartOfLine]	Loc=<struct.c:14:1>
+eof ''		Loc=<struct.c:14:2>
