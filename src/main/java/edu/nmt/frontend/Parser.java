@@ -19,12 +19,14 @@ public class Parser {
 	private Node parseTree;
 	private Action action;
 	private Debugger debugger;
+	private String filename;
 	
-	public Parser(Grammar g, List<Token> tok) {
+	public Parser(Grammar g, Scanner scanner) {
 		this.grammar = g;
-		this.tokens = tok;
-		this.action = new Action();
+		this.tokens = scanner.getTokens();
+		this.filename = scanner.getFile().getName();
 		this.debugger = new Debugger(false);
+		this.action = new Action(this.debugger);
 		
 		try {
 			grammar.loadGrammar();
@@ -35,11 +37,12 @@ public class Parser {
 		Goto.init(g);
 	}
 	
-	public Parser(Grammar g, List<Token> tok, boolean debug) {
+	public Parser(Grammar g, Scanner scanner, boolean debug) {
 		this.grammar = g;
-		this.tokens = tok;
-		this.action = new Action();
+		this.tokens = scanner.getTokens();
+		this.filename = scanner.getFile().getName();
 		this.debugger = new Debugger(debug);
+		this.action = new Action(this.debugger);
 		
 		try {
 			grammar.loadGrammar();
@@ -65,6 +68,7 @@ public class Parser {
 	public boolean parse() {
 		Iterator<Token> tokenIt = tokens.iterator();
 		Token token = null;
+		Token lookbehind = null;
 		
 		while (true) {
 			switch (this.action.getType()) {
@@ -72,9 +76,11 @@ public class Parser {
 				this.parseTree = action.getRoot();
 				return true;
 			case REJECT:
+				this.printError(action.getError(), lookbehind, token);
 				return false;
 			case SHIFT:		
 				try {
+					lookbehind = token;
 					token = tokenIt.next();
 				} catch (NoSuchElementException nse) {
 					token = null;
@@ -99,13 +105,22 @@ public class Parser {
 		}
 	}
 	
+	private void printError(int err, Token token, Token lookahead) {
+		switch (err) {
+		case 1:
+			System.out.println(String.format("%s:%d:%d: error: expected '%s' before '%s' token", this.filename, lookahead.getLineNum(), 
+					lookahead.getCharPos(), token.getTokenString(), lookahead.getTokenString()));
+			break;
+		}
+	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/test.c");
 		scanner.scan();
-		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner.getTokens(), false);
+		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner, false);
 		p.grammar.loadGrammar();
-		System.out.println("Output of parse(): " + p.parse() + "\n");
-		p.printParseTree();
+		p.parse();
+		//System.out.println("Output of parse(): " + p.parse() + "\n");
+		//p.printParseTree();
 	}
 }

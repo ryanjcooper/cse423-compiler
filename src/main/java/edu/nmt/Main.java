@@ -104,7 +104,7 @@ public class Main {
     	grammar.loadGrammar();
     	
     	// Start parser
-    	Parser p = new Parser(grammar, s.getTokens());
+    	Parser p = new Parser(grammar, s);
     	//p.parse();
     	if (printParseTree) {
     		p.printParseTree();

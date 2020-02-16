@@ -20,6 +20,8 @@ public class Action {
 	private Token lookahead;
 	private Debugger debugger;
 	private Node root;
+	private int errorCode;
+	private Token expected;
 	
 	Action() {
 		this.type = ActionType.SHIFT;
@@ -28,6 +30,7 @@ public class Action {
 		this.goals = new Stack<Goto>();
 		this.state = null;
 		this.root = null;
+		this.errorCode = 0;
 	}
 	
 	Action(Debugger db) {
@@ -37,6 +40,7 @@ public class Action {
 		this.goals = new Stack<Goto>();
 		this.state = null;
 		this.root = null;
+		this.errorCode = 0;
 	}
 	
 	/**
@@ -99,6 +103,12 @@ public class Action {
 				} else {
 					// push non-terminal to stack and goals stack and lock
 					nextState = this.state.nextState(true);
+					
+					// if the next state is a terminal, reject and print error
+					if (Goto.grammar.isTerminal(nextState.toString())) {
+						this.setError(1);
+						return ActionType.REJECT;
+					}
 					
 					debugger.print(this.state + " can transition to non terminal " + nextState);
 					
@@ -190,5 +200,13 @@ public class Action {
 	
 	public void setType(ActionType type) {
 		this.type = type;
+	}
+	
+	public int getError() {
+		return this.errorCode;
+	}
+	
+	public void setError(int err) {
+		this.errorCode = err;
 	}
 }

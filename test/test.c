@@ -1,1 +1,3 @@
-enum days {monday, tuesday};
+int main() {
+	return 1
+}
