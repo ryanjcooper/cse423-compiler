@@ -138,4 +138,8 @@ public class Parser {
 		//System.out.println("Output of parse(): " + p.parse() + "\n");
 		//p.printParseTree();
 	}
+
+	public Node getParseTree() {
+		return this.parseTree;
+	}
 }

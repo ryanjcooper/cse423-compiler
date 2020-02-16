@@ -11,6 +11,8 @@ public class Node {
 	Token token;
 	Node parent;
 	Integer depth;
+	String type;
+	String name;
 	List<Node> children;
 	
 	Node(Token t) {
@@ -137,6 +139,14 @@ public class Node {
 		}
 	}
 	
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 //	private String printSubtree() {
 //		if (this.getChildren().isEmpty()) {
 //			return this.toString();
@@ -153,5 +163,9 @@ public class Node {
 	@Override
 	public String toString() {
 		return this.token.getTokenLabel();
+	}
+
+	public void setChildren(List<Node> tmp) {
+		this.children = tmp;
 	}
 }
