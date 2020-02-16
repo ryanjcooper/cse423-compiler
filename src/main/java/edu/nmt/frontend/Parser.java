@@ -59,6 +59,17 @@ public class Parser {
 	public void printParseTree() {
 		System.out.println(Node.printTree(this.parseTree, " ", false));
 	}
+	
+	public void testParse(Node node) {
+		
+		for (Node n : node.getChildren()) {
+			testParse(n);
+		}
+		
+		if (node.getChildren().isEmpty()) {
+			System.out.println(node.getToken().getTokenString());
+		}
+	}
 
 	/**
 	 * iterate through stream of tokens and parse them
@@ -118,11 +129,12 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/bad_base_paren.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner, true);
 		p.grammar.loadGrammar();
 		p.parse();
+		p.testParse(p.parseTree);
 		//System.out.println("Output of parse(): " + p.parse() + "\n");
 		//p.printParseTree();
 	}

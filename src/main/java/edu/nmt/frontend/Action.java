@@ -80,6 +80,7 @@ public class Action {
 		} else if (this.state == null) {
 			// first call to sets the start state
 			this.state = Goto.get(lookahead.getTokenLabel());
+			this.state.setToken(new Node(lookahead));
 			this.stack.push(Goto.getLock());
 			this.stack.push(this.state);
 			return ActionType.SHIFT;
@@ -105,7 +106,10 @@ public class Action {
 					
 					this.stack.push(Goto.getLock());
 					this.goals.push(this.state);
-					this.state = this.stack.push(Goto.get(lookahead.getTokenLabel()));
+					
+					nextState = Goto.get(lookahead.getTokenLabel());
+					nextState.setToken(new Node(lookahead));
+					this.state = this.stack.push(nextState);
 					
 					return ActionType.SHIFT;
 				} else {
@@ -124,7 +128,10 @@ public class Action {
 					this.lockState(nextState);
 					
 					// this state will now begin at the token symbol start state
-					this.state = this.stack.push(Goto.get(lookahead.getTokenLabel()));
+					nextState = Goto.get(lookahead.getTokenLabel());
+					nextState.setToken(new Node(lookahead));
+					
+					this.state = this.stack.push(nextState);
 					
 					return ActionType.SHIFT;					
 				}
@@ -133,6 +140,7 @@ public class Action {
 				debugger.print("Adding " + nextState + " to the stack");
 				debugger.print(this.stack);
 				
+				nextState.setToken(new Node(lookahead));
 				this.state = this.stack.push(nextState);
 				
 				return ActionType.SHIFT;
