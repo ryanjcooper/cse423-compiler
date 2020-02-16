@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import edu.nmt.RuntimeSettings;
 import edu.nmt.util.Debugger;
 
 /**
@@ -21,7 +22,7 @@ public class Action {
 	private Debugger debugger;
 	private Node root;
 	private int errorCode;
-	private Token expected;
+	private String expected;
 	
 	Action() {
 		this.type = ActionType.SHIFT;
@@ -31,6 +32,7 @@ public class Action {
 		this.state = null;
 		this.root = null;
 		this.errorCode = 0;
+		this.expected = null;
 	}
 	
 	Action(Debugger db) {
@@ -41,6 +43,7 @@ public class Action {
 		this.state = null;
 		this.root = null;
 		this.errorCode = 0;
+		this.expected = null;
 	}
 	
 	/**
@@ -69,9 +72,15 @@ public class Action {
 		debugger.print("shifting from " + this.state + " to " + lookahead);
 		debugger.print(stack);
 		
-		if (this.state == null) {
+		if (this.state == null && lookahead != null && !stack.isEmpty()) {
+			// error caused by missing expected token
+			this.setExpected(this.goals.peek().toString());
+			this.setError(1);
+			return ActionType.REJECT;
+		} else if (this.state == null) {
 			// first call to sets the start state
 			this.state = Goto.get(lookahead.getTokenLabel());
+			this.state.setToken(new Node(lookahead));
 			this.stack.push(Goto.getLock());
 			this.stack.push(this.state);
 			return ActionType.SHIFT;
@@ -97,25 +106,32 @@ public class Action {
 					
 					this.stack.push(Goto.getLock());
 					this.goals.push(this.state);
-					this.state = this.stack.push(Goto.get(lookahead.getTokenLabel()));
+					
+					nextState = Goto.get(lookahead.getTokenLabel());
+					nextState.setToken(new Node(lookahead));
+					this.state = this.stack.push(nextState);
 					
 					return ActionType.SHIFT;
 				} else {
 					// push non-terminal to stack and goals stack and lock
 					nextState = this.state.nextState(true);
 					
+					debugger.print(this.state + " can transition to non terminal " + nextState);
+					
 					// if the next state is a terminal, reject and print error
 					if (Goto.grammar.isTerminal(nextState.toString())) {
 						this.setError(1);
+						this.setExpected(RuntimeSettings.token2LabelMap.get(nextState.toString()));
 						return ActionType.REJECT;
 					}
-					
-					debugger.print(this.state + " can transition to non terminal " + nextState);
 					
 					this.lockState(nextState);
 					
 					// this state will now begin at the token symbol start state
-					this.state = this.stack.push(Goto.get(lookahead.getTokenLabel()));
+					nextState = Goto.get(lookahead.getTokenLabel());
+					nextState.setToken(new Node(lookahead));
+					
+					this.state = this.stack.push(nextState);
 					
 					return ActionType.SHIFT;					
 				}
@@ -124,6 +140,7 @@ public class Action {
 				debugger.print("Adding " + nextState + " to the stack");
 				debugger.print(this.stack);
 				
+				nextState.setToken(new Node(lookahead));
 				this.state = this.stack.push(nextState);
 				
 				return ActionType.SHIFT;
@@ -137,7 +154,7 @@ public class Action {
 	 * update root node of parse tree as side effect
 	 * @return the type of the next action phase
 	 */
-	public ActionType reduce() {
+	public ActionType reduce() throws NullPointerException {
 		List<Goto> storage = new ArrayList<Goto>();
 		
 		debugger.print(stack);
@@ -208,5 +225,13 @@ public class Action {
 	
 	public void setError(int err) {
 		this.errorCode = err;
+	}
+	
+	public String getExpected() {
+		return this.expected;
+	}
+	
+	public void setExpected(String ex) {
+		this.expected = ex;
 	}
 }

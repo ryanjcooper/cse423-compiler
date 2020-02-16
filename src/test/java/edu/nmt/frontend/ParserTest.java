@@ -161,32 +161,41 @@ public class ParserTest {
 		assertTrue(p.parse());
 	}
 	
-//	@Test
-//	public void pointerTest() throws IOException {
-//		Scanner s = new Scanner("test/pointer.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s);
-//		
-//		assertTrue(p.parse());
-//	}
-
-//	@Test
-//	public void stringTest() throws IOException {
-//		Scanner s = new Scanner("test/string.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s);
-//		
-//		assertTrue(p.parse());
-//	}
+	//@Test
+	//public void pointerTest() throws IOException {
+	//	Scanner s = new Scanner("test/pointer.c");
+	//	s.scan();
+	//	Parser p = new Parser(grammar, s);
+	//	
+	//	assertTrue(p.parse());
+	//}
 	
-//	@Test
-//	public void structTest() throws IOException {
-//		Scanner s = new Scanner("test/struct.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s);
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void pointer2Test() throws IOException {
+		Scanner s = new Scanner("test/pointer2.c");
+		s.scan();
+		Parser p = new Parser(grammar, s);
+		
+		assertTrue(p.parse());
+	}
+
+	@Test
+	public void stringTest() throws IOException {
+		Scanner s = new Scanner("test/string.c");
+		s.scan();
+		Parser p = new Parser(grammar, s);
+		
+		assertTrue(p.parse());
+	}
+	
+	@Test
+	public void structTest() throws IOException {
+		Scanner s = new Scanner("test/struct.c");
+		s.scan();
+		Parser p = new Parser(grammar, s);
+		
+		assertTrue(p.parse());
+	}
 	
 	@Test
 	public void subtractTest() throws IOException {
@@ -251,14 +260,14 @@ public class ParserTest {
 		assertFalse(p.parse());
 	}
 	
-//	@Test
-//	public void bad_base_parenTest() throws IOException {
-//		Scanner s = new Scanner("test/bad_base_paren.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s);
-//		
-//		assertFalse(p.parse());
-//	}
+	@Test
+	public void bad_base_parenTest() throws IOException {
+		Scanner s = new Scanner("test/bad_base_paren.c");
+		s.scan();
+		Parser p = new Parser(grammar, s);
+		
+		assertFalse(p.parse());
+	}
 	
 	@Test
 	public void bad_for_semi1Test() throws IOException {
@@ -269,31 +278,31 @@ public class ParserTest {
 		assertFalse(p.parse());
 	}
 	
-//	@Test
-//	public void base_semiTest() throws IOException {
-//		Scanner s = new Scanner("test/base_semi.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s);
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void base_semiTest() throws IOException {
+		Scanner s = new Scanner("test/base_semi.c");
+		s.scan();
+		Parser p = new Parser(grammar, s);
+		
+		assertTrue(p.parse());
+	}
 	
-//	@Test
-//	public void base_semi2Test() throws IOException {
-//		Scanner s = new Scanner("test/base_semi2.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s);
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void base_semi2Test() throws IOException {
+		Scanner s = new Scanner("test/base_semi2.c");
+		s.scan();
+		Parser p = new Parser(grammar, s);
+		
+		assertTrue(p.parse());
+	}
 	
-//	@Test
-//	public void for_semi2Test() throws IOException {
-//		Scanner s = new Scanner("test/for_semi2.c");
-//		s.scan();
-//		Parser p = new Parser(grammar, s);
-//		
-//		assertTrue(p.parse());
-//	}
+	@Test
+	public void for_semi2Test() throws IOException {
+		Scanner s = new Scanner("test/for_semi2.c");
+		s.scan();
+		Parser p = new Parser(grammar, s);
+		
+		assertTrue(p.parse());
+	}
 	
 }

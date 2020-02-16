@@ -64,7 +64,9 @@ public class Node {
 	
 	public static String printTree(Node node, String indent, Boolean last) {
 		StringBuilder sb = new StringBuilder();
+		
 		sb.append(indent);
+		
 		if (node.getParent() != null) {
 			if (last) {
 				sb.append("`-");
@@ -79,9 +81,11 @@ public class Node {
 
 		List<Node> children = node.getChildren();
 		Collections.reverse(children);
+		
 		for (int i = 0; i < children.size(); i++) {
 			sb.append(printTree(children.get(i), indent, i == children.size() - 1));
 		}
+		
 		return sb.toString();
 	}
 	
