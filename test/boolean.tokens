@@ -36,3 +36,4 @@ greater '>'	 [LeadingSpace]	Loc=<boolean.c:11:11>
 numeric_constant '0'	 [LeadingSpace]	Loc=<boolean.c:11:13>
 semi ';'		Loc=<boolean.c:11:14>
 r_brace '}'	 [StartOfLine]	Loc=<boolean.c:12:1>
+eof ''		Loc=<boolean.c:12:2>

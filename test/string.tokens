@@ -16,3 +16,4 @@ equal '='	 [LeadingSpace]	Loc=<string.c:4:21>
 char_constant ''a''	 [LeadingSpace]	Loc=<string.c:4:23>
 semi ';'		Loc=<string.c:4:26>
 r_brace '}'	 [StartOfLine]	Loc=<string.c:5:1>
+eof ''		Loc=<string.c:5:2>

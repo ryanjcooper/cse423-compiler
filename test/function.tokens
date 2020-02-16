@@ -37,3 +37,4 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<function.c:13:9>
 identifier 'i'	 [LeadingSpace]	Loc=<function.c:13:16>
 semi ';'		Loc=<function.c:13:17>
 r_brace '}'	 [StartOfLine]	Loc=<function.c:14:1>
+eof ''		Loc=<function.c:14:2>

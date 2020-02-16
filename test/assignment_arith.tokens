@@ -32,3 +32,4 @@ slashequal '/='		Loc=<assignment_arith.c:10:10>
 numeric_constant '1'		Loc=<assignment_arith.c:10:12>
 semi ';'		Loc=<assignment_arith.c:10:13>
 r_brace '}'	 [StartOfLine]	Loc=<assignment_arith.c:11:1>
+eof ''		Loc=<assignment_arith.c:11:2>

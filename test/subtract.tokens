@@ -28,3 +28,4 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<subtract.c:9:9>
 numeric_constant '0'	 [LeadingSpace]	Loc=<subtract.c:9:16>
 semi ';'		Loc=<subtract.c:9:17>
 r_brace '}'	 [StartOfLine]	Loc=<subtract.c:10:1>
+eof ''		Loc=<subtract.c:10:2>
