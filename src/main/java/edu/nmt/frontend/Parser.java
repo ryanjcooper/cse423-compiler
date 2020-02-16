@@ -76,7 +76,7 @@ public class Parser {
 				this.parseTree = action.getRoot();
 				return true;
 			case REJECT:
-				this.printError(action.getError(), lookbehind, token);
+				this.printError(action.getError(), action.getExpected(), token);
 				return false;
 			case SHIFT:		
 				try {
@@ -105,17 +105,17 @@ public class Parser {
 		}
 	}
 	
-	private void printError(int err, Token token, Token lookahead) {
+	private void printError(int err, String token, Token lookahead) {
 		switch (err) {
 		case 1:
 			System.out.println(String.format("%s:%d:%d: error: expected '%s' before '%s' token", this.filename, lookahead.getLineNum(), 
-					lookahead.getCharPos(), token.getTokenString(), lookahead.getTokenString()));
+					lookahead.getCharPos(), token, lookahead.getTokenString()));
 			break;
 		}
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/bad_add.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner, false);
 		p.grammar.loadGrammar();

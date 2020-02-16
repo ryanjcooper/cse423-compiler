@@ -34,6 +34,7 @@ public class RuntimeSettings {
 	}
 	
 	public static HashMap<String,String> labeledTokenMap = new HashMap<String, String>();
+	public static HashMap<String,String> token2LabelMap = new HashMap<String, String>();
 	public static List<String> validLabels = new ArrayList<String>();
 	
 	static {
@@ -51,12 +52,15 @@ public class RuntimeSettings {
 				 */
 				while (sc.hasNextLine()) {
 					String[] tokenList = sc.nextLine().split(" ");
-					String label = tokenList[0]; // this is the label for this set of tokens
+					String label = tokenList[0]; 				// this is the label for this set of tokens
 					validLabels.add(label);
+					token2LabelMap.put(label, tokenList[1]);	// this is strictly for 1 to 1 mappings
 					for (int i = 1; i < tokenList.length; i++) {
 						labeledTokenMap.put(tokenList[i], label);
 					}
 				}
+				
+				sc.close();
 				
 			} catch (Exception e) {
 				e.printStackTrace();
