@@ -269,6 +269,10 @@ public class Scanner {
 	    }
 	    writer.close();
 	}
+	
+	public File getFile() {
+		return this.finp;
+	}
 
 	public List<Token> getTokens() {
 		return this.tokens;

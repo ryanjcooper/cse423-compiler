@@ -20,6 +20,10 @@ public class Node {
 		this.children = new ArrayList<Node>();
 	}
 	
+	public Token getToken() {
+		return this.token;
+	}
+	
 	/**
 	 * Gets the parent of a Node
 	 * @return returns parent Node type
