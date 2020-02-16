@@ -11,10 +11,10 @@ semi ';'		Loc=<types.c:3:21>
 unsigned 'unsigned'	 [StartOfLine] [LeadingSpace]	Loc=<types.c:4:9>
 identifier 'b'	 [LeadingSpace]	Loc=<types.c:4:18>
 equal '='	 [LeadingSpace]	Loc=<types.c:4:20>
-minus '-'	 [LeadingSpace]	Loc=<types.c:4:22>
-numeric_constant '1'		Loc=<types.c:4:23>
-semi ';'		Loc=<types.c:4:24>
+numeric_constant '1'	 [LeadingSpace]	Loc=<types.c:4:22>
+semi ';'		Loc=<types.c:4:23>
 return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<types.c:6:9>
 numeric_constant '0'	 [LeadingSpace]	Loc=<types.c:6:16>
 semi ';'		Loc=<types.c:6:17>
 r_brace '}'	 [StartOfLine]	Loc=<types.c:7:1>
+eof ''		Loc=<types.c:7:2>

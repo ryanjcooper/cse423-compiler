@@ -56,10 +56,11 @@ public class TokenLabelerTest {
 
 	@Test
 	public void testLabelToken() {
-		//type int void char
+		//type int void char unsigned
 		assertEquals("type", TokenLabeler.labelToken("int"));
 		assertEquals("type", TokenLabeler.labelToken("void"));
 		assertEquals("type", TokenLabeler.labelToken("char"));
+		assertEquals("type", TokenLabeler.labelToken("unsigned"));
 		//return return
 		assertEquals("return", TokenLabeler.labelToken("return"));
 		//break break
@@ -78,6 +79,10 @@ public class TokenLabelerTest {
 		assertEquals("l_brace", TokenLabeler.labelToken("{"));
 		//r_brace }
 		assertEquals("r_brace", TokenLabeler.labelToken("}"));
+		//l_bracket [
+		assertEquals("l_bracket", TokenLabeler.labelToken("["));
+		//r_bracket ]
+		assertEquals("r_bracket", TokenLabeler.labelToken("]"));
 		//assign_op = += -= /= *= %= |= &= >>= <<= ^=
 		assertEquals("assign_op", TokenLabeler.labelToken("="));
 		assertEquals("assign_op", TokenLabeler.labelToken("+="));
@@ -93,12 +98,21 @@ public class TokenLabelerTest {
 		//add_op + - 
 		assertEquals("add_op", TokenLabeler.labelToken("+"));
 		assertEquals("add_op", TokenLabeler.labelToken("-"));
-		//mul_op * /
+		//mul_op *
 		assertEquals("mul_op", TokenLabeler.labelToken("*"));
-		assertEquals("mul_op", TokenLabeler.labelToken("/"));
+		//div_op /
+		assertEquals("div_op", TokenLabeler.labelToken("/"));
 		//unary_op ++ --
 		assertEquals("unary_op", TokenLabeler.labelToken("++"));
 		assertEquals("unary_op", TokenLabeler.labelToken("--"));
+		//exclaim !
+		assertEquals("exclaim", TokenLabeler.labelToken("!"));
+		//tilde ~
+		assertEquals("tilde", TokenLabeler.labelToken("~"));
+		//dot .
+		assertEquals("dot", TokenLabeler.labelToken("."));
+		//arrow ->
+		assertEquals("arrow", TokenLabeler.labelToken("->"));
 		//bool_op && == || <= >= < > != 
 		assertEquals("bool_op", TokenLabeler.labelToken("&&"));
 		assertEquals("bool_op", TokenLabeler.labelToken("=="));
@@ -120,6 +134,10 @@ public class TokenLabelerTest {
 		assertEquals("for", TokenLabeler.labelToken("for"));
 		//switch switch
 		assertEquals("switch", TokenLabeler.labelToken("switch"));
+		//struct struct
+		assertEquals("struct", TokenLabeler.labelToken("struct"));
+		//enum enum
+		assertEquals("enum", TokenLabeler.labelToken("enum"));
 		//case case
 		assertEquals("case", TokenLabeler.labelToken("case"));
 		//default default

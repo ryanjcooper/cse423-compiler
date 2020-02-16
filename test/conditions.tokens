@@ -39,3 +39,4 @@ numeric_constant '0'	 [LeadingSpace]	Loc=<conditions.c:10:24>
 semi ';'		Loc=<conditions.c:10:25>
 r_brace '}'	 [StartOfLine] [LeadingSpace]	Loc=<conditions.c:11:9>
 r_brace '}'	 [StartOfLine]	Loc=<conditions.c:12:1>
+eof ''		Loc=<conditions.c:12:2>

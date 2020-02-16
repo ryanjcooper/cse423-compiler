@@ -27,3 +27,4 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<enum.c:9:9>
 identifier 'proj'	 [LeadingSpace]	Loc=<enum.c:9:16>
 semi ';'		Loc=<enum.c:9:20>
 r_brace '}'	 [StartOfLine]	Loc=<enum.c:10:1>
+eof ''		Loc=<enum.c:10:2>

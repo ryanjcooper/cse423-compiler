@@ -7,3 +7,4 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<base.c:3:9>
 numeric_constant '1'	 [LeadingSpace]	Loc=<base.c:3:16>
 semi ';'		Loc=<base.c:3:17>
 r_brace '}'	 [StartOfLine]	Loc=<base.c:4:1>
+eof ''		Loc=<base.c:4:2>
