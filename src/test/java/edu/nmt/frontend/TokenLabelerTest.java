@@ -95,7 +95,7 @@ public class TokenLabelerTest {
 		assertEquals("add_op", TokenLabeler.labelToken("-"));
 		//mul_op * /
 		assertEquals("mul_op", TokenLabeler.labelToken("*"));
-		assertEquals("mul_op", TokenLabeler.labelToken("/"));
+		assertEquals("div_op", TokenLabeler.labelToken("/"));
 		//unary_op ++ --
 		assertEquals("unary_op", TokenLabeler.labelToken("++"));
 		assertEquals("unary_op", TokenLabeler.labelToken("--"));
