@@ -43,4 +43,3 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<base_semi.c:21:9>
 numeric_constant '1'	 [LeadingSpace]	Loc=<base_semi.c:21:16>
 semi ';'		Loc=<base_semi.c:21:17>
 r_brace '}'	 [StartOfLine]	Loc=<base_semi.c:22:1>
-eof ''		Loc=<base_semi.c:22:2>

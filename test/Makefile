@@ -10,6 +10,7 @@ all: $(list)
 $(list):
 	@$(CC) $(CFLAGS) $@.c -o $@ 2>/dev/null
 	-@$(TOKIT) $@.c > $@.tokens 2>&1
+	-@head -n -1 $@.tokens | tee $@.tokens > /dev/null
 	-@$(AST) $@.c > $@.astdump 2>&1
 
 # deletes executeable and .tokens files

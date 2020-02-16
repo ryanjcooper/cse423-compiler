@@ -33,4 +33,3 @@ star '*'	 [LeadingSpace]	Loc=<pointer.c:5:16>
 identifier 'a'		Loc=<pointer.c:5:17>
 semi ';'		Loc=<pointer.c:5:18>
 r_brace '}'	 [StartOfLine]	Loc=<pointer.c:6:1>
-eof ''		Loc=<pointer.c:6:2>
