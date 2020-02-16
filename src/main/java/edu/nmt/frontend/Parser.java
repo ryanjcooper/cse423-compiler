@@ -68,7 +68,6 @@ public class Parser {
 	public boolean parse() {
 		Iterator<Token> tokenIt = tokens.iterator();
 		Token token = null;
-		Token lookbehind = null;
 		
 		while (true) {
 			switch (this.action.getType()) {
@@ -80,7 +79,6 @@ public class Parser {
 				return false;
 			case SHIFT:		
 				try {
-					lookbehind = token;
 					token = tokenIt.next();
 				} catch (NoSuchElementException nse) {
 					token = null;
@@ -110,6 +108,7 @@ public class Parser {
 		}
 	}
 	
+
 	private void printError(int err, String token, Token lookahead) {
 		switch (err) {
 		case 1:
