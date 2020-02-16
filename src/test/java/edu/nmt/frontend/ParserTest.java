@@ -246,7 +246,7 @@ public class ParserTest {
 	public void bad_base_for_parenTest() throws IOException {
 		Scanner s = new Scanner("test/bad_base_for_paren.c");
 		s.scan();
-		Parser p = new Parser(grammar, s.getTokens());
+		Parser p = new Parser(grammar, s);
 		
 		assertFalse(p.parse());
 	}
@@ -255,7 +255,7 @@ public class ParserTest {
 	public void bad_base_parenTest() throws IOException {
 		Scanner s = new Scanner("test/bad_base_paren.c");
 		s.scan();
-		Parser p = new Parser(grammar, s.getTokens());
+		Parser p = new Parser(grammar, s);
 		
 		assertFalse(p.parse());
 	}
@@ -264,7 +264,7 @@ public class ParserTest {
 	public void bad_for_semi1Test() throws IOException {
 		Scanner s = new Scanner("test/bad_for_semi1.c");
 		s.scan();
-		Parser p = new Parser(grammar, s.getTokens());
+		Parser p = new Parser(grammar, s);
 		
 		assertFalse(p.parse());
 	}
@@ -273,7 +273,7 @@ public class ParserTest {
 	public void base_semiTest() throws IOException {
 		Scanner s = new Scanner("test/base_semi.c");
 		s.scan();
-		Parser p = new Parser(grammar, s.getTokens());
+		Parser p = new Parser(grammar, s);
 		
 		assertTrue(p.parse());
 	}
@@ -282,7 +282,7 @@ public class ParserTest {
 	public void base_semi2Test() throws IOException {
 		Scanner s = new Scanner("test/base_semi2.c");
 		s.scan();
-		Parser p = new Parser(grammar, s.getTokens());
+		Parser p = new Parser(grammar, s);
 		
 		assertTrue(p.parse());
 	}
@@ -291,7 +291,7 @@ public class ParserTest {
 	public void for_semi2Test() throws IOException {
 		Scanner s = new Scanner("test/for_semi2.c");
 		s.scan();
-		Parser p = new Parser(grammar, s.getTokens());
+		Parser p = new Parser(grammar, s);
 		
 		assertTrue(p.parse());
 	}
