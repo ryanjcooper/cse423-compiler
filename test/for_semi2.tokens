@@ -105,4 +105,3 @@ semi ';'		Loc=<for_semi2.c:10:43>
 semi ';'		Loc=<for_semi2.c:10:44>
 semi ';'		Loc=<for_semi2.c:10:45>
 r_brace '}'	 [StartOfLine]	Loc=<for_semi2.c:11:1>
-eof ''		Loc=<for_semi2.c:11:2>

@@ -25,4 +25,3 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<multiply.c:8:9>
 numeric_constant '0'	 [LeadingSpace]	Loc=<multiply.c:8:16>
 semi ';'		Loc=<multiply.c:8:17>
 r_brace '}'	 [StartOfLine]	Loc=<multiply.c:9:1>
-eof ''		Loc=<multiply.c:9:2>

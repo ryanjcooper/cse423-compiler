@@ -35,4 +35,3 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<switch.c:13:9>
 numeric_constant '0'	 [LeadingSpace]	Loc=<switch.c:13:16>
 semi ';'		Loc=<switch.c:13:17>
 r_brace '}'	 [StartOfLine]	Loc=<switch.c:14:1>
-eof ''		Loc=<switch.c:14:2>

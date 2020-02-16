@@ -44,4 +44,3 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<binary.c:15:3>
 numeric_constant '1'	 [LeadingSpace]	Loc=<binary.c:15:10>
 semi ';'		Loc=<binary.c:15:11>
 r_brace '}'	 [StartOfLine]	Loc=<binary.c:16:1>
-eof ''		Loc=<binary.c:16:2>

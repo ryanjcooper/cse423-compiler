@@ -8,4 +8,3 @@ numeric_constant '1'	 [LeadingSpace]	Loc=<base_semi2.c:3:16>
 semi ';'		Loc=<base_semi2.c:3:17>
 r_brace '}'	 [StartOfLine]	Loc=<base_semi2.c:4:1>
 semi ';'	 [StartOfLine]	Loc=<base_semi2.c:5:1>
-eof ''		Loc=<base_semi2.c:5:2>

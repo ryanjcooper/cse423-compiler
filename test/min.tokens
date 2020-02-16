@@ -12,4 +12,3 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<min.c:3:9>
 numeric_constant '1'	 [LeadingSpace]	Loc=<min.c:3:16>
 semi ';'		Loc=<min.c:3:17>
 r_brace '}'	 [StartOfLine]	Loc=<min.c:4:1>
-eof ''		Loc=<min.c:4:2>

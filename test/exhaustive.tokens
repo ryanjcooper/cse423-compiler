@@ -224,4 +224,3 @@ return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<exhaustive.c:68:9>
 numeric_constant '1'	 [LeadingSpace]	Loc=<exhaustive.c:68:16>
 semi ';'		Loc=<exhaustive.c:68:17>
 r_brace '}'	 [StartOfLine]	Loc=<exhaustive.c:69:1>
-eof ''		Loc=<exhaustive.c:80:3>

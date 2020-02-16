@@ -20,4 +20,3 @@ plusplus '++'		Loc=<while.c:6:18>
 semi ';'		Loc=<while.c:6:20>
 r_brace '}'	 [StartOfLine] [LeadingSpace]	Loc=<while.c:7:9>
 r_brace '}'	 [StartOfLine]	Loc=<while.c:8:1>
-eof ''		Loc=<while.c:8:2>
