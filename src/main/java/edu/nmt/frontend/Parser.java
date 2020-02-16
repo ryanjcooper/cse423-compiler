@@ -99,7 +99,12 @@ public class Parser {
 			case REDUCE:
 				debugger.printPhase(ActionType.REDUCE);
 				
-				action.setType(this.action.reduce());
+				try {
+					action.setType(this.action.reduce());
+				} catch (NullPointerException npe) {
+					debugger.printStackTrace(npe);
+					return false;
+				}
 				break;
 			}
 		}

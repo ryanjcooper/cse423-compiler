@@ -146,7 +146,7 @@ public class Action {
 	 * update root node of parse tree as side effect
 	 * @return the type of the next action phase
 	 */
-	public ActionType reduce() {
+	public ActionType reduce() throws NullPointerException {
 		List<Goto> storage = new ArrayList<Goto>();
 		
 		debugger.print(stack);
