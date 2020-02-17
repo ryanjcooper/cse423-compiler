@@ -8,26 +8,26 @@
 
 ## Intended Feature List
 #### Required Features
-* [] Identifiers, variables, functions
-* [] Keywords
-* [] Arithmetic expressions
-* [] Assignment
-* [] Boolean expressions
-* [] Goto statements
-* [] If / Else control flow
-* [] Unary operators
-* [] Return statements
-* [] Break statements
-* [] While loops
+* [x] Identifiers, variables, functions
+* [x] Keywords
+* [x] Arithmetic expressions
+* [x] Assignment
+* [x] Boolean expressions
+* [x] Goto statements
+* [x] If / Else control flow
+* [x] Unary operators
+* [x] Return statements
+* [x] Break statements
+* [x] While loops
 #### Optional Features
-* [] Types other than integers
-* [] ++, —, -=, +=, *=, /=
-* [] For loops
-* [] Binary operators
-* [] Switch statements
+* [x] Types other than integers
+* [x] ++, —, -=, +=, *=, /=
+* [x] For loops
+* [x] Binary operators
+* [x] Switch statements
 #### Stretch-goal Features
-* [] Pointers, ~~arrays~~, strings
-* [] Struct, ~~enum~~
+* [x] Pointers, ~~arrays~~, strings
+* [x] Struct, ~~enum~~
 * ~~Preprocessor statements~~
 * ~~Casting, type promotion~~
 * ~~Type specs~~
