@@ -26,7 +26,7 @@
 * [x] Binary operators
 * [x] Switch statements
 #### Stretch-goal Features
-* [x] Pointers, ~~arrays~~, strings
+* [x] Pointers, arrays, strings
 * [x] Struct, ~~enum~~
 * ~~Preprocessor statements~~
 * ~~Casting, type promotion~~
@@ -66,6 +66,7 @@ The parser supports everything labeled under the Features List that is not cross
 
 The following limitations include:
 * arrays can be declared, but not specified statically i.e char string[] = "" works but not char string[] = {'a', 'b'}
-* pointers can only be in the form *variable
+* arrays can be referenced with an int i.e. a[1] but not without the int, so "a[] = b" will not work
+* pointers can only be in the form *variable, not much else can be done with them
 * for loops have to be in the "form for (i = 0; i < 1; i++) {  }" not precise, just similar format
 * if statements, while loops, for loops all need braces around their interior
