@@ -45,9 +45,9 @@ public class Main {
         pt.setRequired(false);
         options.addOption(pt);
 
-        Option output = new Option("o", "output", true, "file to compile to");
-        output.setRequired(false);
-        options.addOption(output);
+//        Option output = new Option("o", "output", true, "file to compile to");
+//        output.setRequired(false);
+//        options.addOption(output);
         
         Option ppt = new Option("pp", "print-parsetree", false, "print the parse tree");
         ppt.setRequired(false);

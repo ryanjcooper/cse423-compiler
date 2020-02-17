@@ -40,6 +40,7 @@ public class ASTParser {
 		stack.addAll(root.getChildren());
 		root.setName("global");
 		
+		
 		// search over tree in dfs fashion
 		while(!stack.empty()) {
 			Node current = stack.pop();
@@ -50,6 +51,11 @@ public class ASTParser {
 				tmp.remove(current);
 				tmp.addAll(current.getChildren());
 				current.getParent().setChildren(tmp);
+				
+				for (Node child : current.getChildren()) {
+					child.setParent(current.getParent());
+				}
+				
 				
 			// handle collapsing functions
 			} else if (current.getToken().getTokenLabel().equals("funcDefinition")) {
@@ -74,6 +80,29 @@ public class ASTParser {
 					return false;
 				}
 				
+			// collapse function declarations
+			} else if (current.getToken().getTokenLabel().equals("funcDeclaration")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("type")) {
+						current.setType(child.getToken().getTokenString());
+						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("identifier")) {
+						current.setName(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}	
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+				
+				// TODO: handle params
+				for (Node child : current.getChildren()) {
+
+				}
+				
+				
+				
 			// collapse single child nodes (non-terminals)
 			} else if ((current.getChildren().size() == 1)) {
 				// remove node from parent
@@ -84,6 +113,18 @@ public class ASTParser {
 				Node tmpNode = current.getChildren().get(0);
 				tmpNode.setParent(current.getParent());
 				current.getParent().addChild(tmpNode);
+				
+			// collapse declarationList
+			} else if (current.getToken().getTokenLabel().equals("declarationList")) {
+				tmp = current.getParent().getChildren();
+				tmp.remove(current);
+				tmp.addAll(current.getChildren());
+				
+				for (Node child : current.getChildren()) {
+					child.setParent(current.getParent());
+				}
+				
+				current.getParent().setChildren(tmp);
 				
 			// label numeric_constant with type
 			} else if (current.getToken().getTokenLabel().equals("numeric_constant")) {
@@ -155,7 +196,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/function.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
