@@ -1,11 +1,6 @@
-int main()
-{
-        int a;
-        int b;
-        1 + 2;
-        c = 0;
-        b = 0;
-        a + b;
-        a++;
-        return 0;
+int main () {
+	int a[10];
+	a[1] = 1;
+	a[2] = a[1] + 1;
+	return a[3];
 }
