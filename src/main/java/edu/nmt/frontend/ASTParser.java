@@ -22,7 +22,9 @@ public class ASTParser {
 				"return",
 				"assign_op",
 				"add_op",
-				"unary_op"
+				"unary_op",
+				"l_bracket",
+				"r_bracket"
 			));
 	
 	public ASTParser(Parser p) {

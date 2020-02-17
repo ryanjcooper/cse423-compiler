@@ -277,6 +277,12 @@ public class Scanner {
 	public List<Token> getTokens() {
 		return this.tokens;
 	}
+	
+	public void printTokens() {
+	    for (Token tok : tokens) {
+	    	System.out.println(tok.toString() + '\n');
+	    }
+	}
 
 //    public static void main(String[] args) throws IOException {
 //        Scanner s = new Scanner("test/base.c");

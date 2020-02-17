@@ -26,6 +26,7 @@ public class Main {
 	private static String writeParseFile;
 	private static Boolean printAST;
 	private static Boolean printST;
+	private static Boolean printT;
 	
 	private static void parseArgs(String[] args) {
 		
@@ -36,9 +37,13 @@ public class Main {
         Option help = new Option("help", "print this message");
         options.addOption(help);
 
-        Option tok = new Option("t", "tokens", false, "dump tokens to file");
-        tok.setRequired(false);
-        options.addOption(tok);
+//        Option tok = new Option("t", "tokens", false, "dump tokens to file");
+//        tok.setRequired(false);
+//        options.addOption(tok);
+        
+        Option pt = new Option("pt", "print-tokens", false, "print tokens to console");
+        pt.setRequired(false);
+        options.addOption(pt);
 
         Option output = new Option("o", "output", true, "file to compile to");
         output.setRequired(false);
@@ -53,11 +58,11 @@ public class Main {
         options.addOption(wpt);
         
         Option apt = new Option("ap", "print-ast", false, "print the abstract syntax tree (limited support)");
-        ppt.setRequired(false);
+        apt.setRequired(false);
         options.addOption(apt);
         
         Option stp = new Option("stp", "print-symboltable", false, "print all scoped symbol tables");
-        ppt.setRequired(false);
+        stp.setRequired(false);
         options.addOption(stp);
         
         CommandLineParser parser = new DefaultParser();
@@ -78,6 +83,7 @@ public class Main {
             printParseTree = cmd.hasOption("pp");
             printAST = cmd.hasOption("ap");
             printST = cmd.hasOption("stp");
+            printT = cmd.hasOption("pt");
             
             if (cmd.hasOption("wp")) {
             	writeParseFile = cmd.getOptionValue("wp");
@@ -113,6 +119,10 @@ public class Main {
     		s.offloadToFile();
     	}
     	
+    	if (printT) {
+    		s.printTokens();
+    	}
+    	
     	
     	// Initialize grammar
     	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
@@ -120,26 +130,28 @@ public class Main {
     	
     	// Start parser
     	Parser p = new Parser(grammar, s);
-    	//p.parse();
-    	if (printParseTree) {
-    		p.printParseTree();
+
+    	if (p.parse()) {
+    		if (printParseTree) {
+        		p.printParseTree();
+        	}
+        	
+        	if (writeParseFile != null) {
+        		//p.writeParseTree(writeParseFile);
+        	}
+        	
+        	// Start AST Parser
+    		ASTParser a = new ASTParser(p);
+    		
+    		if (a.parse()) {
+    	    	if (printAST) {
+    	    		a.printAST();
+    	    	}
+    	    	
+    	    	if (printST) {
+    	    		a.printSymbolTable();
+    	    	}
+    		}    	
     	}
-    	
-    	if (writeParseFile != null) {
-    		//p.writeParseTree(writeParseFile);
-    	}
-    	
-    	// Start AST Parser
-		ASTParser a = new ASTParser(p);
-		
-		if (a.parse()) {
-	    	if (printAST) {
-	    		a.printAST();
-	    	}
-	    	
-	    	if (printST) {
-	    		a.printSymbolTable();
-	    	}
-		}    	
     }
 }
