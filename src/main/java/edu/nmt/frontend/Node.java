@@ -162,7 +162,19 @@ public class Node {
 	
 	@Override
 	public String toString() {
-		return this.token.getTokenLabel();
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.token.getTokenLabel());
+		
+		if (this.name != null) {
+			sb.append(" <" + this.name + "> ");
+		}
+		
+		if (this.type != null) {
+			sb.append(" <" + this.type  + "> ");
+		}
+		
+		
+		return sb.toString();
 	}
 
 	public void setChildren(List<Node> tmp) {

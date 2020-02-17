@@ -1,3 +1,4 @@
 int main() {
-	return 1+;
+	int i = 0;
+	return i;
 }
