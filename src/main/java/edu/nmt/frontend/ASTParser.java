@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-import edu.nmt.util.PrettyPrintingMap;
-
 public class ASTParser {
 	
 	private Parser p;
