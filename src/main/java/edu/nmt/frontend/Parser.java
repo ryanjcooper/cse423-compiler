@@ -136,6 +136,10 @@ public class Parser {
 		p.parse();
 		//p.testParse(p.parseTree);
 		//System.out.println("Output of parse(): " + p.parse() + "\n");
-		p.printParseTree();
+		//p.printParseTree();
+	}
+
+	public Node getParseTree() {
+		return this.parseTree;
 	}
 }
