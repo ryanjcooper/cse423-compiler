@@ -129,13 +129,13 @@ public class Parser {
 	}
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/test.c");
 		scanner.scan();
 		Parser p = new Parser(new Grammar("config/grammar.cfg"), scanner, true);
 		p.grammar.loadGrammar();
 		p.parse();
-		p.testParse(p.parseTree);
+		//p.testParse(p.parseTree);
 		//System.out.println("Output of parse(): " + p.parse() + "\n");
-		//p.printParseTree();
+		p.printParseTree();
 	}
 }
