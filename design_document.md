@@ -63,4 +63,7 @@ This rejects the token stream as invalid and produces an error message.
 The parser supports everything labeled under the Features List that is not crossed out at a basic level. The file ParserTest.java contains every test .c file the parser is capable of handling. We are sure there are some oversights and this parser may not correctly parse every .c file even if it only contains only the features we have listed as working.
 
 The following limitations include:
-* 
+* arrays can be declared, but not specified statically i.e char string[] = "" works but not char string[] = {'a', 'b'}
+* pointers can only be in the form *variable
+* for loops have to be in the "form for (i = 0; i < 1; i++) {  }" not precise, just similar format
+* if statements, while loops, for loops all need braces around their interior
