@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
+import edu.nmt.util.PrettyPrintingMap;
+
 public class ASTParser {
 	
 	private Parser p;
@@ -29,13 +31,14 @@ public class ASTParser {
 		this.p = p;
 	}
 	
-	public void parse() {
+	public Boolean parse() {
 		root = p.getParseTree();
 		Stack<Node> stack = new Stack<Node>();
 		List<Node> tmp;
 		List<Node> tmp2;
 		
 		stack.addAll(root.getChildren());
+		root.setName("global");
 		
 		// search over tree in dfs fashion
 		while(!stack.empty()) {
@@ -62,7 +65,14 @@ public class ASTParser {
 					}
 				}				
 				tmp.removeAll(tmp2);
-				current.setChildren(tmp);			
+				current.setChildren(tmp);
+				current.setType("function");
+				try {
+					current.getScopeNode().addSymbol(current.getName(), current);
+				} catch (Exception e) {
+					System.err.println(e.getMessage());
+					return false;
+				}
 				
 			// collapse single child nodes (non-terminals)
 			} else if ((current.getChildren().size() == 1)) {
@@ -94,22 +104,58 @@ public class ASTParser {
 				}	
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+				
+				// check for redefinition error
+				try {
+					current.getScopeNode().addSymbol(current.getName(), current);
+				} catch (Exception e) {
+					System.err.println(e.getMessage());
+					return false;
+				}
 			
 			// label identifiers and try and get type
 			} else if (current.getToken().getTokenLabel().equals("identifier")) {
 				current.setName(current.getToken().getTokenString());
+				
+				// TODO: solve undeclared identifiers
+//				if (!current.getScopeNode().containsSymbol(current.getToken().getTokenString())) {
+//					System.err.println("error: use of undeclared identifier '" + current.getToken().getTokenString() + "'");
+//				}		
 			}
-			
 			
 			stack.addAll(current.getChildren());
 		}
 		
+		return true;
+	}
+
+	public void printAST() {
+		System.out.println(Node.printTree(this.root, " ", false));
+	} 
+	
+	
+	public void printSymbolTable() {	
+		Stack<Node> stack = new Stack<Node>();
+		stack.add(this.root);
+		
+		while(!stack.empty()) {
+			Node cur = stack.pop();
+			stack.addAll(cur.getChildren());
+			
+			if (cur.isScopeNode()) {
+				System.out.println(cur.getName());		
+				System.out.println(new String(new char[cur.getName().length()]).replace("\0", "-"));
+				
+				System.out.println(cur.getSymbolTableString() + "\n");
+			}
+			
+			
+		}
 		
 	}
 	
-	
-	public static void main(String argv[]) throws IOException {
-		Scanner scanner = new Scanner("test/add.c");
+	public static void main(String argv[]) throws Exception {
+		Scanner scanner = new Scanner("test/test.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -117,12 +163,14 @@ public class ASTParser {
 		p.parse();
 //		System.out.println(Node.printTree(p.getParseTree(), " ", false));
 		ASTParser a = new ASTParser(p);
-		a.parse();
+		if (a.parse()) {
+			a.printAST();	
+		}
 		
-		System.out.println(Node.printTree(a.root, " ", false));
+		a.printSymbolTable();
 		
-
-	} 
+		
+	}
 	
 	
 	
