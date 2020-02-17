@@ -54,11 +54,11 @@ public class Main {
         
         Option apt = new Option("ap", "print-ast", false, "print the abstract syntax tree (limited support)");
         ppt.setRequired(false);
-        options.addOption(ppt);
+        options.addOption(apt);
         
         Option stp = new Option("stp", "print-symboltable", false, "print all scoped symbol tables");
         ppt.setRequired(false);
-        options.addOption(ppt);
+        options.addOption(stp);
         
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
