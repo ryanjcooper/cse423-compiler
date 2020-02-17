@@ -11,7 +11,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import edu.nmt.frontend.ASTParser;
 import edu.nmt.frontend.Grammar;
+import edu.nmt.frontend.Node;
 import edu.nmt.frontend.Parser;
 import edu.nmt.frontend.Scanner;
 import edu.nmt.RuntimeSettings;
@@ -22,6 +24,8 @@ public class Main {
 	private static Boolean storeTokens;
 	private static Boolean printParseTree;
 	private static String writeParseFile;
+	private static Boolean printAST;
+	private static Boolean printST;
 	
 	private static void parseArgs(String[] args) {
 		
@@ -44,9 +48,17 @@ public class Main {
         ppt.setRequired(false);
         options.addOption(ppt);
         
-        Option wpt = new Option("wp", "write-parsetree", true, "write parse tree to file");
+        Option wpt = new Option("wp", "write-parsetree", true, "write parse tree to file (not yet supported!)");
         wpt.setRequired(false);
         options.addOption(wpt);
+        
+        Option apt = new Option("ap", "print-ast", false, "print the abstract syntax tree (limited support)");
+        ppt.setRequired(false);
+        options.addOption(ppt);
+        
+        Option stp = new Option("stp", "print-symboltable", false, "print all scoped symbol tables");
+        ppt.setRequired(false);
+        options.addOption(ppt);
         
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -64,6 +76,9 @@ public class Main {
 
             storeTokens = cmd.hasOption("t");
             printParseTree = cmd.hasOption("pp");
+            printAST = cmd.hasOption("ap");
+            printST = cmd.hasOption("stp");
+            
             if (cmd.hasOption("wp")) {
             	writeParseFile = cmd.getOptionValue("wp");
             } else {
@@ -88,7 +103,7 @@ public class Main {
 	}
     
 	
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
     	parseArgs(args);
     	
     	// Start scanner
@@ -114,7 +129,17 @@ public class Main {
     		//p.writeParseTree(writeParseFile);
     	}
     	
+    	// Start AST Parser
+		ASTParser a = new ASTParser(p);
+		
+		if (a.parse()) {
+	    	if (printAST) {
+	    		a.printAST();
+	    	}
+	    	
+	    	if (printST) {
+	    		a.printSymbolTable();
+	    	}
+		}    	
     }
-	
-	
 }

@@ -122,7 +122,7 @@ public class Parser {
 	private void printError(int err, String token, Token lookahead) {
 		switch (err) {
 		case 1:
-			System.out.println(String.format("%s:%d:%d: error: expected '%s' before '%s' token", this.filename, lookahead.getLineNum(), 
+			System.err.println(String.format("%s:%d:%d: error: expected '%s' before '%s' token", this.filename, lookahead.getLineNum(), 
 					lookahead.getCharPos(), token, lookahead.getTokenString()));
 			break;
 		}

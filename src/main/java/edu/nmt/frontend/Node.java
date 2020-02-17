@@ -5,7 +5,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class Node {
 	Token token;
@@ -14,12 +18,31 @@ public class Node {
 	String type;
 	String name;
 	List<Node> children;
+	private Map<String, Node> symbol_table;  // only valid in funcDefinition and program
 	
 	Node(Token t) {
 		this.token = t;
 		this.parent = null;
 		this.depth = 0;
 		this.children = new ArrayList<Node>();
+		
+		if ((t != null) && isScopeNode()) {
+			symbol_table = new HashMap<String, Node>();
+		}
+		
+		
+	}
+	
+	public Boolean isScopeNode() {
+		return this.token.getTokenLabel().equals("program") || this.token.getTokenLabel().equals("funcDefinition");
+	}
+	
+	public Node getScopeNode() {
+		Node current = this.parent;
+		while(!current.isScopeNode()) {
+			current = current.parent;
+		}
+		return current;
 	}
 	
 	public Token getToken() {
@@ -179,5 +202,47 @@ public class Node {
 
 	public void setChildren(List<Node> tmp) {
 		this.children = tmp;
+	}
+
+	public void addSymbol(String key, Node n) throws Exception {
+		if (isScopeNode()) {
+			if (!symbol_table.containsKey(key)) {
+				symbol_table.put(key, n);
+			} else {
+				throw new Exception("error: redefinition of '" + key + "'");
+			}
+		}
+		
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public Boolean containsSymbol(String key) {
+		if (isScopeNode()) {
+			return symbol_table.containsKey(key);
+		}
+		return false;
+	}
+
+	public Map<String, Node> getSymbolTable() {
+		return this.symbol_table;
+	}
+
+	public String getSymbolTableString() {
+        StringBuilder sb = new StringBuilder();
+        Iterator<Entry<String, Node>> iter = this.symbol_table.entrySet().iterator();
+        while (iter.hasNext()) {
+            Entry<String, Node> entry = iter.next();
+            sb.append(entry.getKey());
+            sb.append('=').append('"');
+            sb.append(entry.getValue().type);
+            sb.append('"');
+            if (iter.hasNext()) {
+                sb.append('\n');
+            }
+        }
+        return sb.toString();
 	}
 }
