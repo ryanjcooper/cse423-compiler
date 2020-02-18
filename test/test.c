@@ -1,3 +1,8 @@
 int main () {
-	return -1;
+    int i = 0;
+    if (i + 1 > i + 2) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
