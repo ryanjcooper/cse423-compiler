@@ -1,0 +1,16 @@
+int 'int'	 [StartOfLine]	Loc=<badsemimissing.c:1:1>
+identifier 'main'	 [LeadingSpace]	Loc=<badsemimissing.c:1:5>
+l_paren '('		Loc=<badsemimissing.c:1:9>
+r_paren ')'		Loc=<badsemimissing.c:1:10>
+l_brace '{'	 [StartOfLine]	Loc=<badsemimissing.c:2:1>
+int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<badsemimissing.c:3:9>
+identifier 'i'	 [LeadingSpace]	Loc=<badsemimissing.c:3:13>
+equal '='	 [LeadingSpace]	Loc=<badsemimissing.c:3:15>
+numeric_constant '5'	 [LeadingSpace]	Loc=<badsemimissing.c:3:17>
+semi ';'		Loc=<badsemimissing.c:3:18>
+identifier 'i'	 [StartOfLine] [LeadingSpace]	Loc=<badsemimissing.c:5:9>
+plusplus '++'		Loc=<badsemimissing.c:5:10>
+return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<badsemimissing.c:7:9>
+identifier 'i'	 [LeadingSpace]	Loc=<badsemimissing.c:7:16>
+semi ';'		Loc=<badsemimissing.c:7:17>
+r_brace '}'	 [StartOfLine]	Loc=<badsemimissing.c:8:1>
