@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-g -Wall
 TOKIT=clang -O0 -Xclang -dump-tokens -fsyntax-only
 AST=clang -O0 -w -Xclang -ast-dump -fsyntax-only
-list = base base_semi base_semi2 add subtract multiply divide while boolean string break assignment_arith assignment_bin function goto conditions types for_semi2 for binary switch struct enum pointer exhaustive min badleftparen badparenredund badparenright badsemiconsec badsemimissing badsemimulti mod badbraceleft badbraceright badbraceredund
+list = base base_semi base_semi2 add subtract multiply divide while boolean string break assignment_arith assignment_bin function goto conditions types for_semi2 for binary switch struct enum pointer exhaustive min badparenleft badparenredund badparenright badsemiconsec badsemimissing badsemimulti mod badbraceleft badbraceright badbraceredund badreturntype
 
 all: $(list)
 
