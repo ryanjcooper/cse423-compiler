@@ -17,8 +17,10 @@ public class Node {
 	Integer depth;
 	String type;
 	String name;
+	String op;
 	List<Node> children;
 	private Map<String, Node> symbol_table;  // only valid in funcDefinition and program
+	
 	
 	Node(Token t) {
 		this.token = t;
@@ -196,6 +198,10 @@ public class Node {
 			sb.append(" <" + this.type  + "> ");
 		}
 		
+		if (this.op != null) {
+			sb.append(" <" + this.op  + "> ");
+		}
+		
 		
 		return sb.toString();
 	}
@@ -244,5 +250,9 @@ public class Node {
             }
         }
         return sb.toString();
+	}
+
+	public void setOp(String op) {
+		this.op = op;	
 	}
 }

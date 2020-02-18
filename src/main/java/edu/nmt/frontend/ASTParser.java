@@ -20,9 +20,9 @@ public class ASTParser {
 				"l_brace",
 				"r_brace",
 				"return",
-				"assign_op",
-				"add_op",
-				"unary_op",
+//				"assign_op",
+//				"add_op",
+//				"unary_op",
 				"l_bracket",
 				"r_bracket"
 			));
@@ -44,7 +44,7 @@ public class ASTParser {
 		// search over tree in dfs fashion
 		while(!stack.empty()) {
 			Node current = stack.pop();
-
+			
 			// remove node if token doesnt contribute to semantics
 			if (syntaxConstructs.contains(current.getToken().getTokenLabel())) {
 				tmp = current.getParent().getChildren();
@@ -80,6 +80,33 @@ public class ASTParser {
 					return false;
 				}
 				
+				// handle params
+				for (Node child : current.getChildren()) {
+					if (child.getToken().getTokenLabel().equals("params")) {
+						for (Node child2 : child.getChildren()) {
+							if (child2.getToken().getTokenLabel().equals("paramList")) {
+								for (Node child3 : child2.getChildren()) { // param objects
+									tmp = child3.getChildren();
+									tmp2 = new ArrayList<Node>();
+									if (child3.getToken().getTokenLabel().equals("param")) {
+										for (Node paramFeatures : child3.getChildren()) {
+											if (paramFeatures.getToken().getTokenLabel().equals("type")) {
+												child3.setType(paramFeatures.getToken().getTokenString());
+												tmp2.add(paramFeatures);
+											} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
+												child3.setName(paramFeatures.getToken().getTokenString());
+												tmp2.add(paramFeatures);
+											}
+										}
+									}
+									tmp.removeAll(tmp2);
+									child3.setChildren(tmp);
+								}
+							}
+						}
+					}
+				}
+				
 			// collapse function declarations
 			} else if (current.getToken().getTokenLabel().equals("funcDeclaration")) {
 				tmp = current.getChildren();
@@ -96,9 +123,31 @@ public class ASTParser {
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
-				// TODO: handle params
+				// handle params
 				for (Node child : current.getChildren()) {
-
+					if (child.getToken().getTokenLabel().equals("params")) {
+						for (Node child2 : child.getChildren()) {
+							if (child2.getToken().getTokenLabel().equals("paramList")) {
+								for (Node child3 : child2.getChildren()) { // param objects
+									tmp = child3.getChildren();
+									tmp2 = new ArrayList<Node>();
+									if (child3.getToken().getTokenLabel().equals("param")) {
+										for (Node paramFeatures : child3.getChildren()) {
+											if (paramFeatures.getToken().getTokenLabel().equals("type")) {
+												child3.setType(paramFeatures.getToken().getTokenString());
+												tmp2.add(paramFeatures);
+											} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
+												child3.setName(paramFeatures.getToken().getTokenString());
+												tmp2.add(paramFeatures);
+											}
+										}
+									}
+									tmp.removeAll(tmp2);
+									child3.setChildren(tmp);
+								}
+							}
+						}
+					}
 				}
 				
 				
@@ -141,6 +190,9 @@ public class ASTParser {
 					} else if (child.getToken().getTokenLabel().equals("identifier")) {
 						current.setName(child.getToken().getTokenString());
 						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("assign_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
 					}
 				}	
 				tmp.removeAll(tmp2);
@@ -162,11 +214,23 @@ public class ASTParser {
 //				if (!current.getScopeNode().containsSymbol(current.getToken().getTokenString())) {
 //					System.err.println("error: use of undeclared identifier '" + current.getToken().getTokenString() + "'");
 //				}		
+				
+			} else if (current.getToken().getTokenLabel().equals("assignStmt")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("assign_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
 			}
 			
 			stack.addAll(current.getChildren());
 		}
-		
+
 		return true;
 	}
 
@@ -196,7 +260,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -208,7 +272,7 @@ public class ASTParser {
 			a.printAST();	
 		}
 		
-		a.printSymbolTable();
+//		a.printSymbolTable();
 		
 		
 	}
