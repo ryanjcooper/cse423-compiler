@@ -95,11 +95,14 @@ public class TokenLabelerTest {
 		assertEquals("assign_op", TokenLabeler.labelToken(">>="));
 		assertEquals("assign_op", TokenLabeler.labelToken("<<="));
 		assertEquals("assign_op", TokenLabeler.labelToken("^="));
-		//add_op + - 
+		//add_op + 
 		assertEquals("add_op", TokenLabeler.labelToken("+"));
-		assertEquals("add_op", TokenLabeler.labelToken("-"));
+		//min_op -
+		assertEquals("min_op", TokenLabeler.labelToken("-"));
 		//mul_op *
 		assertEquals("mul_op", TokenLabeler.labelToken("*"));
+		//mod_op %
+		assertEquals("mod_op", TokenLabeler.labelToken("%"));		
 		//div_op /
 		assertEquals("div_op", TokenLabeler.labelToken("/"));
 		//unary_op ++ --

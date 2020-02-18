@@ -1,3 +1,3 @@
 int main () {
-	i + 1 > i + 2;
+	return -1;
 }
