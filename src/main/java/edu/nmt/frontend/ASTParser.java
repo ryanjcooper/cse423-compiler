@@ -226,6 +226,53 @@ public class ASTParser {
 				}				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+				
+			} else if (current.getToken().getTokenLabel().equals("simpleExpression")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("bool_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+			} else if (current.getToken().getTokenLabel().equals("incExpr")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("unary_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+				
+			} else if (current.getToken().getTokenLabel().equals("addExpression")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("add_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+				
+			} else if (current.getToken().getTokenLabel().equals("boolExpr")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("bool_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
 			}
 			
 			stack.addAll(current.getChildren());
@@ -260,19 +307,22 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/test.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
-		p.parse();
-//		System.out.println(Node.printTree(p.getParseTree(), " ", false));
+		if (p.parse()) {
+			;
+//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+		}
+		
 		ASTParser a = new ASTParser(p);
 		if (a.parse()) {
 			a.printAST();	
 		}
 		
-//		a.printSymbolTable();
+		a.printSymbolTable();
 		
 		
 	}
