@@ -1,0 +1,21 @@
+program <global> 
+ |-funcDefinition <foo>  <function> 
+ | |-param <i>  <int> 
+ | `-compoundStmt
+ |   `-statementList
+ |     |-returnStmt
+ |     | `-identifier <i> 
+ |     `-assignStmt <+=> 
+ |       |-numeric_constant <int> 
+ |       `-identifier <i> 
+ |-funcDefinition <main>  <function> 
+ | `-compoundStmt
+ |   `-statementList
+ |     |-returnStmt
+ |     | `-call
+ |     |   |-identifier <i> 
+ |     |   `-identifier <foo> 
+ |     `-varDeclaration <i>  <int>  <=> 
+ |       `-numeric_constant <int> 
+ `-funcDeclaration <foo>  <int> 
+   `-param <i>  <int> 

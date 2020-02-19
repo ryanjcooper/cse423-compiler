@@ -1,0 +1,77 @@
+1:1 type 'int'
+
+1:5 identifier 'foo'
+
+1:8 l_paren '('
+
+1:9 type 'int'
+
+1:13 identifier 'i'
+
+1:14 r_paren ')'
+
+1:15 semi ';'
+
+3:1 type 'int'
+
+3:5 identifier 'main'
+
+3:9 l_paren '('
+
+3:10 r_paren ')'
+
+4:1 l_brace '{'
+
+5:9 type 'int'
+
+5:13 identifier 'i'
+
+5:15 assign_op '='
+
+5:17 numeric_constant '0'
+
+5:18 semi ';'
+
+7:9 return 'return'
+
+7:16 identifier 'foo'
+
+7:19 l_paren '('
+
+7:20 identifier 'i'
+
+7:21 r_paren ')'
+
+7:22 semi ';'
+
+8:1 r_brace '}'
+
+10:1 type 'int'
+
+10:5 identifier 'foo'
+
+10:8 l_paren '('
+
+10:9 type 'int'
+
+10:13 identifier 'i'
+
+10:14 r_paren ')'
+
+11:1 l_brace '{'
+
+12:9 identifier 'i'
+
+12:11 assign_op '+='
+
+12:13 numeric_constant '1'
+
+12:14 semi ';'
+
+13:9 return 'return'
+
+13:16 identifier 'i'
+
+13:17 semi ';'
+
+14:1 r_brace '}'

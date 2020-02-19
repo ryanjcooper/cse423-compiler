@@ -1,25 +1,93 @@
-ex. int main () { return 1; }
-
-program
+ program
  `-declarationList
+   |-declaration
+   | `-funcDefinition
+   |   |-type
+   |   |-identifier
+   |   |-l_paren
+   |   |-params
+   |   | `-paramList
+   |   |   `-param
+   |   |     |-type
+   |   |     `-identifier
+   |   |-r_paren
+   |   `-compoundStmt
+   |     |-l_brace
+   |     |-statementList
+   |     | |-statement
+   |     | | `-returnStmt
+   |     | |   |-return
+   |     | |   |-expression
+   |     | |   | `-simpleExpression
+   |     | |   |   `-addExpression
+   |     | |   |     `-term
+   |     | |   |       `-factor
+   |     | |   |         `-identifier
+   |     | |   `-semi
+   |     | `-statement
+   |     |   `-assignStmt
+   |     |     |-identifier
+   |     |     |-assign_op
+   |     |     |-expression
+   |     |     | `-simpleExpression
+   |     |     |   `-addExpression
+   |     |     |     `-term
+   |     |     |       `-factor
+   |     |     |         `-constant
+   |     |     |           `-numeric_constant
+   |     |     `-semi
+   |     `-r_brace
+   |-declaration
+   | `-funcDefinition
+   |   |-type
+   |   |-identifier
+   |   |-l_paren
+   |   |-r_paren
+   |   `-compoundStmt
+   |     |-l_brace
+   |     |-statementList
+   |     | |-statement
+   |     | | `-returnStmt
+   |     | |   |-return
+   |     | |   |-expression
+   |     | |   | `-call
+   |     | |   |   |-identifier
+   |     | |   |   |-l_paren
+   |     | |   |   |-args
+   |     | |   |   | `-argList
+   |     | |   |   |   `-arg
+   |     | |   |   |     `-expression
+   |     | |   |   |       `-simpleExpression
+   |     | |   |   |         `-addExpression
+   |     | |   |   |           `-term
+   |     | |   |   |             `-factor
+   |     | |   |   |               `-identifier
+   |     | |   |   `-r_paren
+   |     | |   `-semi
+   |     | `-statement
+   |     |   `-varDeclarationList
+   |     |     `-varDeclaration
+   |     |       |-type
+   |     |       |-identifier
+   |     |       |-assign_op
+   |     |       |-expression
+   |     |       | `-simpleExpression
+   |     |       |   `-addExpression
+   |     |       |     `-term
+   |     |       |       `-factor
+   |     |       |         `-constant
+   |     |       |           `-numeric_constant
+   |     |       `-semi
+   |     `-r_brace
    `-declaration
-     `-funcDefinition
+     `-funcDeclaration
        |-type
        |-identifier
        |-l_paren
+       |-params
+       | `-paramList
+       |   `-param
+       |     |-type
+       |     `-identifier
        |-r_paren
-       `-compoundStmt
-         |-l_brace
-         |-statementList
-         | `-statement
-         |   `-returnStmt
-         |     |-return
-         |     |-expression
-         |     | `-simpleExpression
-         |     |   `-addExpression
-         |     |     `-term
-         |     |       `-factor
-         |     |         `-constant
-         |     |           `-numeric_constant
-         |     `-semi
-         `-r_brace
+       `-semi
