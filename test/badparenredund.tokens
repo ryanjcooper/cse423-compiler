@@ -1,0 +1,13 @@
+int 'int'	 [StartOfLine]	Loc=<badparenredund.c:1:1>
+identifier 'main'	 [LeadingSpace]	Loc=<badparenredund.c:1:5>
+l_paren '('		Loc=<badparenredund.c:1:9>
+r_paren ')'		Loc=<badparenredund.c:1:10>
+l_brace '{'	 [StartOfLine]	Loc=<badparenredund.c:2:1>
+return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<badparenredund.c:3:9>
+l_paren '('	 [LeadingSpace]	Loc=<badparenredund.c:3:16>
+l_paren '('		Loc=<badparenredund.c:3:17>
+numeric_constant '0'		Loc=<badparenredund.c:3:18>
+r_paren ')'		Loc=<badparenredund.c:3:19>
+r_paren ')'		Loc=<badparenredund.c:3:20>
+semi ';'		Loc=<badparenredund.c:3:21>
+r_brace '}'	 [StartOfLine]	Loc=<badparenredund.c:4:1>
