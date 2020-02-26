@@ -11,11 +11,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import edu.nmt.frontend.ASTParser;
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
-import edu.nmt.frontend.Parser;
-import edu.nmt.frontend.Scanner;
+import edu.nmt.frontend.parser.ASTParser;
+import edu.nmt.frontend.parser.Parser;
+import edu.nmt.frontend.scanner.Scanner;
 import edu.nmt.RuntimeSettings;
 
 public class Main {

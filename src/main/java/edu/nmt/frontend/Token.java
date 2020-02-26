@@ -1,5 +1,7 @@
 package edu.nmt.frontend;
 
+import edu.nmt.frontend.scanner.TokenLabeler;
+
 public class Token {
 
 	private String tokenString;

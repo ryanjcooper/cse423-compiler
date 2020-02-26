@@ -1,4 +1,4 @@
-package edu.nmt.frontend;
+package edu.nmt.frontend.parser;
 
 import java.util.Arrays;
 import java.util.Objects;

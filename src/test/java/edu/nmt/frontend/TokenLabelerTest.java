@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import edu.nmt.RuntimeSettings;
+import edu.nmt.frontend.scanner.TokenLabeler;
 
 public class TokenLabelerTest {
 

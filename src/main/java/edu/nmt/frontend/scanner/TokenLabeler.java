@@ -1,4 +1,4 @@
-package edu.nmt.frontend;
+package edu.nmt.frontend.scanner;
 
 import java.io.File;
 import java.io.FileNotFoundException;

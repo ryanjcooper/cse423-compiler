@@ -22,7 +22,7 @@ public class Node {
 	private Map<String, Node> symbol_table;  // only valid in funcDefinition and program
 	
 	
-	Node(Token t) {
+	public Node(Token t) {
 		this.token = t;
 		this.parent = null;
 		this.depth = 0;

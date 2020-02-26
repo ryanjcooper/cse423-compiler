@@ -1,4 +1,4 @@
-package edu.nmt.frontend;
+package edu.nmt.frontend.parser;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -7,6 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+
+import edu.nmt.frontend.Grammar;
+import edu.nmt.frontend.Node;
+import edu.nmt.frontend.scanner.Scanner;
 
 
 /**

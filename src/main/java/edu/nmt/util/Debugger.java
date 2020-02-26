@@ -2,7 +2,7 @@ package edu.nmt.util;
 
 import java.util.Stack;
 
-import edu.nmt.frontend.ActionType;
+import edu.nmt.frontend.parser.ActionType;
 
 public class Debugger {
 	

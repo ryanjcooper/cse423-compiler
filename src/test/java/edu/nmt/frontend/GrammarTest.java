@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import edu.nmt.frontend.parser.Rule;
 import edu.nmt.util.IOUtil;
 
 public class GrammarTest {

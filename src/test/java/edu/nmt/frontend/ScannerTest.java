@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import edu.nmt.frontend.scanner.Scanner;
+
 public class ScannerTest {
 	
 	/**

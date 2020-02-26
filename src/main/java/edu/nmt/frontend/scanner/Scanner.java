@@ -1,4 +1,4 @@
-package edu.nmt.frontend;
+package edu.nmt.frontend.scanner;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.nmt.RuntimeSettings;
+import edu.nmt.frontend.Token;
 import edu.nmt.util.IOUtil;
 
 /**

@@ -7,6 +7,9 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.nmt.frontend.parser.Parser;
+import edu.nmt.frontend.scanner.Scanner;
+
 public class ParserTest {
 
 	private Grammar grammar;
