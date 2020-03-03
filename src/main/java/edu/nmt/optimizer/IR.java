@@ -26,7 +26,19 @@ public class IR {
 			}
 		}
 		
-		this.instructionList.add(new Instruction(node));
+		String label = node.getName();
+		
+		if (label.contentEquals("returnStmt")) {
+			this.instructionList.add(new ReturnInstruction(node));
+		} else if (label.contentEquals("call")) {
+			this.instructionList.add(new CallInstruction(node));
+		} else if (label.contentEquals("ifStmt")) {
+			this.instructionList.add(new JumpInstruction(node));
+		} else {
+			this.instructionList.add(new Instruction(node));
+		}
+		
+		
 	}
 	
 	public void buildFunctionIRs(Node root) {
@@ -36,6 +48,12 @@ public class IR {
 				this.functionIRs.put(c.getType(), new ArrayList<Instruction>(this.instructionList));
 			}
 			this.instructionList.clear();
+		}
+	}
+	
+	public static void printList(List<Instruction> instrList) {
+		for (Instruction i : instrList) {
+			System.out.println(i);
 		}
 	}
 
