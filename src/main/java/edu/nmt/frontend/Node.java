@@ -149,7 +149,7 @@ public class Node {
 		}
 	}
 	
-	private int getMaxDepth() {
+	public int getMaxDepth() {
 		if (this.getChildren().isEmpty()) {
 			return this.getDepth();
 		} else {

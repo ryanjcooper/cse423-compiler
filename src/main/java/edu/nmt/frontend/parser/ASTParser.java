@@ -27,6 +27,15 @@ public class ASTParser {
 	private Parser p;
 	private Node root;
 	
+	public Node getRoot() {
+		return root;
+	}
+
+
+	public void setRoot(Node root) {
+		this.root = root;
+	}
+
 	// Parser constructs that dont add any semantic meaning
 	private List<String> syntaxConstructs = new ArrayList<String>(Arrays.asList(
 				"l_paren",
@@ -350,7 +359,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
