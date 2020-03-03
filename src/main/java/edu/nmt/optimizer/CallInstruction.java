@@ -6,10 +6,10 @@ import edu.nmt.frontend.Node;
 import edu.nmt.frontend.Token;
 
 public class CallInstruction extends Instruction {
-	public CallInstruction(Node node) {
-		super(node);
-		// TODO Auto-generated constructor stub
+	private List<Instruction> paramList;
+	
+	public CallInstruction(Node node, List<Instruction> operandList) {
+		super(node, operandList);
 	}
 
-	private List<Instruction> paramList;
 }

@@ -206,6 +206,10 @@ public class Node {
 		return sb.toString();
 	}
 
+	public String getOp() {
+		return op;
+	}
+
 	public String getType() {
 		return type;
 	}
