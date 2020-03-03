@@ -6,7 +6,7 @@ public class Instruction {
 	private Instruction operand1;
 	private Instruction operand2;
 	
-	public Instruction() {
+	public Instruction(Node node) {
 		
 	}
 }

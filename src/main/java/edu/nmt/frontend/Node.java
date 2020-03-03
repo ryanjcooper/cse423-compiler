@@ -206,6 +206,10 @@ public class Node {
 		return sb.toString();
 	}
 
+	public String getType() {
+		return type;
+	}
+
 	public void setChildren(List<Node> tmp) {
 		this.children = tmp;
 	}
