@@ -172,6 +172,10 @@ public class Node {
 		this.name = name;
 	}
 	
+	public void setToken(Token tok) {
+		this.token = tok;
+	}
+	
 //	private String printSubtree() {
 //		if (this.getChildren().isEmpty()) {
 //			return this.toString();

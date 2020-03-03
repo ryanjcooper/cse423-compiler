@@ -4,12 +4,17 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
+import edu.nmt.frontend.Token;
 import edu.nmt.frontend.scanner.Scanner;
 
 
@@ -349,8 +354,62 @@ public class ASTParser {
 		
 	}
 	
+	/**
+	 * Implements constant folding
+	 */
+	public void optimize()
+	{
+		// First in List is validity, second is value
+		HashMap<String, List<Float>> vals = new HashMap<String, List<Float>>();
+		Node cur = this.root;
+		Token tmp = null;
+		List<Node> children = null;
+		Deque<Node> queue = new LinkedList<Node>();
+		Boolean valid;
+		Integer value = 0;
+		
+		// Need a BFS to fold constants
+		queue.add(this.root);
+		while(queue.isEmpty() == false) {
+			// Get head
+			cur = queue.removeFirst();
+			
+			// Check for a fold
+			tmp = cur.getToken();
+			if(tmp.getTokenLabel().contentEquals("addExpression")) {
+				valid = true;
+				for(Node child: cur.getChildren()) {
+					if(child.getToken().getTokenLabel().contentEquals("numeric_constant")) {
+						System.out.println("Valid so far");
+					} else {
+						valid = false;
+						break;
+					}
+				}
+				
+				if(valid) {
+					System.out.println("Found a valid fold");
+					// Set the value
+					for(Node child: cur.getChildren()) {
+						value += Integer.parseInt(child.getToken().getTokenString());
+						System.out.println("New value is: " + value);
+					}
+					
+					// Replace Token and remove children
+					tmp = new Token(value.toString(), cur.getToken().getLineNum(), cur.getToken().getCharPos());
+					cur.setToken(tmp);
+					cur.setChildren(new ArrayList<Node>());
+					
+				}
+			}
+			
+			//Add children
+			queue.addAll(cur.getChildren());
+		}
+	}
+	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/add.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -362,6 +421,7 @@ public class ASTParser {
 		
 		ASTParser a = new ASTParser(p);
 		if (a.parse()) {
+			a.optimize();
 			a.printAST();	
 		}
 		
