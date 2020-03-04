@@ -16,14 +16,22 @@ public class Instruction {
 		this.instrID = "_" + lineNumber;
 		String label = node.getToken().getTokenLabel();
 		if (label.contentEquals("identifier") || label.contentEquals("numeric_constant")) {
-			operation = label;
-			op1Name = node.getToken().getTokenString();
+			this.operation = label;
+			this.op1Name = node.getToken().getTokenString();
 		} else {
-			operation = node.getOp();
+			if (label.contentEquals("varDeclaration")) {
+				this.instrID = node.getName();
+				this.operation = null;
+				
+			} else {
+				this.operation = node.getOp();
+			}
+			
 			if (!operandList.isEmpty()){
-				operand1 = operandList.get(0);
+				this.op1Name = node.getName();
+				this.operand1 = operandList.get(0);
 				if (operandList.size() > 1) {
-					operand2 = operandList.get(1);
+					this.operand2 = operandList.get(1);
 				}
 			}
 		}
@@ -41,14 +49,18 @@ public class Instruction {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(instrID + " = ");
-		if (operation.contentEquals("identifier") || operation.contentEquals("numeric_constant")) {
+		if (operation != null && (operation.contentEquals("identifier") || operation.contentEquals("numeric_constant"))) {
 			builder.append(op1Name);
 			return builder.toString();
 		} else {
 			if (operand1 != null) {
 				builder.append(operand1.getInstrID() + " ");
 			}
-			builder.append(operation);
+			
+			if (operation != null) {
+				builder.append(operation);
+			}
+			
 			if (operand2 != null) {
 				builder.append(" " + operand2.getInstrID());
 			}

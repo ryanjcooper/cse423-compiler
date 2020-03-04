@@ -30,7 +30,7 @@ public class IR {
 		String label = node.getToken().getTokenLabel();
 		Instruction add = null;
 		
-		if (label.contentEquals("compoundStmt")) {
+		if (label.contentEquals("compoundStmt") || label.contentEquals("statementList")) {
 			for (Node c : node.getChildren()) {
 				this.buildInstructionList(c);
 			}
@@ -84,7 +84,6 @@ public class IR {
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-			p.printParseTree();
 //			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 		}
 		
