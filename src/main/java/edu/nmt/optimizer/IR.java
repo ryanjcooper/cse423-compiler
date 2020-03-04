@@ -84,7 +84,7 @@ public class IR {
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-			;
+			p.printParseTree();
 //			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 		}
 		

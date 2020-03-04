@@ -9,5 +9,11 @@ public class ReturnInstruction extends Instruction {
 	public ReturnInstruction(Node node, List<Instruction> operandList, Integer lineNumber) {
 		super("return", operandList, lineNumber);
 	}
+
+	@Override
+	public String toString() {
+		return "return " + this.operand1.getInstrID();
+	}
+	
 	
 }

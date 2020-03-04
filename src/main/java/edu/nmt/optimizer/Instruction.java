@@ -18,9 +18,14 @@ public class Instruction {
 		if (label.contentEquals("identifier") || label.contentEquals("numeric_constant")) {
 			operation = label;
 			op1Name = node.getToken().getTokenString();
-		} else if (!node.getChildren().isEmpty()){
+		} else {
 			operation = node.getOp();
-			
+			if (!operandList.isEmpty()){
+				operand1 = operandList.get(0);
+				if (operandList.size() > 1) {
+					operand2 = operandList.get(1);
+				}
+			}
 		}
 	}
 	
@@ -35,16 +40,17 @@ public class Instruction {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
+		builder.append(instrID + " = ");
 		if (operation.contentEquals("identifier") || operation.contentEquals("numeric_constant")) {
-			builder.append(instrID + " = " + op1Name);
+			builder.append(op1Name);
 			return builder.toString();
 		} else {
-			builder.append(operation);
 			if (operand1 != null) {
-				builder.append(" " + operand1.getInstrID());
+				builder.append(operand1.getInstrID() + " ");
 			}
+			builder.append(operation);
 			if (operand2 != null) {
-				builder.append(" " + operand2);
+				builder.append(" " + operand2.getInstrID());
 			}
 			return  builder.toString();
 		}
