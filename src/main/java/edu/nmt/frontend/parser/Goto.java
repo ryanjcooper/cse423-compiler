@@ -136,6 +136,16 @@ public class Goto implements Cloneable {
 		return null;
 	}
 	
+	public Goto getEnd() {
+		Goto tmp = this;
+		
+		while (!tmp.isEndState()) {
+			tmp = tmp.nextState(true);
+		}
+		
+		return tmp;
+	}
+	
 	public Goto nextState(boolean nt) {
 		if (this.transitions.size() == 1) {
 			return this.transitions.values().iterator().next();
@@ -263,9 +273,10 @@ public class Goto implements Cloneable {
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Goto.init(g);
-		Goto test = Goto.get("else");
+		Goto test = Goto.get("identifier");
+		test = test.makeTransition("l_paren");
 		//Goto test2 = Goto.get("expression");
 		//test2.nextState().addTransition(new Goto(new Token(null, "hell", null, null)));
-		System.out.println(Goto.canStart("identifier"));
+		System.out.println(test.getEnd());
 	}
 }

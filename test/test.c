@@ -1,8 +1,11 @@
+struct meme {
+	int a;
+	char b;
+	unsigned c;
+};
+
 int main () {
-    int i = 0;
-    if (i + 1 > i + 2) {
-        return 1;
-    } else {
-        return 0;
-    }
+	int i,j=0,k=0;
+	call(x,y);
+    return 1 + ++i;
 }
