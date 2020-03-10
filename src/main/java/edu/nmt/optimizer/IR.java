@@ -37,8 +37,12 @@ public class IR {
 		} else {
 			List<Instruction> operandList = new ArrayList<Instruction>();
 			if (!node.getChildren().isEmpty()) {
-				for (Node c : node.getChildren()) {
-					operandList.add(this.buildInstructionList(c));
+				if (!label.contentEquals("assignStmt")) {
+					for (Node c : node.getChildren()) {
+						operandList.add(this.buildInstructionList(c));
+					}
+				} else {
+					operandList.add(this.buildInstructionList(node.getChildren().get(0)));
 				}
 			}
 			
@@ -78,7 +82,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/assignment_arith.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
