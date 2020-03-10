@@ -46,6 +46,7 @@ public class Parser {
 		this.tokens = scanner.getTokens();
 		this.filename = scanner.getFile().getName();
 		this.debugger = new Debugger(debug);
+		this.debugger.print(scanner.getTokens());
 		this.action = new Action(this.debugger);
 		
 		try {
