@@ -206,6 +206,10 @@ public class Node {
 		return sb.toString();
 	}
 
+	public void setTokenLabel(String label) {
+		this.token.setTokenLabel(label);
+	}
+	
 	public void setChildren(List<Node> tmp) {
 		this.children = tmp;
 	}

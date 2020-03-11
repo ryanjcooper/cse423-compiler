@@ -292,10 +292,28 @@ public class ASTParser {
 					if (child.getToken().getTokenLabel().equals("add_op")) {
 						current.setOp(child.getToken().getTokenString());
 						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("min_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
 					}
 				}				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+				
+			// label op in mulExpression
+			} else if (current.getToken().getTokenLabel().equals("term")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("mul_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+						current.setTokenLabel("mulExpression");
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+			
 			
 			// label op in boolExpr
 			} else if (current.getToken().getTokenLabel().equals("boolExpr")) {
@@ -350,14 +368,14 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/multiply.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-			;
-//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+//			;
+			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 		}
 		
 		ASTParser a = new ASTParser(p);
