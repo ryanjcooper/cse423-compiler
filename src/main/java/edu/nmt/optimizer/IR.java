@@ -8,6 +8,7 @@ import java.util.Map;
 
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
+import edu.nmt.frontend.Token;
 import edu.nmt.frontend.parser.ASTParser;
 import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
@@ -17,7 +18,21 @@ public class IR {
 	private List<Instruction> instructionList;
 	private Map<String, List<Instruction>> functionIRs;
 	private List<String> ignoredLabels = new ArrayList<String>(Arrays.asList(
-			"compoundStmt"
+			"compoundStmt",
+			"statementList",
+			"exprStmt"
+		));
+	private List<String> opAssign = new ArrayList<String>(Arrays.asList(
+			"+=",
+			"-=",
+			"/=",
+			"*=",
+			"%=",
+			"|=",
+			"&=",
+			">>=",
+			"<<=",
+			"^="
 		));
 	
 	public IR(Node root) {
@@ -26,11 +41,22 @@ public class IR {
 		this.buildFunctionIRs(root);
 	}
 	
+	private Node convertAssignStmt(Node assignStmt) {
+		String assignOp = assignStmt.getOp();
+		String op = assignOp.replace("=", "");
+		if (op.isEmpty()) {
+			return assignStmt;
+		} else if (op.contentEquals("+")) {
+			
+		}
+		return null;
+	}
+	
 	private Instruction buildInstructionList(Node node) {
 		String label = node.getToken().getTokenLabel();
 		Instruction add = null;
 		
-		if (label.contentEquals("compoundStmt") || label.contentEquals("statementList")) {
+		if (ignoredLabels.contains(label)) {
 			for (Node c : node.getChildren()) {
 				this.buildInstructionList(c);
 			}
@@ -59,9 +85,8 @@ public class IR {
 			this.instrCount++;
 			this.instructionList.add(add);
 		}
-
-		return add;
 		
+		return add;
 	}
 	
 	public void buildFunctionIRs(Node root) {
@@ -82,13 +107,13 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/assignment_arith.c");
+		Scanner scanner = new Scanner("test/add.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+//			p.printParseTree();
 		}
 		
 		ASTParser a = new ASTParser(p);

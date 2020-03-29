@@ -35,6 +35,19 @@ public class Node {
 		
 	}
 	
+	public Node(Node n) {
+		this.token = new Token(n.getToken());
+		this.parent = n.getParent();
+		this.depth = n.getDepth();
+		this.type = n.getType();
+		this.name = n.getName();
+		this.op = n.getOp();
+		this.children = new ArrayList<Node>(n.getChildren());
+		if (n.symbol_table != null) {
+			this.symbol_table = new HashMap<String, Node>(n.getSymbolTable());
+		}
+	}
+	
 	public Boolean isScopeNode() {
 		return this.token.getTokenLabel().equals("program") || this.token.getTokenLabel().equals("funcDefinition");
 	}

@@ -70,10 +70,13 @@ public class Instruction {
 				builder.append("null");
 			} else {
 				if (operand1 != null) {
-					builder.append(operand1.getInstrID() + " ");
+					builder.append(operand1.getInstrID());
 				}
 				
 				if (operation != null) {
+					if (!operation.contentEquals("++"))
+						builder.append(' ');
+					
 					builder.append(operation);
 				}
 				
