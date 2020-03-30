@@ -84,7 +84,7 @@ The following limitations include:
 * arrays can be declared, but not specified statically i.e char string[] = "" works but not char string[] = {'a', 'b'}
 * arrays can be referenced with an int i.e. a[1] but not without the int, so "a[] = b" will not work
 * variable lists are not permitted i.e. int i,j,k; is not allowed
-* pointers can only be in the form *variable, not much else can be done with them
+* pointers can only be in the form \*variable, not much else can be done with them
 * for loops have to be in the "form for (i = 0; i < 1; i++) {  }" not precise, just similar format
 * if statements, while loops, for loops all need braces around their interior
 
@@ -130,3 +130,9 @@ The following limitations include:
 ### Intermediate Representation (IR)
 
 ### Optimizations
+
+#### Optimization
+| Item        | Status           |
+| ------------- |-------------|
+| Constant Propagation     | :x: |
+| Constant Folding | :x: |
