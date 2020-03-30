@@ -7,30 +7,46 @@
 * Terence Brewer (@tbrewerDNM)
 
 ## Intended Feature List
+
 #### Required Features
-* [x] Identifiers, variables, functions
-* [x] Keywords
-* [x] Arithmetic expressions
-* [x] Assignment
-* [x] Boolean expressions
-* [x] Goto statements
-* [x] If / Else control flow
-* [x] Unary operators
-* [x] Return statements
-* [x] Break statements
-* [x] While loops
+| Item        | Status           |
+| ------------- |-------------|
+| Identifiers, variables, functions     | :white_check_mark: |
+| Keywords      | :white_check_mark: |
+| Arithmetic expressions | :white_check_mark: |
+| Assignment | :white_check_mark: |
+| Boolean expressions | :white_check_mark: |
+| Goto statements | :white_check_mark: |
+| If / Else control flow | :white_check_mark: |
+| Unary Operators | :white_check_mark: |
+| Return statements | :white_check_mark: |
+| Break expressions | :white_check_mark: |
+| While loops | :white_check_mark: |
+
 #### Optional Features
-* [x] Types other than integers
-* [x] ++, —, -=, +=, *=, /=
-* [x] For loops
-* [x] Binary operators
-* [x] Switch statements
+| Item        | Status           |
+| ------------- |-------------|
+| Types other than integers     | :white_check_mark: |
+| ++, —, -=, +=, *=, /=     | :white_check_mark: |
+| For loops | :white_check_mark: |
+| Binary operators | :white_check_mark: |
+| Switch statements | :white_check_mark: |
+
 #### Stretch-goal Features
 * [x] Pointers, arrays, strings
 * [x] Struct, ~~enum~~
 * ~~Preprocessor statements~~
 * ~~Casting, type promotion~~
 * ~~Type specs~~
+
+#### Stretch Goal features
+| Item        | Status           |
+| ------------- |-------------|
+| Pointers, arrays, strings | :white_check_mark: |
+| Struct, ~~enum~~ | :white_check_mark: |
+| ~~Preprocessor statements~~ | :x: |
+| ~~Casting, type promotion~~ | :x: |
+| ~~Type specs~~ | :x: |
 
 
 ### Scanner Design
@@ -71,3 +87,46 @@ The following limitations include:
 * pointers can only be in the form *variable, not much else can be done with them
 * for loops have to be in the "form for (i = 0; i < 1; i++) {  }" not precise, just similar format
 * if statements, while loops, for loops all need braces around their interior
+
+
+### Optimizer
+
+## Intended Feature List
+#### Required Features
+| Item        | Status           |
+| ------------- |-------------|
+| Identifiers, variables, functions     | :x: |
+| Keywords      | :x: |
+| Arithmetic expressions | :x: |
+| Assignment | :x: |
+| Boolean expressions | :x: |
+| Goto statements | :x: |
+| If / Else control flow | :x: |
+| Unary Operators | :x: |
+| Return statements | :x: |
+| Break expressions | :x: |
+| While loops | :x: |
+
+#### Optional Features
+| Item        | Status           |
+| ------------- |-------------|
+| Types other than integers     | :x: |
+| ++, —, -=, +=, *=, /=     | :x: |
+| For loops | :x: |
+| Binary operators | :x: |
+| Switch statements | :x: |
+
+#### Stretch Goal features
+| Item        | Status           |
+| ------------- |-------------|
+| Types other than integers     | :x: |
+| Switch statements | :x: |
+| Pointers, arrays, strings | :x: |
+| Struct, ~~enum~~ | :x: |
+| ~~Preprocessor statements~~ | :x: |
+| ~~Casting, type promotion~~ | :x: |
+| ~~Type specs~~ | :x: |
+
+### Intermediate Representation (IR)
+
+### Optimizations
