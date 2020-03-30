@@ -20,21 +20,21 @@ public class Node {
 	String op;
 	List<Node> children;
 	private Map<String, Node> symbol_table;  // only valid in funcDefinition and program
-	
-	
+
+
 	public Node(Token t) {
 		this.token = t;
 		this.parent = null;
 		this.depth = 0;
 		this.children = new ArrayList<Node>();
-		
+
 		if ((t != null) && isScopeNode()) {
 			symbol_table = new HashMap<String, Node>();
 		}
-		
-		
+
+
 	}
-	
+
 	public Node(Node n) {
 		this.token = new Token(n.getToken());
 		this.parent = n.getParent();
@@ -47,11 +47,11 @@ public class Node {
 			this.symbol_table = new HashMap<String, Node>(n.getSymbolTable());
 		}
 	}
-	
+
 	public Boolean isScopeNode() {
 		return this.token.getTokenLabel().equals("program") || this.token.getTokenLabel().equals("funcDefinition");
 	}
-	
+
 	public Node getScopeNode() {
 		Node current = this.parent;
 		while(!current.isScopeNode()) {
@@ -59,11 +59,11 @@ public class Node {
 		}
 		return current;
 	}
-	
+
 	public Token getToken() {
 		return this.token;
 	}
-	
+
 	/**
 	 * Gets the parent of a Node
 	 * @return returns parent Node type
@@ -71,7 +71,7 @@ public class Node {
 	public Node getParent() {
 		return this.parent;
 	}
-	
+
 	/**
 	 * Alter the parent of a node
 	 * @param p Node to set as parent
@@ -79,7 +79,7 @@ public class Node {
 	public void setParent(Node p) {
 		this.parent = p;
 	}
-	
+
 	/**
 	 * Returns list of Nodes that are Children
 	 * @return List of Nodes
@@ -87,26 +87,26 @@ public class Node {
 	public List<Node> getChildren() {
 		return this.children;
 	}
-	
+
 	public void setDepth(Integer depth) {
 		this.depth = depth;
 	}
-	
+
 	public Integer getDepth() {
 		return this.depth;
 	}
-	
+
 	public void addChild(Node n) {
 		n.setParent(this);
 		n.setDepth(this.getDepth() + 1); //for some reason, this doesn't properly set the depth of all children, so recursiveSetDepth was made
 		this.children.add(n);
 	}
-	
+
 	public static String printTree(Node node, String indent, Boolean last) {
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append(indent);
-		
+
 		if (node.getParent() != null) {
 			if (last) {
 				sb.append("`-");
@@ -116,26 +116,26 @@ public class Node {
 				indent += "| ";
 			}
 		}
-		
+
 		sb.append(node.toString() + "\n");
 
 		List<Node> children = node.getChildren();
 		Collections.reverse(children);
-		
+
 		for (int i = 0; i < children.size(); i++) {
 			sb.append(printTree(children.get(i), indent, i == children.size() - 1));
 		}
-		
+
 		return sb.toString();
 	}
-	
+
 	public static void writeFile(String fileName, Node node) throws IOException {
 		String out = printTree(node, " ", false);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 		writer.write(out);
 		writer.close();
 	}
-	
+
 //	private String returnMatchingDepth(int depth) {
 //		if (this.getDepth() == depth) {
 //			return this.toString() + "; ";
@@ -149,7 +149,7 @@ public class Node {
 //			return null;
 //		}
 //	}
-	
+
 	public void recursiveSetDepth() {
 		if (this.getChildren().isEmpty()) {
 			return;
@@ -161,7 +161,7 @@ public class Node {
 			}
 		}
 	}
-	
+
 	public int getMaxDepth() {
 		if (this.getChildren().isEmpty()) {
 			return this.getDepth();
@@ -176,7 +176,7 @@ public class Node {
 			return maxDepth;
 		}
 	}
-	
+
 	public void setType(String type) {
 		this.type = type;
 	}
@@ -184,38 +184,38 @@ public class Node {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 //	private String printSubtree() {
 //		if (this.getChildren().isEmpty()) {
 //			return this.toString();
 //		}
 //		StringBuilder builder = new StringBuilder();
-//		
+//
 //		for (Node c : this.getChildren()) {
 //			builder.append(c.printSubtree());
 //		}
 //		builder.deleteCharAt(builder.length() - 1).insert(0, this.toString() + "\n");
 //		return builder.toString();
 //	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(this.token.getTokenLabel());
-		
+
 		if (this.name != null) {
 			sb.append(" <" + this.name + "> ");
 		}
-		
+
 		if (this.type != null) {
 			sb.append(" <" + this.type  + "> ");
 		}
-		
+
 		if (this.op != null) {
 			sb.append(" <" + this.op  + "> ");
 		}
-		
-		
+
+
 		return sb.toString();
 	}
 
@@ -225,6 +225,10 @@ public class Node {
 
 	public String getType() {
 		return type;
+	}
+
+	public void setTokenLabel(String label) {
+		this.token.setTokenLabel(label);
 	}
 
 	public void setChildren(List<Node> tmp) {
@@ -239,7 +243,7 @@ public class Node {
 				throw new Exception("error: redefinition of '" + key + "'");
 			}
 		}
-		
+
 	}
 
 	public String getName() {
@@ -274,6 +278,6 @@ public class Node {
 	}
 
 	public void setOp(String op) {
-		this.op = op;	
+		this.op = op;
 	}
 }
