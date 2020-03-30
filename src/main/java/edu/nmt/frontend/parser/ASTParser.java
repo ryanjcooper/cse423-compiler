@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
+import edu.nmt.frontend.Token;
 import edu.nmt.frontend.scanner.Scanner;
 
 
@@ -36,7 +37,14 @@ public class ASTParser {
 				"r_brace",
 				"return",
 				"l_bracket",
-				"r_bracket"
+				"r_bracket",
+				"if",
+				"else"
+			));
+
+	// Token labels that should not be rolled up, even if only one child
+	private List<String> ignoreRollup = new ArrayList<String>(Arrays.asList(
+				"condition"
 			));
 	
 	/**
@@ -177,11 +185,21 @@ public class ASTParser {
 						}
 					}
 				}
+			
+			// handle conditionals
+			} else if (current.getToken().getTokenLabel().equals("ifStmt")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
 				
-				
+				// search over child nodes for condition, change expression -> condition
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("expression")) {
+						child.getToken().setTokenLabel("condition");
+					}
+				}
 				
 			// collapse single child nodes (non-terminals)
-			} else if ((current.getChildren().size() == 1)) {
+			} else if ((current.getChildren().size() == 1) && (!ignoreRollup.contains(current.getToken().getTokenLabel()))) {				
 				// remove node from parent
 				tmp = current.getParent().getChildren();
 				tmp.remove(current);
@@ -368,7 +386,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/multiply.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
