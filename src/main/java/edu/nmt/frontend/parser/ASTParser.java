@@ -335,7 +335,7 @@ public class ASTParser {
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
-			// label op in addExpression
+			// label op in addExpression and binExpression
 			} else if (current.getToken().getTokenLabel().equals("addExpression")) {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
@@ -345,6 +345,30 @@ public class ASTParser {
 						tmp2.add(child);
 					} else if (child.getToken().getTokenLabel().equals("min_op")) {
 						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+					
+					// nuisance of our parse tree, bitExpressions fall under addExpressions
+					} else if (child.getToken().getTokenLabel().equals("bit_op")) {
+						current.setOp(child.getToken().getTokenString());
+						current.getToken().setTokenLabel("bitExpression");
+						tmp2.add(child);
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+			
+			// label unary ops in expression
+			} else if (current.getToken().getTokenLabel().equals("expression")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("tilde")) {
+						current.setOp(child.getToken().getTokenString());
+						current.getToken().setTokenLabel("bitExpression");
+						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("exclaim")) {
+						current.setOp(child.getToken().getTokenString());
+						current.getToken().setTokenLabel("bitExpression");
 						tmp2.add(child);
 					}
 				}				
@@ -423,7 +447,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/for.c");
+		Scanner scanner = new Scanner("test/binary.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
