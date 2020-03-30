@@ -28,18 +28,6 @@ public class IR {
 			"statementList",
 			"exprStmt"
 		));
-	private List<String> opAssign = new ArrayList<String>(Arrays.asList(
-			"+=",
-			"-=",
-			"/=",
-			"*=",
-			"%=",
-			"|=",
-			"&=",
-			">>=",
-			"<<=",
-			"^="
-		));
 	
 	public IR(Node root) {
 		this.instructionList = new ArrayList<Instruction>();
@@ -55,20 +43,18 @@ public class IR {
 		if (op.isEmpty()) {
 			return assignStmt;
 		} else {
-			Token tok = new Token(null, "assignStmt");
-			convert = new Node(tok);
+			convert = new Node(new Token(null, "assignStmt"));
 			convert.setOp("=");
+			String tokenString = null;
 			if (op.contentEquals("+") || op.contentEquals("-")) {
-				Token tok2 = new Token(null, "addExpression");
-				newChild = new Node(tok2);
+				tokenString = "addExpression";
 			} else if (op.contentEquals("*") || op.contentEquals("/")) {
-				Token tok2 = new Token(null, "mulExpression");
-				newChild = new Node(tok2);
+				tokenString = "mulExpression";
 			} else {
-				Token tok2 = new Token(null, "bitExpression");
-				newChild = new Node(tok2);
+				tokenString = "bitExpression";
 			}
 
+			newChild = new Node(new Token(null, tokenString));
 			newChild.setOp(op);
 			newChild.setChildren(assignStmt.getChildren());
 			List<Node> newChildren = new ArrayList<Node>();
@@ -78,6 +64,22 @@ public class IR {
 		}
 		
 		return convert;
+	}
+	
+	private static Node convertIncExpr(Node incExpr) {
+		Node assignStmt = new Node(new Token(null, "assignStmt"));
+		Node addExpression = new Node(new Token(null, "addExpression"));
+		Node numConst = new Node(new Token("1"));
+		Node idDuplicate = new Node(incExpr.getChildren().get(0));
+		
+		assignStmt.setOp("=");
+		addExpression.setOp(Character.toString(incExpr.getOp().charAt(0)));
+		addExpression.addChild(numConst);
+		addExpression.addChild(incExpr.getChildren().get(0));
+		assignStmt.addChild(addExpression);
+		assignStmt.addChild(idDuplicate);
+		
+		return assignStmt;
 	}
 	
 	private Instruction buildInstructionList(Node node) {
@@ -91,19 +93,26 @@ public class IR {
 		} else {
 			List<Instruction> operandList = new ArrayList<Instruction>();
 			if (!node.getChildren().isEmpty()) {
-				if (!label.contentEquals("assignStmt")) {
-					for (Node c : node.getChildren()) {
-						operandList.add(this.buildInstructionList(c));
-					}
-				} else {
+				if (label.contentEquals("assignStmt")) {
 					Node replace = IR.convertAssignStmt(node);
 					if (node != replace) {
 						int nodeIndex = node.getParent().getChildren().indexOf(node);
 						node.getParent().getChildren().set(nodeIndex, replace);
+						node = replace;
 					}
 
 					operandList.add(this.buildInstructionList(replace.getChildren().get(0)));
+				} else if (label.contentEquals("incExpr")) {
+					Node replace = IR.convertIncExpr(node);
+					int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
+					node.getParent().getParent().getChildren().set(nodeIndex, replace);
+					node = replace;
 					
+					operandList.add(this.buildInstructionList(replace.getChildren().get(0)));
+				} else {
+					for (Node c : node.getChildren()) {
+						operandList.add(this.buildInstructionList(c));
+					}
 				}
 			}
 			
@@ -142,7 +151,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/assignment_bin.c");
+		Scanner scanner = new Scanner("test/add.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -161,6 +170,7 @@ public class IR {
 		root.recursiveSetDepth();
 		Node testing = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(root);
+		a.printAST();
 		List<Instruction> testing2 = test.getFunctionIRs().get("main");
 		IR.printMain(test.getFunctionIRs());
 		
