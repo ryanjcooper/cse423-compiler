@@ -3,6 +3,12 @@ import java.util.List;
 
 import edu.nmt.frontend.*;
 
+/**
+ * 
+ * @author	mattadik123
+ * @dated	03/02/2020
+ *
+ */
 public class Instruction {
 	protected Integer lineNumber;
 	protected String instrID;
@@ -25,7 +31,7 @@ public class Instruction {
 				this.operation = null;
 			} else if (label.contentEquals("assignStmt")) {
 				this.instrID = node.getChildren().get(1).getName();
-				this.operation = node.getOp();
+				this.operation = "=";
 			} else {
 				this.operation = node.getOp();
 			}

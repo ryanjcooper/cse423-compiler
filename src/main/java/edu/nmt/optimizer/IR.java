@@ -13,6 +13,12 @@ import edu.nmt.frontend.parser.ASTParser;
 import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
 
+/**
+ * 
+ * @author	mattadik123
+ * @todo	convert combo assignment operators (e.g. +=, ++)
+ *
+ */
 public class IR {
 	private Integer instrCount = 1;
 	private List<Instruction> instructionList;
@@ -41,15 +47,34 @@ public class IR {
 		this.buildFunctionIRs(root);
 	}
 	
-	private Node convertAssignStmt(Node assignStmt) {
+	private static Node convertAssignStmt(Node assignStmt) {
 		String assignOp = assignStmt.getOp();
 		String op = assignOp.replace("=", "");
+		Node convert = null;
+		Node newChild = null;
 		if (op.isEmpty()) {
 			return assignStmt;
-		} else if (op.contentEquals("+")) {
-			
+		} else {
+			Token tok = new Token(null, "assignStmt");
+			convert = new Node(tok);
+			convert.setOp("=");
+			if (op.contentEquals("+") || op.contentEquals("-")) {
+				Token tok2 = new Token(null, "addExpression");
+				newChild = new Node(tok2);
+			} else if (op.contentEquals("*") || op.contentEquals("/")) {
+				Token tok2 = new Token(null, "mulExpression");
+				newChild = new Node(tok2);
+			}
+
+			newChild.setOp(op);
+			newChild.setChildren(assignStmt.getChildren());
+			List<Node> newChildren = new ArrayList<Node>();
+			newChildren.add(newChild);
+			newChildren.add(new Node(assignStmt.getChildren().get(1)));
+			convert.setChildren(newChildren);
 		}
-		return null;
+		
+		return convert;
 	}
 	
 	private Instruction buildInstructionList(Node node) {
@@ -68,7 +93,14 @@ public class IR {
 						operandList.add(this.buildInstructionList(c));
 					}
 				} else {
-					operandList.add(this.buildInstructionList(node.getChildren().get(0)));
+					Node replace = IR.convertAssignStmt(node);
+					if (node != replace) {
+						int nodeIndex = node.getParent().getChildren().indexOf(node);
+						node.getParent().getChildren().set(nodeIndex, replace);
+					}
+
+					operandList.add(this.buildInstructionList(replace.getChildren().get(0)));
+					
 				}
 			}
 			
@@ -107,7 +139,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/add.c");
+		Scanner scanner = new Scanner("test/assignment_arith.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -124,7 +156,9 @@ public class IR {
 		a.printSymbolTable();
 		Node root = a.getRoot();
 		root.recursiveSetDepth();
+		Node testing = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(root);
+		List<Instruction> testing2 = test.getFunctionIRs().get("main");
 		IR.printMain(test.getFunctionIRs());
 		
 	}
