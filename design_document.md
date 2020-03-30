@@ -95,15 +95,15 @@ The following limitations include:
 #### Required Features
 | Item        | Status           |
 | ------------- |-------------|
-| Identifiers, variables, functions     | :x: |
+| Identifiers, variables, functions     | :warning: |
 | Keywords      | :x: |
 | Arithmetic expressions | :x: |
-| Assignment | :x: |
+| Assignment | :white_check_mark: |
 | Boolean expressions | :x: |
 | Goto statements | :x: |
 | If / Else control flow | :x: |
 | Unary Operators | :x: |
-| Return statements | :x: |
+| Return statements | :white_check_mark: |
 | Break expressions | :x: |
 | While loops | :x: |
 
@@ -111,9 +111,9 @@ The following limitations include:
 | Item        | Status           |
 | ------------- |-------------|
 | Types other than integers     | :x: |
-| ++, —, -=, +=, *=, /=     | :x: |
+| ++, —, -=, +=, *=, /=     | :warning: |
 | For loops | :x: |
-| Binary operators | :x: |
+| Binary operators | :white_check_mark: |
 | Switch statements | :x: |
 
 #### Stretch Goal features
