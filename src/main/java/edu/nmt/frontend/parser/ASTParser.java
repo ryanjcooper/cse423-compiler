@@ -350,17 +350,24 @@ public class ASTParser {
 					} else if (child.getToken().getTokenLabel().equals("min_op")) {
 						current.setOp(child.getToken().getTokenString());
 						tmp2.add(child);
-					
-					// nuisance of our parse tree, bitExpressions fall under addExpressions
-					} else if (child.getToken().getTokenLabel().equals("bit_op")) {
+					}				
+				}
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+				
+			} else if (current.getToken().getTokenLabel().equals("bitExpr")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("bit_op")) {
 						current.setOp(child.getToken().getTokenString());
 						current.getToken().setTokenLabel("bitExpression");
 						tmp2.add(child);
 					}
-				}				
+				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
-			
+				
 			// label unary ops in expression
 			} else if (current.getToken().getTokenLabel().equals("expression")) {
 				tmp = current.getChildren();
