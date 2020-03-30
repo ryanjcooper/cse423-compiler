@@ -64,6 +64,9 @@ public class IR {
 			} else if (op.contentEquals("*") || op.contentEquals("/")) {
 				Token tok2 = new Token(null, "mulExpression");
 				newChild = new Node(tok2);
+			} else {
+				Token tok2 = new Token(null, "bitExpression");
+				newChild = new Node(tok2);
 			}
 
 			newChild.setOp(op);

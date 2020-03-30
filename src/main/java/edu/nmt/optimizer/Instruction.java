@@ -38,9 +38,11 @@ public class Instruction {
 			
 			if (!operandList.isEmpty()){
 				this.op1Name = node.getName();
-				this.operand1 = operandList.get(0);
 				if (operandList.size() > 1) {
-					this.operand2 = operandList.get(1);
+					this.operand1 = operandList.get(1);
+					this.operand2 = operandList.get(0);
+				} else {
+					this.operand1 = operandList.get(0);
 				}
 			}
 		}
