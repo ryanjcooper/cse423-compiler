@@ -10,3 +10,13 @@
 
 
 or, you can just call `make` from the project root.
+
+### Arguments
+| Argument | Description | Currently Supported |
+| -------- | ----------- | ------------------- |
+| -help | Prints usage intructions | :white_check_mark: |
+| -t | Dumps tokens to file | :x: |
+| -pt | Prints tokens to console | :white_check_mark: |
+| -o | Destination for executeable | :x: |
+| -ap | Prints the abstract syntax tree (Partial support) | :warning: |
+| -stp | Prints the symbol table | :white_check_mark: |

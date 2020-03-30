@@ -7,37 +7,38 @@
 * Terence Brewer (@tbrewerDNM)
 
 ## Intended Feature List
+
 ### Required Features
 | Feature     | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :--------:  | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
 | Identifiers | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Variables   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Functions   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Keywords    | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Functions   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Keywords    | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
 | Arithmetic  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Assignment  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Boolean     | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Goto        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| If / Else   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Unary       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Boolean     | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Goto        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| If / Else   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Unary       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
 | Return      | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Break       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| While       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Break       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| While       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
 #### Optional Features
 | Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
-| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| ++, - , -=. +=, \*=, /= | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| ++, - , -=. +=, \*=, /= | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :warning:           | :x:                 |
 | For Loops               | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Binary Operators        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Switch Statements       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Switch Statements       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
 #### Stretch-goal Features
 | Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
-| Pointers                | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Arrays                  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Strings                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Structs                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Pointers                | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Arrays                  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Strings                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Structs                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
 | Enum                    | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 | Preprocessor Statements | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 | Type Casting            | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
@@ -45,7 +46,7 @@
 | Type Specs              | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 
 ### Scanner Design
-The Scanner class starts by reading a file as a string, identifying the string literals in the file, and converting them to a UUID. This is to allow for a space delimiting later in our Scanner and to label these string literals. We do the same in the next phase by converting character constants to a UUID to prevent altering the string. After this, comments are removed from the string by first using a greedy search on areas with a double slash, then in a non-greedy method for multi-line comments. Whitespace is then inserted around any punctuation characters to assist with tokenization. Double white space is then removed to prevent empty tokens and the scanner searches for double punctuation operators and removes their separating white space. The string is then passed to the tokenize function to build the token list. This is done by passing the string to a StringTokenizer with delimiting based on spaces. Each token is then passed individually to the token constructors, with the location data marked as null, which will be set later. The UUIDs for the strings and characters are then restoredt to their original content. Then the file string is processed to determine the positional data for each token so that error messages can later be printed.
+The Scanner class starts by reading a file as a string, identifying the string literals in the file, and converting them to a UUID. This is to allow for a space delimiting later in our Scanner and to label these string literals. We do the same in the next phase by converting character constants to a UUID to prevent altering the string. After this, comments are removed from the string by first using a greedy search on areas with a double slash, then in a non-greedy method for multi-line comments. Whitespace is then inserted around any punctuation characters to assist with tokenization. Double white space is then removed to prevent empty tokens and the scanner searches for double punctuation operators and removes their separating white space. The string is then passed to the tokenize function to build the token list. This is done by passing the string to a StringTokenizer with delimiting based on spaces. Each token is then passed individually to the token constructors, with the location data marked as null, which will be set later. The UUIDs for the strings and characters are then restored to their original content. Then the file string is processed to determine the positional data for each token so that error messages can later be printed.
 
 We decided to make our own algorithm to scan so that we did not have to learn a new tool, and could reduce the number of dependencies of the project.
 
@@ -79,6 +80,19 @@ The following limitations include:
 * arrays can be declared, but not specified statically i.e char string[] = "" works but not char string[] = {'a', 'b'}
 * arrays can be referenced with an int i.e. a[1] but not without the int, so "a[] = b" will not work
 * variable lists are not permitted i.e. int i,j,k; is not allowed
-* pointers can only be in the form *variable, not much else can be done with them
+* pointers can only be in the form \*variable, not much else can be done with them
 * for loops have to be in the "form for (i = 0; i < 1; i++) {  }" not precise, just similar format
 * if statements, while loops, for loops all need braces around their interior
+
+
+### Optimizer
+
+### Intermediate Representation (IR)
+
+### Optimizations
+
+#### Optimization
+| Item        | Status           |
+| ------------- |-------------|
+| Constant Propagation     | :x: |
+| Constant Folding | :x: |
