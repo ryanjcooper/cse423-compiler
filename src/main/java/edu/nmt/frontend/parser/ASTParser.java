@@ -39,7 +39,8 @@ public class ASTParser {
 				"l_bracket",
 				"r_bracket",
 				"if",
-				"else"
+				"else",
+				"for"
 			));
 
 	// Token labels that should not be rolled up, even if only one child
@@ -189,8 +190,6 @@ public class ASTParser {
 			// handle conditionals
 			} else if (current.getToken().getTokenLabel().equals("ifStmt")) {
 				tmp = current.getChildren();
-				tmp2 = new ArrayList<Node>();
-				
 				// search over child nodes for condition, change expression -> condition
 				for (Node child : tmp) {
 					if (child.getToken().getTokenLabel().equals("expression")) {
@@ -198,6 +197,40 @@ public class ASTParser {
 					}
 				}
 				
+			// handle for loops
+			} else if (current.getToken().getTokenLabel().equals("forLoop")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				
+				Node assignNode = null;
+				Node comparisonNode = null;
+				Node incNode = null;
+				Node bodyNode = null;
+				
+				// search over child nodes for 
+				for (Node child : tmp) {
+
+					// variable assignment node
+					if (child.getToken().getTokenLabel().equals("assignStmt")) {
+						assignNode = child;
+					} else if (child.getToken().getTokenLabel().equals("exprStmt")) {
+						comparisonNode = child;
+					} else if (child.getToken().getTokenLabel().equals("incExpr")) {
+						incNode = child;
+					} else if (child.getToken().getTokenLabel().equals("compoundStmt")) {
+						bodyNode = child;
+					}
+				}
+					
+			
+				// set strict order for body of forLoop
+				tmp2.add(assignNode);
+				tmp2.add(comparisonNode);
+				tmp2.add(incNode);
+				tmp2.add(bodyNode);
+			
+				current.setChildren(tmp2);
+						
 			// collapse single child nodes (non-terminals)
 			} else if ((current.getChildren().size() == 1) && (!ignoreRollup.contains(current.getToken().getTokenLabel()))) {				
 				// remove node from parent
@@ -302,7 +335,7 @@ public class ASTParser {
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
-			// label op in addExpression
+			// label op in addExpression and binExpression
 			} else if (current.getToken().getTokenLabel().equals("addExpression")) {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
@@ -313,12 +346,36 @@ public class ASTParser {
 					} else if (child.getToken().getTokenLabel().equals("min_op")) {
 						current.setOp(child.getToken().getTokenString());
 						tmp2.add(child);
+					
+					// nuisance of our parse tree, bitExpressions fall under addExpressions
+					} else if (child.getToken().getTokenLabel().equals("bit_op")) {
+						current.setOp(child.getToken().getTokenString());
+						current.getToken().setTokenLabel("bitExpression");
+						tmp2.add(child);
+					}
+				}				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+			
+			// label unary ops in expression
+			} else if (current.getToken().getTokenLabel().equals("expression")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("tilde")) {
+						current.setOp(child.getToken().getTokenString());
+						current.getToken().setTokenLabel("bitExpression");
+						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("exclaim")) {
+						current.setOp(child.getToken().getTokenString());
+						current.getToken().setTokenLabel("bitExpression");
+						tmp2.add(child);
 					}
 				}				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
-			// label op in mulExpression
+			// label op in mulExpression and divExpression
 			} else if (current.getToken().getTokenLabel().equals("term")) {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
@@ -327,11 +384,15 @@ public class ASTParser {
 						current.setOp(child.getToken().getTokenString());
 						tmp2.add(child);
 						current.setTokenLabel("mulExpression");
+					} else if (child.getToken().getTokenLabel().equals("div_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+						current.setTokenLabel("divExpression");
 					}
 				}				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
-			
+							
 			
 			// label op in boolExpr
 			} else if (current.getToken().getTokenLabel().equals("boolExpr")) {
@@ -386,7 +447,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/binary.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();

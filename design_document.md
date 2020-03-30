@@ -8,49 +8,45 @@
 
 ## Intended Feature List
 
-#### Required Features
-| Item        | Status           |
-| ------------- |-------------|
-| Identifiers, variables, functions     | :white_check_mark: |
-| Keywords      | :white_check_mark: |
-| Arithmetic expressions | :white_check_mark: |
-| Assignment | :white_check_mark: |
-| Boolean expressions | :white_check_mark: |
-| Goto statements | :white_check_mark: |
-| If / Else control flow | :white_check_mark: |
-| Unary Operators | :white_check_mark: |
-| Return statements | :white_check_mark: |
-| Break expressions | :white_check_mark: |
-| While loops | :white_check_mark: |
-
+### Required Features
+| Feature     | Scanner            | Parser              | AST                 | IR                  | Backend             |
+| :--------:  | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
+| Identifiers | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Variables   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Functions   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Keywords    | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Arithmetic  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Assignment  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Boolean     | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Goto        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| If / Else   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Unary       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Return      | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Break       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| While       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
 #### Optional Features
-| Item        | Status           |
-| ------------- |-------------|
-| Types other than integers     | :white_check_mark: |
-| ++, —, -=, +=, *=, /=     | :white_check_mark: |
-| For loops | :white_check_mark: |
-| Binary operators | :white_check_mark: |
-| Switch statements | :white_check_mark: |
-
+| Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
+| :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
+| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| ++, - , -=. +=, \*=, /= | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :warning:           | :x:                 |
+| For Loops               | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Binary Operators        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Switch Statements       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
 #### Stretch-goal Features
-* [x] Pointers, arrays, strings
-* [x] Struct, ~~enum~~
-* ~~Preprocessor statements~~
-* ~~Casting, type promotion~~
-* ~~Type specs~~
-
-#### Stretch Goal features
-| Item        | Status           |
-| ------------- |-------------|
-| Pointers, arrays, strings | :white_check_mark: |
-| Struct, ~~enum~~ | :white_check_mark: |
-| ~~Preprocessor statements~~ | :x: |
-| ~~Casting, type promotion~~ | :x: |
-| ~~Type specs~~ | :x: |
-
+| Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
+| :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
+| Pointers                | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Arrays                  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Strings                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Structs                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Enum                    | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
+| Preprocessor Statements | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
+| Type Casting            | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
+| Type Promotion          | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
+| Type Specs              | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 
 ### Scanner Design
-The Scanner class starts by reading a file as a string, identifying the string literals in the file, and converting them to a UUID. This is to allow for a space delimiting later in our Scanner and to label these string literals. We do the same in the next phase by converting character constants to a UUID to prevent altering the string. After this, comments are removed from the string by first using a greedy search on areas with a double slash, then in a non-greedy method for multi-line comments. Whitespace is then inserted around any punctuation characters to assist with tokenization. Double white space is then removed to prevent empty tokens and the scanner searches for double punctuation operators and removes their separating white space. The string is then passed to the tokenize function to build the token list. This is done by passing the string to a StringTokenizer with delimiting based on spaces. Each token is then passed individually to the token constructors, with the location data marked as null, which will be set later. The UUIDs for the strings and characters are then restoredt to their original content. Then the file string is processed to determine the positional data for each token so that error messages can later be printed.
+The Scanner class starts by reading a file as a string, identifying the string literals in the file, and converting them to a UUID. This is to allow for a space delimiting later in our Scanner and to label these string literals. We do the same in the next phase by converting character constants to a UUID to prevent altering the string. After this, comments are removed from the string by first using a greedy search on areas with a double slash, then in a non-greedy method for multi-line comments. Whitespace is then inserted around any punctuation characters to assist with tokenization. Double white space is then removed to prevent empty tokens and the scanner searches for double punctuation operators and removes their separating white space. The string is then passed to the tokenize function to build the token list. This is done by passing the string to a StringTokenizer with delimiting based on spaces. Each token is then passed individually to the token constructors, with the location data marked as null, which will be set later. The UUIDs for the strings and characters are then restored to their original content. Then the file string is processed to determine the positional data for each token so that error messages can later be printed.
 
 We decided to make our own algorithm to scan so that we did not have to learn a new tool, and could reduce the number of dependencies of the project.
 
@@ -90,42 +86,6 @@ The following limitations include:
 
 
 ### Optimizer
-
-## Intended Feature List
-#### Required Features
-| Item        | Status           |
-| ------------- |-------------|
-| Identifiers, variables, functions     | :warning: |
-| Keywords      | :x: |
-| Arithmetic expressions | :x: |
-| Assignment | :white_check_mark: |
-| Boolean expressions | :x: |
-| Goto statements | :x: |
-| If / Else control flow | :x: |
-| Unary Operators | :x: |
-| Return statements | :white_check_mark: |
-| Break expressions | :x: |
-| While loops | :x: |
-
-#### Optional Features
-| Item        | Status           |
-| ------------- |-------------|
-| Types other than integers     | :x: |
-| ++, —, -=, +=, *=, /=     | :warning: |
-| For loops | :x: |
-| Binary operators | :white_check_mark: |
-| Switch statements | :x: |
-
-#### Stretch Goal features
-| Item        | Status           |
-| ------------- |-------------|
-| Types other than integers     | :x: |
-| Switch statements | :x: |
-| Pointers, arrays, strings | :x: |
-| Struct, ~~enum~~ | :x: |
-| ~~Preprocessor statements~~ | :x: |
-| ~~Casting, type promotion~~ | :x: |
-| ~~Type specs~~ | :x: |
 
 ### Intermediate Representation (IR)
 
