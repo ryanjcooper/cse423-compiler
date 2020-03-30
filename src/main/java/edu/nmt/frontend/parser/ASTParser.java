@@ -222,12 +222,15 @@ public class ASTParser {
 					}
 				}
 					
-				
-				
-//				System.out.println(assignNode + " " + comparisonNode + " " + incNode);
 			
+				// set strict order for body of forLoop
+				tmp2.add(assignNode);
+				tmp2.add(comparisonNode);
+				tmp2.add(incNode);
+				tmp2.add(bodyNode);
 			
-				
+				current.setChildren(tmp2);
+						
 			// collapse single child nodes (non-terminals)
 			} else if ((current.getChildren().size() == 1) && (!ignoreRollup.contains(current.getToken().getTokenLabel()))) {				
 				// remove node from parent
@@ -420,7 +423,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/divide.c");
+		Scanner scanner = new Scanner("test/for.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
