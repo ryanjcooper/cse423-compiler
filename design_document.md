@@ -18,27 +18,27 @@
 | Arithmetic  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Assignment  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Boolean     | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
-| Goto        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Goto        | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
 | If / Else   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
-| Unary       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Unary       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Return      | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Break       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
-| While       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Break       | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
+| While       | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
 #### Optional Features
 | Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
-| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
-| ++, - , -=. +=, \*=, /= | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :warning:           | :x:                 |
+| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| ++, - , -=. +=, \*=, /= | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | For Loops               | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Binary Operators        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Switch Statements       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Switch Statements       | :heavy_check_mark: | :heavy_check_mark:  | :x:  | :x:                 | :x:                 |
 #### Stretch-goal Features
 | Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
-| Pointers                | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
-| Arrays                  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
-| Strings                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
-| Structs                 | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:  | :x:                 |
+| Pointers                | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
+| Arrays                  | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
+| Strings                 | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
+| Structs                 | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
 | Enum                    | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 | Preprocessor Statements | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 | Type Casting            | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |

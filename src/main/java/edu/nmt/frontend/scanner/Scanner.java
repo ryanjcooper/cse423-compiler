@@ -121,6 +121,18 @@ public class Scanner {
 		// Remove multiline comments (non-greedy search, otherwise we might delete code)
 		fcontents = fcontents.replaceAll("(?s)/\\*.*?\\*/", " ");
 
+		
+		// Handle edge case with + ++id and - --id
+		 Map<String, String> unaryOpID = new HashMap<String, String>();
+
+		 Matcher m3 = Pattern.compile("\\+\\+|\\-\\-").matcher(fcontents);
+		 while (m3.find()) {
+			 String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+			 String found = m3.group();
+			 fcontents = fcontents.replace(found, " " + uuid + " ");		
+			 unaryOpID.put(uuid, found);
+		 }
+		
 		// Add whitespace around punctuation characters
 		for (char c : punctuation.toCharArray()) {
 			String cs = Character.toString(c);
@@ -134,6 +146,9 @@ public class Scanner {
 		for (int i = 0; i < doublePunctCases.length; i++) {
 			fcontents = fcontents.replaceAll(doublePunctCases[i][0], doublePunctCases[i][1]);
 		}
+		
+		
+		
 
 		// Send processed code to tokenizer
 		tokens = tokenize(fcontents);
@@ -151,6 +166,14 @@ public class Scanner {
 				tok.setTokenString(charLiteralID.get(tok.getTokenString()));
 				tok.setTokenLabel("char_constant");
 			}
+			
+			// Case where the current token is a string literal placeholder
+			if (unaryOpID.containsKey(tok.getTokenString())) {
+				tok.setTokenString(unaryOpID.get(tok.getTokenString()));
+				tok.setTokenLabel("unary_op");
+			}
+
+			
 		}
 
 		// Label token position and line number (TODO: extremely hacky, please fix this -- ryan)
@@ -285,18 +308,13 @@ public class Scanner {
 	    }
 	}
 
-//    public static void main(String[] args) throws IOException {
-//        Scanner s = new Scanner("test/base.c");
-//        s.scan();
-//        List<Token> scanned = Scanner.scanfromfile("test/base.tokens");
-//        for (Token tok : scanned) {
-//        	System.out.println(tok);
-//        }
-//        System.out.println("Next other");
-//        for (Token tok : s.getTokens()) {
-//        	System.out.println(tok);
-//        }
-//    }
+    public static void main(String[] args) throws IOException {
+        Scanner s = new Scanner("test/unary_op_edge_case.c");
+        s.scan();
+        for (Token tok : s.getTokens()) {
+        	System.out.println(tok);
+        }
+    }
 
 
 }
