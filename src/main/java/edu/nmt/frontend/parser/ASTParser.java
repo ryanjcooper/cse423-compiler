@@ -206,20 +206,21 @@ public class ASTParser {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
 				
-				Node assignNode = null;
-				Node comparisonNode = null;
-				Node incNode = null;
-				Node bodyNode = null;
+				Node assignNode = new Node(new Token("null", "null"));
+				Node comparisonNode = new Node(new Token("null", "null"));
+				Node incNode = new Node(new Token("null", "null"));
+				Node bodyNode = new Node(new Token("null", "null"));
 				
 				// search over child nodes for 
 				for (Node child : tmp) {
-
 					// variable assignment node
-					if (child.getToken().getTokenLabel().equals("assignStmt")) {
-						assignNode = child;
-					} else if (child.getToken().getTokenLabel().equals("exprStmt")) {
-						comparisonNode = child;
-					} else if (child.getToken().getTokenLabel().equals("incExpr")) {
+					if (child.getToken().getTokenLabel().equals("statement")) {
+						if (assignNode.getToken().getTokenLabel().equals("null")) {
+							assignNode = child;
+						} else if (comparisonNode.getToken().getTokenLabel().equals("null")) {
+							comparisonNode = child;
+						}
+					} else if (child.getToken().getTokenLabel().equals("expression")) {
 						incNode = child;
 					} else if (child.getToken().getTokenLabel().equals("compoundStmt")) {
 						bodyNode = child;
@@ -458,7 +459,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/binary.c");
+		Scanner scanner = new Scanner("test/for.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
