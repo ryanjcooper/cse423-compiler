@@ -396,6 +396,10 @@ public class ASTParser {
 						current.setOp(child.getToken().getTokenString());
 						tmp2.add(child);
 						current.setTokenLabel("divExpression");
+					} else if (child.getToken().getTokenLabel().equals("mod_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+						current.setTokenLabel("modExpression");
 					}
 				}				
 				tmp.removeAll(tmp2);
@@ -455,7 +459,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/for.c");
+		Scanner scanner = new Scanner("test/mod.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
