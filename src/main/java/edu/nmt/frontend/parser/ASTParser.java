@@ -202,20 +202,21 @@ public class ASTParser {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
 				
-				Node assignNode = null;
-				Node comparisonNode = null;
-				Node incNode = null;
-				Node bodyNode = null;
+				Node assignNode = new Node(new Token("null", "null"));
+				Node comparisonNode = new Node(new Token("null", "null"));
+				Node incNode = new Node(new Token("null", "null"));
+				Node bodyNode = new Node(new Token("null", "null"));
 				
 				// search over child nodes for 
 				for (Node child : tmp) {
-
 					// variable assignment node
-					if (child.getToken().getTokenLabel().equals("assignStmt")) {
-						assignNode = child;
-					} else if (child.getToken().getTokenLabel().equals("exprStmt")) {
-						comparisonNode = child;
-					} else if (child.getToken().getTokenLabel().equals("incExpr")) {
+					if (child.getToken().getTokenLabel().equals("statement")) {
+						if (assignNode.getToken().getTokenLabel().equals("null")) {
+							assignNode = child;
+						} else if (comparisonNode.getToken().getTokenLabel().equals("null")) {
+							comparisonNode = child;
+						}
+					} else if (child.getToken().getTokenLabel().equals("expression")) {
 						incNode = child;
 					} else if (child.getToken().getTokenLabel().equals("compoundStmt")) {
 						bodyNode = child;
@@ -346,17 +347,24 @@ public class ASTParser {
 					} else if (child.getToken().getTokenLabel().equals("min_op")) {
 						current.setOp(child.getToken().getTokenString());
 						tmp2.add(child);
-					
-					// nuisance of our parse tree, bitExpressions fall under addExpressions
-					} else if (child.getToken().getTokenLabel().equals("bit_op")) {
+					}				
+				}
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+				
+			} else if (current.getToken().getTokenLabel().equals("bitExpr")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("bit_op")) {
 						current.setOp(child.getToken().getTokenString());
 						current.getToken().setTokenLabel("bitExpression");
 						tmp2.add(child);
 					}
-				}				
+				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
-			
+				
 			// label unary ops in expression
 			} else if (current.getToken().getTokenLabel().equals("expression")) {
 				tmp = current.getChildren();
@@ -388,6 +396,10 @@ public class ASTParser {
 						current.setOp(child.getToken().getTokenString());
 						tmp2.add(child);
 						current.setTokenLabel("divExpression");
+					} else if (child.getToken().getTokenLabel().equals("mod_op")) {
+						current.setOp(child.getToken().getTokenString());
+						tmp2.add(child);
+						current.setTokenLabel("modExpression");
 					}
 				}				
 				tmp.removeAll(tmp2);
@@ -447,7 +459,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/binary.c");
+		Scanner scanner = new Scanner("test/mod.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
