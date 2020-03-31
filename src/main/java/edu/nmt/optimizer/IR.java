@@ -16,7 +16,8 @@ import edu.nmt.frontend.scanner.Scanner;
 /**
  * 
  * @author	mattadik123
- * @todo	convert combo assignment operators (e.g. +=, ++)
+ * @todo	implement conditions, loops (requires Jump), functions (requires Call), structs, switch statements
+ * @other	mod_op needs to be rolled up; types are lost
  *
  */
 public class IR {
@@ -151,7 +152,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/add.c");
+		Scanner scanner = new Scanner("test/types.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -170,7 +171,6 @@ public class IR {
 		root.recursiveSetDepth();
 		Node testing = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(root);
-		a.printAST();
 		List<Instruction> testing2 = test.getFunctionIRs().get("main");
 		IR.printMain(test.getFunctionIRs());
 		
@@ -191,5 +191,4 @@ public class IR {
 	public void setFunctionIRs(Map<String, List<Instruction>> functionIRs) {
 		this.functionIRs = functionIRs;
 	}
-
 }

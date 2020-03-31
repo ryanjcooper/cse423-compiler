@@ -62,35 +62,27 @@ public class Instruction {
 		builder.append(instrID);
 		if (operation != null && (operation.contentEquals("identifier") || operation.contentEquals("numeric_constant"))) {
 			builder.append(" = " + op1Name);
-		} else if (operation != null && operation.contains("=")) {
-			builder.append(" " + operation + " ");
+		} else if (operation != null && operation.contentEquals("=")) {
+			builder.append(" = ");
 			
 			if (operand1 != null) {
 				builder.append(operand1.getInstrID() + " ");
-			}
-			
-			if (operand2 != null) {
-				builder.append(" " + operand2.getInstrID());
 			}
 		} else {
 			builder.append(" = ");
 			if (operand1 == null && operand2 == null && operation == null) {
 				builder.append("null");
+			} else if (operation != null && (operation.contentEquals("!") || operation.contentEquals("~"))) {
+				builder.append(operation + operand1.getInstrID());
 			} else {
-				if (operand1 != null) {
+				if (operand1 != null)
 					builder.append(operand1.getInstrID());
-				}
 				
-				if (operation != null) {
-					if (!operation.contentEquals("++"))
-						builder.append(' ');
-					
-					builder.append(operation);
-				}
+				if (operation != null)
+					builder.append(" " + operation);
 				
-				if (operand2 != null) {
+				if (operand2 != null)
 					builder.append(" " + operand2.getInstrID());
-				}
 			}
 		}
 		return  builder.toString();
