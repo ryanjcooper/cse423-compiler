@@ -324,7 +324,9 @@ public class ASTParser {
 				current.setChildren(tmp);
 				
 			// label op in incExpr
-			} else if (current.getToken().getTokenLabel().equals("incExpr")) {
+			} else if (current.getToken().getTokenLabel().equals("postIncExpr") || current.getToken().getTokenLabel().equals("preIncExpr")) {
+				String incOrder = current.getToken().getTokenLabel();
+				
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
 				for (Node child : tmp) {
@@ -335,6 +337,84 @@ public class ASTParser {
 				}				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+				
+				// case where ++ is part of another expression
+				if (!current.getParent().getToken().getTokenLabel().equals("exprStmt") && !current.getParent().getToken().getTokenLabel().equals("forLoop")) {
+					Node newPlaceholder = new Node(new Token("statementList", "statementList"));
+					
+					System.out.println(current.getParent());
+					
+					// set new placeholder up to capture stmtList
+					newPlaceholder.setParent(current.getParent().getParent());
+					tmp = new ArrayList<Node>();
+					tmp.add(current.getParent());
+					newPlaceholder.setChildren(tmp);
+					
+					// move children around
+					tmp = current.getParent().getParent().getChildren();
+					tmp.remove(current.getParent());
+					tmp.add(newPlaceholder);
+					current.getParent().getParent().setChildren(tmp);
+					
+					// set current node
+					current.getParent().setParent(newPlaceholder);
+					
+					
+					// if the increment is acting on just an identifier, collapse to two ordered commands			
+					if (current.getChildren().get(0).getToken().getTokenLabel().equals("identifier")) {
+						current.getToken().setTokenLabel("identifier");
+						
+						// capture id
+						String identifierString = current.getChildren().get(0).getToken().getTokenString();
+						
+						// change current node to an identifier
+						current.setName(identifierString);
+						current.setChildren(new ArrayList<Node>());
+						
+						// setup new operation
+						Node opNode = new Node(new Token("assignStmt", "assignStmt"));
+						
+						Node constantNode = new Node(new Token("1"));
+						constantNode.setType("int");
+						
+						Node idNode = new Node(new Token(identifierString));
+						idNode.setName(identifierString);
+						
+						if (current.getOp().equals("++")) {
+							opNode.setOp("+=");
+						} else if (current.getOp().equals("--")) {
+							opNode.setOp("-=");
+						} else {
+							opNode.setOp("+=");
+						}
+						
+						current.setOp(null);
+						opNode.setParent(newPlaceholder);
+						
+						tmp = new ArrayList<Node>();
+						tmp.add(idNode);
+						tmp.add(constantNode);
+						
+						idNode.setParent(opNode);
+						constantNode.setParent(opNode);
+						
+						opNode.setChildren(tmp);
+						
+						tmp2 = newPlaceholder.getChildren();
+						
+						if (incOrder.equals("postIncExpr")) {
+							tmp2.add(opNode);
+						} else {
+							tmp2.add(0, opNode);
+						}
+						
+						newPlaceholder.setChildren(tmp2);
+					} else {
+						;
+						// TODO in the future when we support incrementing on expressions
+					}
+				}
+				
 				
 			// label op in addExpression and binExpression
 			} else if (current.getToken().getTokenLabel().equals("addExpression")) {
@@ -459,14 +539,14 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/mod.c");
+		Scanner scanner = new Scanner("test/for.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-//			;
-			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+			;
+//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 		}
 		
 		ASTParser a = new ASTParser(p);
