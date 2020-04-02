@@ -537,13 +537,59 @@ public class ASTParser {
 		}
 		
 	}
+
+	/**
+	 * determine if this ast is typed correctly or not
+	 * @return true if typed correctly, false else
+	 */
+	public boolean isTypedCorrectly() {
+		return isTypedCorrectly(this.root, this.root);
+	}
 	
-	public Node getRoot(){
-		return this.root;
+	/**
+	 * recursive method to determine type correctness.
+	 * @param root is the root of the scope.
+	 * @param parent is the root of the subtree.
+	 * @return true if all children are correctly typed.
+	 */
+	private boolean isTypedCorrectly(Node root, Node parent)
+	{
+		/* all parent cases depend on children */
+		for (Node node : parent.getChildren()) {
+			if (node.isScopeNode()) {
+				return isTypedCorrectly(node, node);
+			} else if (!isTypedCorrectly(root, node)) {
+				return false;
+			}
+		}
+		
+		for (Node child : parent.getChildren()) {
+			if (child.getToken().getTokenLabel().equals("identifier") && child.getType() == null) {
+				//System.out.println(root.getSymbolTable());
+				child.setType(root.getSymbolTable().get(child.getToken().getTokenString()).getType());	
+			}
+		}
+		
+		/* base case */
+		if (parent.typeCheckable()) {
+			Node base = (parent.getType() == null) ? parent.getChildren().get(0) : parent;
+			String type = base.getType();
+			for (int i = 0; i < parent.getChildren().size(); i++) {
+				if (!type.equals(parent.getChildren().get(i).getType())) {
+					System.out.printf("Type mismatch '%s' and '%s'\n", type, parent.getChildren().get(i).getType());
+					return false;
+				}
+			}
+			
+			parent.setType(type);
+			return true;
+		} else {
+			return true;
+		}
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/for.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();

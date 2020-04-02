@@ -15,7 +15,7 @@ public class Node {
 	Token token;
 	Node parent;
 	Integer depth;
-	public String type;
+	String type;
 	String name;
 	String op;
 	List<Node> children;
@@ -166,6 +166,10 @@ public class Node {
 	
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	public String getType() {
+		return this.type;
 	}
 
 	public void setName(String name) {
