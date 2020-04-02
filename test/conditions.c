@@ -1,12 +1,17 @@
 int main()
 {
-        if (0) {
-                return 1;
-        } else if (1) {
-        		return 2;
-		} else if (2) {
-				return 3;
-        } else {
-                return 0;
-        }
+	int a = 7;
+	if (a < 4) {
+		a += 3;
+	} else if (a == 7) {
+		a += 2;
+	} else if (a > 7) {
+		a *= 10;
+	} else {
+		a *= 5;
+	}
+
+	a++;
+	a *= 5;
+	return a;
 }

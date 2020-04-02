@@ -55,6 +55,10 @@ public class Token {
 		this.charPos = charPos;
 	}
 	
+	public Token(Token token) {
+		this(token.getTokenString(), token.getTokenLabel(), token.getLineNum(), token.getCharPos());
+	}
+	
 	/**
 	 * Returns the string of Token
 	 * @return String type
