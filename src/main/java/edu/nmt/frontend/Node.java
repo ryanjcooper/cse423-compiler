@@ -180,6 +180,10 @@ public class Node {
 	public void setType(String type) {
 		this.type = type;
 	}
+	
+	public String getType() {
+		return this.type;
+	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -279,5 +283,20 @@ public class Node {
 
 	public void setOp(String op) {
 		this.op = op;
+	}
+	
+	public boolean typeCheckable() {
+		if (children.size() == 0)
+			return false;
+		
+		if (type != null && type.equals("function"))
+			return false;
+		
+		for (Node node : children) {
+			if (node.type == null)
+				return false;
+		}
+		
+		return true;
 	}
 }
