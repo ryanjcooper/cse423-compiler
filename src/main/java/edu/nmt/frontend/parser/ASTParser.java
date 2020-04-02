@@ -109,7 +109,7 @@ public class ASTParser {
 				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
-				current.setType("function");
+//				current.setType("function"); // removed per discussion with Terence.
 				
 				// add function to current node's parent scope (supports nested functions!)
 				try {
@@ -163,6 +163,7 @@ public class ASTParser {
 				}	
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+//				current.setType("function"); // removed per discussion with Terence.
 				
 				// bring param nodes up and label their identifier and type
 				for (Node child : current.getChildren()) {
@@ -593,7 +594,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/for.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -604,8 +605,12 @@ public class ASTParser {
 		}
 		
 		ASTParser a = new ASTParser(p);
+//		if (a.parse() && a.isTypedCorrectly()) {
 		if (a.parse()) {
-			a.printAST();	
+			a.printAST();
+//			if (a.isTypedCorrectly()) {
+//				System.out.println("Type check passed.");
+//			}
 		}
 		
 		a.printSymbolTable();
