@@ -128,7 +128,7 @@ public class IR {
 					node = replace;
 					
 					operandList.add(this.buildInstructionList(replace.getChildren().get(0)));
-				} else if (!label.contentEquals("varDeclaration")) {
+				} else {
 					for (Node c : node.getChildren()) {
 						operandList.add(this.buildInstructionList(c));
 					}
@@ -165,12 +165,12 @@ public class IR {
 	public static void printMain(Map<String, List<Instruction>> functionMap) {
 		List<Instruction> instrList = functionMap.get("main");
 		for (Instruction i : instrList) {
-			System.out.println(i.getLineNumber() + ": " + i);
+			System.out.println(i.getLineNumber() + ": " + i + " type: " + i.getType());
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/mod.c");
+		Scanner scanner = new Scanner("test/types.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -187,9 +187,9 @@ public class IR {
 		a.printSymbolTable();
 		Node root = a.getRoot();
 		root.recursiveSetDepth();
-		Node testing = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(a);
-		List<Instruction> testing2 = test.getFunctionIRs().get("main");
+		List<Instruction> mainList = test.getFunctionIRs().get("main");
 		IR.printMain(test.getFunctionIRs());
 		
 	}

@@ -24,11 +24,15 @@ public class Instruction {
 		String label = node.getToken().getTokenLabel();
 		this.type = node.getType();
 		
-		if (label.contentEquals("identifier") || label.contains("constant")) {
+		if (label.contentEquals("identifier")) {
 			this.operation = label;
 			this.op1Name = node.getToken().getTokenString();
-			if (label.contentEquals("identifier"))
-				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+			this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+		} else if (label.contains("constant")) {
+			this.operation = label;
+			this.op1Name = node.getToken().getTokenString();
+			if (this.type == null)
+				this.type = label.replace("_constant", "");
 		} else {
 			if (label.contentEquals("varDeclaration")) {
 				this.instrID = node.getName();
