@@ -15,7 +15,7 @@ public class Node {
 	Token token;
 	Node parent;
 	Integer depth;
-	String type;
+	public String type;
 	String name;
 	String op;
 	List<Node> children;
@@ -262,5 +262,20 @@ public class Node {
 
 	public String getOp() {
 		return this.op;
+	}
+	
+	public boolean typeCheckable() {
+		if (children.size() == 0)
+			return false;
+		
+		if (type != null && type.equals("function"))
+			return false;
+		
+		for (Node node : children) {
+			if (node.type == null)
+				return false;
+		}
+		
+		return true;
 	}
 }

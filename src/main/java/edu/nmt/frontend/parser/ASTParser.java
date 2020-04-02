@@ -538,8 +538,12 @@ public class ASTParser {
 		
 	}
 	
+	public Node getRoot(){
+		return this.root;
+	}
+	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/for.c");
+		Scanner scanner = new Scanner("test/test.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
