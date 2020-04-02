@@ -18,9 +18,11 @@ public class JumpInstruction extends Instruction {
 	 * statements following the conditional block
 	 */
 
-	public JumpInstruction(Node node, List<Instruction> operandList) {
-		super(node, operandList);
-		// TODO Auto-generated constructor stub
+	public JumpInstruction(Node node, List<Instruction> operandList, Integer lineNumber) {
+		super("jump", node, operandList, lineNumber);
 	}
 	
+	public String toString() {
+		return null;
+	}
 }

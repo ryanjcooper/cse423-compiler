@@ -8,8 +8,8 @@ import edu.nmt.frontend.Token;
 public class CallInstruction extends Instruction {
 	private List<Instruction> paramList;
 	
-	public CallInstruction(Node node, List<Instruction> operandList) {
-		super(node, operandList);
+	public CallInstruction(Node node, List<Instruction> operandList, Integer lineNumber) {
+		super("call", node, operandList, lineNumber);
 	}
 
 }
