@@ -280,8 +280,4 @@ public class Node {
 	public void setOp(String op) {
 		this.op = op;
 	}
-
-	public String getOp() {
-		return this.op;
-	}
 }
