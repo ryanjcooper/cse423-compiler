@@ -28,6 +28,10 @@ public class ASTParser {
 	private Parser p;
 	private Node root;
 	
+	public Node getRoot() {
+		return root;
+	}
+
 	// Parser constructs that dont add any semantic meaning
 	private List<String> syntaxConstructs = new ArrayList<String>(Arrays.asList(
 				"l_paren",
