@@ -26,14 +26,22 @@ public class Instruction {
 		));
 	
 	public Instruction(String instrType, Node node, List<Instruction> operandList, Integer lineNumber) {
-		String label = node.getToken().getTokenLabel();
+		String label = null;
+		if (node != null) {
+			label = node.getToken().getTokenLabel();
+		} else if (instrType.contentEquals("jump")) {
+			label = "jump";
+		}
 		// first condition handles non-special instructions
 		if (!this.specialInstructions.contains(instrType)) {
 			this.lineNumber = lineNumber;
 			this.instrID = "_" + lineNumber;
 			this.type = node.getType();
 			
-			if (label.contentEquals("identifier")) {
+			if (label.contentEquals("label")) {
+				this.op1Name = node.getToken().getTokenString();
+				this.operation = this.type = "label";
+			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
 				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
@@ -52,6 +60,9 @@ public class Instruction {
 					this.type = node.getChildren().get(1).getType();
 				} else {
 					this.operation = node.getOp();
+					if (node.getToken().getTokenLabel().contentEquals("boolExpr")) {
+						this.type = "boolean";
+					}
 				}
 				
 				if (!operandList.isEmpty()){
@@ -75,14 +86,14 @@ public class Instruction {
 				this.operand1 = operandList.get(0);
 				this.type = operand1.getType();
 			} else if (instrType.contentEquals("jump")) {
-				if (label.contentEquals("ifStmt")) {
-					/**
-					 * procedure:
-					 * check if else/elif statement exists (nested ifStmt)
-					 * if no, recursively check if parent is an ifStmt then choose following sibling of uppermost statement as dest (if this exists)
-					 * if yes, dest is next nested ifStmt
-					 * 
-					 */
+				if (operandList.size() == 1 || label.contains("jump")) {
+					this.type = "unconditionalJump";
+					this.operand1 = null;
+					this.operand2 = operandList.get(0);
+				} else if (label.contentEquals("ifStmt")) {
+					this.type = "conditionalJump";
+					this.operand1 = operandList.get(0);
+					this.operand2 = operandList.get(1);
 				}
 			}
 		}
@@ -102,7 +113,7 @@ public class Instruction {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(instrID);
-		if (operation != null && (operation.contentEquals("identifier") || operation.contains("constant"))) {
+		if (operation != null && (operation.contentEquals("identifier") || operation.contains("constant") || operation.contentEquals("label"))) {
 			builder.append(" = " + op1Name);
 		} else if (operation != null && operation.contentEquals("=")) {
 			builder.append(" = ");
@@ -144,5 +155,8 @@ public class Instruction {
 
 	public void setLineNumber(Integer lineNumber) {
 		this.lineNumber = lineNumber;
+		if (this.instrID.contains("_")) {
+			this.setInstrID("_" + lineNumber);
+		}
 	}
 }

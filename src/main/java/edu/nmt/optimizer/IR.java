@@ -16,7 +16,7 @@ import edu.nmt.frontend.scanner.Scanner;
 /**
  * 
  * @author	mattadik123
- * @todo	implement conditions (requires Jump), loops (requires Jump), functions (requires Call), structs, switch statements
+ * @todo	implement loops (requires Jump), functions (requires Call), structs, switch statements, and goto
  *
  */
 public class IR {
@@ -72,6 +72,8 @@ public class IR {
 				tokenString = "addExpression";
 			} else if (op.contentEquals("*") || op.contentEquals("/")) {
 				tokenString = "mulExpression";
+			} else if(op.contentEquals("%")) {
+				tokenString = "modExpression";
 			} else {
 				tokenString = "bitExpression";
 			}
@@ -96,20 +98,37 @@ public class IR {
 		
 		assignStmt.setOp("=");
 		addExpression.setOp(Character.toString(incExpr.getOp().charAt(0)));
+		numConst.setType("int");
 		addExpression.addChild(numConst);
 		addExpression.addChild(incExpr.getChildren().get(0));
 		assignStmt.addChild(addExpression);
 		assignStmt.addChild(idDuplicate);
+		assignStmt.setParent(incExpr.getParent().getParent());
 		
 		return assignStmt;
 	}
 	
-	private Instruction buildInstruction(Node node) {
+	private List<Instruction> buildInstruction(Node node) {
+		List<Instruction> returnInstr = new ArrayList<Instruction>();
 		List<Instruction> operandList = new ArrayList<Instruction>();
 		String label = node.getToken().getTokenLabel();
 		Instruction add = null;
 		
-		if (!node.getChildren().isEmpty()) {
+		if (label.contentEquals("ifStmt")) {
+			return this.buildConditional(node, null);
+		}
+		
+		if (!node.getChildren().isEmpty() && !label.contentEquals("ifStmt")) {
+			if (label.contains("IncExpr")) {
+				// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
+				// then replaces the increment expression node with the new representation (which is an assignStmt)
+				Node replace = IR.convertIncExpr(node);
+				int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
+				node.getParent().getParent().getChildren().set(nodeIndex, replace);
+				node = replace;
+				label = "assignStmt";
+			}
+			
 			if (label.contentEquals("assignStmt")) {
 				// converts the AST representation of combination assignment statements (e.g. x += y) into its full formatting (e.g. x = x + y)
 				Node replace = IR.convertAssignStmt(node);
@@ -120,20 +139,17 @@ public class IR {
 					node.getParent().getChildren().set(nodeIndex, replace);
 					node = replace;
 				}
-
-				operandList.add(this.buildInstruction(replace.getChildren().get(0)));
-			} else if (label.contains("incExpr")) {
-				// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
-				// then replaces the increment expression node with the new representation
-				Node replace = IR.convertIncExpr(node);
-				int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
-				node.getParent().getParent().getChildren().set(nodeIndex, replace);
-				node = replace;
+				// index 1 contains the left-hand side of the assignment, so there is no need to recursively create instructions
+				// this is not true for index 0, which is the right-hand side
+				// the returned value will be a linearized instruction list of all the sub nodes of this statement in the AST
+				returnInstr.addAll(this.buildInstruction(replace.getChildren().get(0)));
 				
-				operandList.add(this.buildInstruction(replace.getChildren().get(0)));
+				// final member of tmp list is the root node of this node's subtree
+				operandList.add(returnInstr.get(returnInstr.size() - 1));
 			} else {
 				for (Node c : node.getChildren()) {
-					operandList.add(this.buildInstruction(c));
+					returnInstr.addAll(this.buildInstruction(c));
+					operandList.add(returnInstr.get(returnInstr.size() - 1));
 				}
 			}
 		}
@@ -142,15 +158,89 @@ public class IR {
 			add = new ReturnInstruction(node, operandList, this.instrCount);
 		} else if (label.contentEquals("call")) {
 			add = new CallInstruction(node, operandList, this.instrCount);
-		} else if (label.contentEquals("ifStmt") || label.contentEquals("goto")) {
+		} else if(label.contentEquals("goto")) {
 			add = new JumpInstruction(node, operandList, this.instrCount);
 		} else {
 			add = new Instruction(null, node, operandList, this.instrCount);
 		}
 		
 		this.instrCount++;
-		this.instructionList.add(add);
-		return add;
+		if (add != null) {
+			returnInstr.add(add);
+		}
+		return returnInstr;
+	}
+	
+	/* notes for implementation:
+	 * first step is to convert the boolean expression into an instruction (which will later be added as an operand)
+	 * next step is to create the destination if false as an instruction (this will also be added as an operand)
+	 * afterwards, the body (destination if true) is added as an instruction (this will not be used as an operand)
+	 * then, another jump must be added at the end of the body that leads to the instruction following the conditional block
+	 * potential solution: create a dummy destination that all conditionals lead to, and then build rest of list after that
+	 */
+	private List<Instruction> buildConditional(Node ifStmt, Instruction finalDestination) {
+		if (finalDestination == null) {
+			finalDestination = new Instruction(null, new Node(new Token("endOfFullConditionalBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
+		}
+		Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfConditionalBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
+		List<Instruction> returnInstr = new ArrayList<Instruction>();
+		List<Instruction> operandList1 = new ArrayList<Instruction>(); // operand list for conditional jump (if statement)
+		List<Instruction> operandList2 = new ArrayList<Instruction>(); // operand list for unconditional jump (end of block)
+		operandList2.add(finalDestination);
+		Node condition = null;
+		Node body = null;
+		Node elseStmt = null;
+		if (ifStmt.getChildren().size() == 1) {
+			body = ifStmt.getChildren().get(0);
+		} else {
+			condition = ifStmt.getChildren().get(0);
+			body = ifStmt.getChildren().get(1);
+		}
+		while (!body.getChildren().isEmpty() && ignoredLabels.contains(body.getChildren().get(0).getToken().getTokenLabel())) {
+			body = body.getChildren().get(0);
+		}
+		if (ifStmt.getChildren().size() == 3) {
+			elseStmt = ifStmt.getChildren().get(2);
+		}
+		
+		// create boolean expression and add to operandList of JumpInstruction to be constructed
+		if (condition != null) {
+			returnInstr.addAll(this.buildInstruction(condition.getChildren().get(0)));
+			operandList1.add(returnInstr.get(returnInstr.size() - 1));
+			// add end of conditional block to operandList of JumpInstruction to be constructed
+			operandList1.add(endOfBlock);
+			returnInstr.add(new JumpInstruction(ifStmt, operandList1, this.instrCount));
+			this.instrCount++;
+		}
+		// convert body nodes into instructions
+		if (!body.getChildren().isEmpty()) {
+			for (Node c : body.getChildren()) {
+				returnInstr.addAll(this.buildInstruction(c));
+			}
+		}
+		// unconditional jump to end of full conditional block
+		if (condition != null) {
+			returnInstr.add(new JumpInstruction(null, operandList2, this.instrCount));
+			this.instrCount++;
+		}
+		
+		endOfBlock.setLineNumber(this.instrCount);
+		this.instrCount++;
+		returnInstr.add(endOfBlock);
+		
+		if (elseStmt != null) {
+			returnInstr.addAll(this.buildConditional(elseStmt, finalDestination));
+		} else {
+			
+		}
+		
+		if (!ifStmt.getParent().getToken().getTokenLabel().contentEquals("ifStmt")) {
+			finalDestination.setLineNumber(this.instrCount);
+			returnInstr.add(finalDestination);
+			this.instrCount++;
+		}
+		
+		return returnInstr;
 	}
 	
 	
@@ -159,9 +249,8 @@ public class IR {
 	 * @param 	node
 	 * @return	
 	 */
-	private Instruction buildInstructionList(Node node) {
+	private void buildInstructionList(Node node) {
 		String label = node.getToken().getTokenLabel();
-		Instruction add = null;
 		
 		if (ignoredLabels.contains(label)) {
 			// if the label is ignored, then continue to recursively build instruction list for children without constructing a new object
@@ -169,10 +258,8 @@ public class IR {
 				this.buildInstructionList(c);
 			}
 		} else {
-			add = this.buildInstruction(node);
+			this.instructionList.addAll(this.buildInstruction(node));
 		}
-		
-		return add;
 	}
 	
 	public void buildFunctionIRs(Node root) {
@@ -193,7 +280,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/assignment_arith.c");
+		Scanner scanner = new Scanner("test/functions.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
