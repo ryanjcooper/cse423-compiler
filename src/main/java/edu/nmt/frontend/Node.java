@@ -180,10 +180,6 @@ public class Node {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
-	public String getType() {
-		return this.type;
-	}
 
 	public void setName(String name) {
 		this.name = name;
