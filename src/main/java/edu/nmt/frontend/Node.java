@@ -223,10 +223,6 @@ public class Node {
 		return op;
 	}
 
-	public String getType() {
-		return type;
-	}
-
 	public void setTokenLabel(String label) {
 		this.token.setTokenLabel(label);
 	}

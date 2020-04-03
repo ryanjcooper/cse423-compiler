@@ -7,7 +7,7 @@ import edu.nmt.frontend.Node;
 public class ReturnInstruction extends Instruction {
 
 	public ReturnInstruction(Node node, List<Instruction> operandList, Integer lineNumber) {
-		super("return", operandList, lineNumber);
+		super("return", node, operandList, lineNumber);
 	}
 
 	@Override

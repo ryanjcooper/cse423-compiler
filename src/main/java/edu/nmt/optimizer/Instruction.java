@@ -1,4 +1,6 @@
 package edu.nmt.optimizer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.nmt.frontend.*;
@@ -17,48 +19,75 @@ public class Instruction {
 	protected Instruction operand1;
 	protected String op1Name;
 	protected Instruction operand2;
+	private List<String> specialInstructions = new ArrayList<String>(Arrays.asList(
+			"call",
+			"jump",
+			"return"
+		));
 	
-	public Instruction(Node node, List<Instruction> operandList, Integer lineNumber) {
-		this.lineNumber = lineNumber;
-		this.instrID = "_" + lineNumber;
+	public Instruction(String instrType, Node node, List<Instruction> operandList, Integer lineNumber) {
 		String label = node.getToken().getTokenLabel();
-		this.type = node.getType();
-		
-		if (label.contentEquals("identifier")) {
-			this.operation = label;
-			this.op1Name = node.getToken().getTokenString();
-			this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
-		} else if (label.contains("constant")) {
-			this.operation = label;
-			this.op1Name = node.getToken().getTokenString();
-			if (this.type == null)
-				this.type = label.replace("_constant", "");
-		} else {
-			if (label.contentEquals("varDeclaration")) {
-				this.instrID = node.getName();
-				this.operation = null;
-			} else if (label.contentEquals("assignStmt")) {
-				this.instrID = node.getChildren().get(1).getName();
-				this.operation = "=";
-				this.type = node.getChildren().get(1).getType();
-			} else {
-				this.operation = node.getOp();
-			}
+		// first condition handles non-special instructions
+		if (!this.specialInstructions.contains(instrType)) {
+			this.lineNumber = lineNumber;
+			this.instrID = "_" + lineNumber;
+			this.type = node.getType();
 			
-			if (!operandList.isEmpty()){
-				this.op1Name = node.getName();
-				if (operandList.size() > 1) {
-					this.operand1 = operandList.get(1);
-					this.operand2 = operandList.get(0);
-					if (type == null)
-						this.type = operandList.get(1).getType();
+			if (label.contentEquals("identifier")) {
+				this.operation = label;
+				this.op1Name = node.getToken().getTokenString();
+				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+			} else if (label.contains("constant")) {
+				this.operation = label;
+				this.op1Name = node.getToken().getTokenString();
+				if (this.type == null)
+					this.type = label.replace("_constant", "");
+			} else {
+				if (label.contentEquals("varDeclaration")) {
+					this.instrID = node.getName();
+					this.operation = null;
+				} else if (label.contentEquals("assignStmt")) {
+					this.instrID = node.getChildren().get(1).getName();
+					this.operation = "=";
+					this.type = node.getChildren().get(1).getType();
 				} else {
-					this.operand1 = operandList.get(0);
-					if (type == null)
-						this.type = operandList.get(0).getType();
+					this.operation = node.getOp();
+				}
+				
+				if (!operandList.isEmpty()){
+					this.op1Name = node.getName();
+					if (operandList.size() > 1) {
+						this.operand1 = operandList.get(1);
+						this.operand2 = operandList.get(0);
+						if (type == null)
+							this.type = operandList.get(1).getType();
+					} else {
+						this.operand1 = operandList.get(0);
+						if (type == null)
+							this.type = operandList.get(0).getType();
+					}
+				}
+			}
+		} else {
+			this.lineNumber = lineNumber;
+			this.operation = instrType;
+			if (instrType.contentEquals("return")) {
+				this.operand1 = operandList.get(0);
+				this.type = operand1.getType();
+			} else if (instrType.contentEquals("jump")) {
+				if (label.contentEquals("ifStmt")) {
+					/**
+					 * procedure:
+					 * check if else/elif statement exists (nested ifStmt)
+					 * if no, recursively check if parent is an ifStmt then choose following sibling of uppermost statement as dest (if this exists)
+					 * if yes, dest is next nested ifStmt
+					 * 
+					 */
 				}
 			}
 		}
+		
+		
 	}
 	
 	public String getType() {
@@ -67,15 +96,6 @@ public class Instruction {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public Instruction(String type, List<Instruction> operandList, Integer lineNumber) {
-		this.lineNumber = lineNumber;
-		this.operation = type;
-		if (type.contentEquals("return")) {
-			this.operand1 = operandList.get(0);
-			this.type = operand1.getType();
-		}
 	}
 
 	@Override

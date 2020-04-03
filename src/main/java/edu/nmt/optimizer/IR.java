@@ -40,6 +40,22 @@ public class IR {
 		this.functionIRs = new HashMap<String, List<Instruction>>();
 		this.buildFunctionIRs(root);
 	}
+
+	public List<Instruction> getInstructionList() {
+		return instructionList;
+	}
+
+	public void setInstructionList(List<Instruction> instructionList) {
+		this.instructionList = instructionList;
+	}
+
+	public Map<String, List<Instruction>> getFunctionIRs() {
+		return functionIRs;
+	}
+
+	public void setFunctionIRs(Map<String, List<Instruction>> functionIRs) {
+		this.functionIRs = functionIRs;
+	}
 	
 	private static Node convertAssignStmt(Node assignStmt) {
 		String assignOp = assignStmt.getOp();
@@ -88,6 +104,55 @@ public class IR {
 		return assignStmt;
 	}
 	
+	private Instruction buildInstruction(Node node) {
+		List<Instruction> operandList = new ArrayList<Instruction>();
+		String label = node.getToken().getTokenLabel();
+		Instruction add = null;
+		
+		if (!node.getChildren().isEmpty()) {
+			if (label.contentEquals("assignStmt")) {
+				// converts the AST representation of combination assignment statements (e.g. x += y) into its full formatting (e.g. x = x + y)
+				Node replace = IR.convertAssignStmt(node);
+				// node == replace when the assignment statement is not a combination assignment
+				// when node != replace, node is replaced in its parent's child list by replace
+				if (node != replace) {
+					int nodeIndex = node.getParent().getChildren().indexOf(node);
+					node.getParent().getChildren().set(nodeIndex, replace);
+					node = replace;
+				}
+
+				operandList.add(this.buildInstruction(replace.getChildren().get(0)));
+			} else if (label.contains("incExpr")) {
+				// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
+				// then replaces the increment expression node with the new representation
+				Node replace = IR.convertIncExpr(node);
+				int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
+				node.getParent().getParent().getChildren().set(nodeIndex, replace);
+				node = replace;
+				
+				operandList.add(this.buildInstruction(replace.getChildren().get(0)));
+			} else {
+				for (Node c : node.getChildren()) {
+					operandList.add(this.buildInstruction(c));
+				}
+			}
+		}
+		
+		if (label.contentEquals("returnStmt")) {
+			add = new ReturnInstruction(node, operandList, this.instrCount);
+		} else if (label.contentEquals("call")) {
+			add = new CallInstruction(node, operandList, this.instrCount);
+		} else if (label.contentEquals("ifStmt") || label.contentEquals("goto")) {
+			add = new JumpInstruction(node, operandList, this.instrCount);
+		} else {
+			add = new Instruction(null, node, operandList, this.instrCount);
+		}
+		
+		this.instrCount++;
+		this.instructionList.add(add);
+		return add;
+	}
+	
 	
 	/**
 	 * @todo	check if an assignStmt is nested under an assignStmt, and change how the Instruction nodes are constructed accordingly
@@ -104,49 +169,7 @@ public class IR {
 				this.buildInstructionList(c);
 			}
 		} else {
-			List<Instruction> operandList = new ArrayList<Instruction>(); // list of all recursively constructed instructions under a node
-			
-			if (!node.getChildren().isEmpty()) {
-				if (label.contentEquals("assignStmt")) {
-					// converts the AST representation of combination assignment statements (e.g. x += y) into its full formatting (e.g. x = x + y)
-					Node replace = IR.convertAssignStmt(node);
-					// node == replace when the assignment statement is not a combination assignment
-					// when node != replace, node is replaced in its parent's child list by replace
-					if (node != replace) {
-						int nodeIndex = node.getParent().getChildren().indexOf(node);
-						node.getParent().getChildren().set(nodeIndex, replace);
-						node = replace;
-					}
-
-					operandList.add(this.buildInstructionList(replace.getChildren().get(0)));
-				} else if (label.contains("incExpr")) {
-					// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
-					// then replaces the increment expression node with the new representation
-					Node replace = IR.convertIncExpr(node);
-					int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
-					node.getParent().getParent().getChildren().set(nodeIndex, replace);
-					node = replace;
-					
-					operandList.add(this.buildInstructionList(replace.getChildren().get(0)));
-				} else {
-					for (Node c : node.getChildren()) {
-						operandList.add(this.buildInstructionList(c));
-					}
-				}
-			}
-			
-			if (label.contentEquals("returnStmt")) {
-				add = new ReturnInstruction(node, operandList, this.instrCount);
-			} else if (label.contentEquals("call")) {
-				add = new CallInstruction(node, operandList);
-			} else if (label.contentEquals("ifStmt") || label.contentEquals("goto")) {
-				add = new JumpInstruction(node, operandList);
-			} else {
-				add = new Instruction(node, operandList, this.instrCount);
-			}
-			
-			this.instrCount++;
-			this.instructionList.add(add);
+			add = this.buildInstruction(node);
 		}
 		
 		return add;
@@ -170,7 +193,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/types.c");
+		Scanner scanner = new Scanner("test/assignment_arith.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -192,21 +215,5 @@ public class IR {
 		List<Instruction> mainList = test.getFunctionIRs().get("main");
 		IR.printMain(test.getFunctionIRs());
 		
-	}
-
-	public List<Instruction> getInstructionList() {
-		return instructionList;
-	}
-
-	public void setInstructionList(List<Instruction> instructionList) {
-		this.instructionList = instructionList;
-	}
-
-	public Map<String, List<Instruction>> getFunctionIRs() {
-		return functionIRs;
-	}
-
-	public void setFunctionIRs(Map<String, List<Instruction>> functionIRs) {
-		this.functionIRs = functionIRs;
 	}
 }
