@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
 
 import edu.nmt.frontend.Grammar;
@@ -73,6 +76,7 @@ public class ASTParser {
 		Stack<Node> stack = new Stack<Node>();
 		List<Node> tmp;
 		List<Node> tmp2;
+		Set<Node> toInvert = new HashSet<Node>();
 		
 		// add parse tree root as this will always be program
 		stack.addAll(root.getChildren());
@@ -288,6 +292,8 @@ public class ASTParser {
 				current.getChildren().get(0).setParent(current.getParent());
 				tmp.remove(current);
 				current.getParent().setChildren(tmp);
+				
+				toInvert.add(current.getParent());
 				
 			// collapse declarationList
 			} else if (current.getToken().getTokenLabel().equals("declarationList")) {
@@ -622,6 +628,10 @@ public class ASTParser {
 			stack.addAll(current.getChildren());
 		}
 
+		for (Node n : toInvert) {
+			Collections.reverse(n.getChildren());
+		}
+		
 		return true;
 	}
 	
