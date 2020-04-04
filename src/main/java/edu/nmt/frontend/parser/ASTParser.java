@@ -65,6 +65,7 @@ public class ASTParser {
 	
 	/**
 	 * Single-pass parse tree reduction algorithm
+	 * It was decided not to break this up into separate methods as all of this code serves under the same functionality of tree reduction, just handling various cases.
 	 * @return true iff parse tree is reduced to ast
 	 */
 	public Boolean parse() {
