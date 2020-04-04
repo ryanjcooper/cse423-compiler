@@ -1,7 +1,14 @@
+int foo(int i, int x);
+
 int main()
 {
-        int a = 1;
-        char c = 'a';
-        int b = c;
-        return b;
+        int i = 0 + 7;
+
+        return foo(i + 1, 5);
+}
+
+int foo(int i, int x)
+{
+        i +=1;
+        return i;
 }

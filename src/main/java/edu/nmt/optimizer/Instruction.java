@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.nmt.frontend.*;
+import edu.nmt.frontend.scanner.TokenLabeler;
 
 /**
  * 
@@ -101,12 +102,72 @@ public class Instruction {
 		
 	}
 	
+	public Instruction(String lineNum, String id, String op, String type, String constant, String op1, String op2) {
+		this.lineNumber = Integer.parseInt(lineNum);
+		this.instrID = id;
+		this.operation = op;
+		this.type = type;
+		this.op1Name = constant;
+		
+		if (op1 != null) {
+			this.operand1 = IR.variableMap.get(op1);
+		}
+		
+		if (op2 != null) {
+			this.operand2 = IR.variableMap.get(op2);
+		}
+		
+		if (IR.variableMap.get(instrID) == null) {
+			IR.variableMap.put(id, this);
+		}
+	}
+	
 	public String getType() {
 		return type;
 	}
 
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	/**
+	 * converts a line of an IR output to an object
+	 * @param line is the string to convert
+	 * @return Instruction object representation of line
+	 */
+	public static Instruction strToInstr(String line) {
+		String[] lineSplit = line.split(" ");
+		String[] maxSplit = new String[8];
+		int diff = maxSplit.length - lineSplit.length;
+		boolean constant = isConstant(lineSplit[3]);
+		
+		for (int i = 0; i < lineSplit.length; i++) {
+			if (i == 0) {
+				/* index 0 is line number */
+				maxSplit[0] = lineSplit[i].substring(0, lineSplit[i].length() - 1); // remove the semicolon
+			} else if (i >= lineSplit.length - 2) {
+				/* last two indexes remain as last two */
+				maxSplit[i + diff] = lineSplit[i];
+			} else {
+				/* rest of indexes match */
+				maxSplit[i] = lineSplit[i];
+			}
+		}
+		
+		if (constant) {
+			return new Instruction(maxSplit[0], maxSplit[1], "varDeclaration", maxSplit[7], maxSplit[3], null, null);
+		} else {
+			
+			return new Instruction(maxSplit[0], maxSplit[1], "varDeclaration", maxSplit[7], null, maxSplit[3], maxSplit[5]);
+		}
+	}
+	
+	private static boolean isConstant(String str) {
+		if (TokenLabeler.isNumeric(str)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
