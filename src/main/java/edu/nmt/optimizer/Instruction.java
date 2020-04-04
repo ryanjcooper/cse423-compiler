@@ -91,7 +91,7 @@ public class Instruction {
 					this.type = "unconditionalJump";
 					this.operand1 = null;
 					this.operand2 = operandList.get(0);
-				} else if (label.contentEquals("ifStmt")) {
+				} else if (label.contentEquals("ifStmt") || label.contentEquals("loopBody")) {
 					this.type = "conditionalJump";
 					this.operand1 = operandList.get(0);
 					this.operand2 = operandList.get(1);
