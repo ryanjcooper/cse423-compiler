@@ -259,9 +259,7 @@ public class ASTParser {
 						bodyNode = child;
 					}
 				}
-				
-				System.out.println(comparisonNode + " " + bodyNode);
-				
+								
 				if (comparisonNode != null && bodyNode != null) {
 					
 					current.getToken().setTokenLabel("whileLoop");
@@ -270,6 +268,9 @@ public class ASTParser {
 					tmp = new ArrayList<Node>();
 					tmp.add(comparisonNode);
 					tmp.add(bodyNode);
+					
+					comparisonNode.setParent(current);
+					bodyNode.setParent(current);
 					
 					current.setChildren(tmp);
 				}
@@ -569,6 +570,22 @@ public class ASTParser {
 				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+			
+			// collapse pointers
+			} else if (current.getToken().getTokenLabel().equals("pointer")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("mul_op")) {
+						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("identifier")) {
+						current.setName(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
 			}
 				
 			
@@ -660,26 +677,31 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/while.c");
+		Scanner scanner = new Scanner("test/base.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-			;
 //			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+			
+			
+			ASTParser a = new ASTParser(p);
+//			if (a.parse() && a.isTypedCorrectly()) {
+			if (a.parse()) {
+				a.printAST();
+//				if (a.isTypedCorrectly()) {
+//					System.out.println("Type check passed.");
+//				}
+			}
+			
+			a.printSymbolTable();
+			
+		} else {
+			System.out.println("FAILED TO PARSE");
 		}
 		
-		ASTParser a = new ASTParser(p);
-//		if (a.parse() && a.isTypedCorrectly()) {
-		if (a.parse()) {
-			a.printAST();
-//			if (a.isTypedCorrectly()) {
-//				System.out.println("Type check passed.");
-//			}
-		}
-		
-		a.printSymbolTable();
+
 		
 		
 	}
