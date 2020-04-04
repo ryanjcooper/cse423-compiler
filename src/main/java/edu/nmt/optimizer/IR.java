@@ -117,13 +117,20 @@ public class IR {
 	private List<Instruction> buildInstruction(Node node) {
 		List<Instruction> returnInstr = new ArrayList<Instruction>();
 		List<Instruction> operandList = new ArrayList<Instruction>();
-		String label = node.getToken().getTokenLabel();
 		Instruction add = null;
+		String label = node.getToken().getTokenLabel();
+		
+		if (this.ignoredLabels.contains(label)) {
+			for (Node c : node.getChildren()) {
+				returnInstr.addAll(this.buildInstruction(c));
+			}
+			return returnInstr;
+		}
 		
 		if (label.contentEquals("ifStmt")) {
 			return this.buildConditional(node, null);
-		} else if (label.contentEquals("forLoop")) {
-			return this.buildForLoop(node);
+		} else if (label.contains("Loop")) {
+			return this.buildLoop(node);
 		}
 		
 		if (!node.getChildren().isEmpty() && !label.contentEquals("ifStmt")) {
@@ -192,17 +199,26 @@ public class IR {
 		return null;
 	}
 	
-	private List<Instruction> buildForLoop(Node forLoop) {
+	private List<Instruction> buildLoop(Node loopNode) {
+		boolean isForLoop = loopNode.getToken().getTokenLabel().contains("for");
 		List<Instruction> returnInstr = new ArrayList<Instruction>();
-		Node condition = forLoop.getChildren().get(0);
-		Node init = forLoop.getChildren().get(1);
-		Node increment = forLoop.getChildren().get(2);
-		Node body = forLoop.getChildren().get(3);
-		while (!body.getChildren().isEmpty() && ignoredLabels.contains(body.getChildren().get(0).getToken().getTokenLabel()) && !body.getChildren().get(0).getToken().getTokenLabel().contentEquals("exprStmt")) {
-			body = body.getChildren().get(0);
+		Node condition = loopNode.getChildren().get(0);
+		Node init = null;
+		Node increment = null;
+		Node body = null;
+		if (isForLoop) {
+			condition = condition.getChildren().get(0);
+			init = loopNode.getChildren().get(1);
+			increment = loopNode.getChildren().get(2);
+			body = loopNode.getChildren().get(3);
+		} else {
+			body = loopNode.getChildren().get(1);
 		}
 		
-		List<Instruction> initInstr = this.buildInstruction(init);
+		List<Instruction> initInstr = null;
+		if (isForLoop) {
+			initInstr = this.buildInstruction(init);
+		}
 		
 		Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfLoopBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
 		Instruction jumpToCondition = new JumpInstruction(null, Arrays.asList(endOfBlock), this.instrCount, null);
@@ -214,30 +230,34 @@ public class IR {
 		List<Instruction> bodyInstr = new ArrayList<Instruction>();
 		if (!body.getChildren().isEmpty()) {
 			for (Node c : body.getChildren()) {
-				while (!c.getChildren().isEmpty() && ignoredLabels.contains(c.getChildren().get(0).getToken().getTokenLabel())) {
-					c = c.getChildren().get(0);
-				}
 				bodyInstr.addAll(this.buildInstruction(c));
 			}
 		}
 		
-		List<Instruction> incrementInstr = this.buildInstruction(increment);
+		List<Instruction> incrementInstr = null;
+		if (isForLoop) {
+			incrementInstr = this.buildInstruction(increment);
+		}
 		
 		endOfBlock.setLineNumber(this.instrCount);
 		this.instrCount++;
 
 		List<Instruction> operandList = new ArrayList<Instruction>();
-		List<Instruction> condInstr = this.buildInstruction(condition.getChildren().get(0));
+		List<Instruction> condInstr = this.buildInstruction(condition);
 		operandList.add(condInstr.get(condInstr.size() - 1));
 		operandList.add(startOfBody);
 		Instruction jumpToBody = new JumpInstruction(new Node(new Token(null, "loopBody")), operandList, this.instrCount, "true");
 		this.instrCount++;
 		
-		returnInstr.addAll(initInstr);
+		if (isForLoop) {
+			returnInstr.addAll(initInstr);
+		}
 		returnInstr.add(jumpToCondition);
 		returnInstr.add(startOfBody);
 		returnInstr.addAll(bodyInstr);
-		returnInstr.addAll(incrementInstr);
+		if (isForLoop) {
+			returnInstr.addAll(incrementInstr);
+		}
 		returnInstr.add(endOfBlock);
 		returnInstr.addAll(condInstr);
 		returnInstr.add(jumpToBody);
@@ -260,9 +280,7 @@ public class IR {
 			condition = ifStmt.getChildren().get(0);
 			body = ifStmt.getChildren().get(1);
 		}
-		while (!body.getChildren().isEmpty() && ignoredLabels.contains(body.getChildren().get(0).getToken().getTokenLabel())) {
-			body = body.getChildren().get(0);
-		}
+		
 		if (ifStmt.getChildren().size() == 3) {
 			elseStmt = ifStmt.getChildren().get(2);
 		}
@@ -278,9 +296,7 @@ public class IR {
 		}
 		// convert body nodes into instructions
 		if (!body.getChildren().isEmpty()) {
-			for (Node c : body.getChildren()) {
-				returnInstr.addAll(this.buildInstruction(c));
-			}
+			returnInstr.addAll(this.buildInstruction(body));
 		}
 		// unconditional jump to end of full conditional block
 		if (condition != null) {
@@ -358,7 +374,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/for.c");
+		Scanner scanner = new Scanner("test/goto.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
