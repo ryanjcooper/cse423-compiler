@@ -1,13 +1,10 @@
 int main()
 {
-    int *i;
-    int j;
-    
-    j = 0;
-    
-    i = &j;
-    
-    *i = *i + 1;
-    
-    return *i;
+        goto NEXT;
+
+        return 1;
+
+        NEXT:
+        int i = 10;
+        return 0;
 }
