@@ -1,5 +1,6 @@
 package edu.nmt.optimizer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import edu.nmt.frontend.scanner.Scanner;
  */
 public class IR {
 	ASTParser a;
+	public static Map<String, Instruction> variableMap = new HashMap<String, Instruction>();
 	private Integer instrCount = 1;
 	private List<Instruction> instructionList;
 	private Map<String, List<Instruction>> functionIRs;
@@ -29,6 +31,10 @@ public class IR {
 			"statementList",
 			"exprStmt"
 		));
+	
+	public IR() {
+		this.instructionList = new ArrayList<Instruction>();
+	}
 	
 	public IR(ASTParser a) {
 		this(a.getRoot());
@@ -185,6 +191,24 @@ public class IR {
 		}
 	}
 	
+	public void fileToIR(String fileName) {
+		java.util.Scanner irScanner = null;
+		
+		try {
+			File irFile = new File(fileName);
+			irScanner = new java.util.Scanner(irFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		while (irScanner.hasNext()) {
+			String line = irScanner.next();
+			this.instructionList.add(Instruction.strToInstr(line));
+		}
+		
+		irScanner.close();
+	}
+	
 	public static void printMain(Map<String, List<Instruction>> functionMap) {
 		List<Instruction> instrList = functionMap.get("main");
 		for (Instruction i : instrList) {
@@ -213,6 +237,7 @@ public class IR {
 		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(a);
 		List<Instruction> mainList = test.getFunctionIRs().get("main");
+		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 		
 	}

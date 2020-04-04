@@ -570,8 +570,7 @@ public class ASTParser {
 		
 		for (Node child : parent.getChildren()) {
 			if (child.getToken().getTokenLabel().equals("identifier") && child.getType() == null) {
-				//System.out.println(root.getSymbolTable());
-				child.setType(root.getSymbolTable().get(child.getToken().getTokenString()).getType());	
+				child.setType(root.getSymbolTable().get(child.getName()).getType());	
 			}
 		}
 		
