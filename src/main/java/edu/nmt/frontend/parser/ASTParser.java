@@ -84,7 +84,7 @@ public class ASTParser {
 			Node current = stack.pop();
 			
 			
-			System.out.println(current + " " + current.getParent().getChildren());
+//			System.out.println(current + " " + current.getParent().getChildren());
 			
 			// remove node if token doesnt contribute to semantics
 			if (syntaxConstructs.contains(current.getToken().getTokenLabel())) {
@@ -520,6 +520,17 @@ public class ASTParser {
 					current.setName(identifierNode.getToken().getTokenString());
 					current.getToken().setTokenLabel(gotoNode.getToken().getTokenLabel());
 					tmp = new ArrayList<Node>();
+					
+					if (current.getParent().getToken().getTokenLabel().equals("exprStmt")) {
+						List<Node> a = current.getParent().getParent().getChildren();
+						int idx = a.indexOf(current.getParent());
+						a.remove(current.getParent());
+						a.add(idx, current);
+						
+						current.getParent().getParent().setChildren(a);
+						current.setParent(current.getParent().getParent());
+					}
+					
 				}
 				
 				tmp.removeAll(tmp2);
@@ -702,7 +713,7 @@ public class ASTParser {
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 			
 			
 			ASTParser a = new ASTParser(p);
