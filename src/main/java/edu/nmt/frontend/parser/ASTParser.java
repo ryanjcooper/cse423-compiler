@@ -586,6 +586,18 @@ public class ASTParser {
 				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+			} else if (current.getToken().getTokenLabel().equals("breakStmt")) {
+				
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("break")) {
+						current.getToken().setTokenLabel("break");
+						current.setChildren(tmp2);
+					}
+				}
+
 			}
 				
 			
