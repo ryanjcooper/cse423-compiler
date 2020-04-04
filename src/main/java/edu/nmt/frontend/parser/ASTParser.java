@@ -83,6 +83,9 @@ public class ASTParser {
 		while(!stack.empty()) {
 			Node current = stack.pop();
 			
+			
+			System.out.println(current + " " + current.getParent().getChildren());
+			
 			// remove node if token doesnt contribute to semantics
 			if (syntaxConstructs.contains(current.getToken().getTokenLabel())) {
 				tmp = current.getParent().getChildren();
@@ -280,12 +283,11 @@ public class ASTParser {
 			} else if ((current.getChildren().size() == 1) && (!ignoreRollup.contains(current.getToken().getTokenLabel()))) {				
 				// remove node from parent
 				tmp = current.getParent().getChildren();
+				int idx = tmp.indexOf(current);
+				tmp.add(idx, current.getChildren().get(0));
+				current.getChildren().get(0).setParent(current.getParent());
 				tmp.remove(current);
 				current.getParent().setChildren(tmp);
-				// set only childs parent to current node
-				Node tmpNode = current.getChildren().get(0);
-				tmpNode.setParent(current.getParent());
-				current.getParent().addChild(tmpNode);
 				
 			// collapse declarationList
 			} else if (current.getToken().getTokenLabel().equals("declarationList")) {
@@ -559,16 +561,18 @@ public class ASTParser {
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
-			// label op in addExpression and binExpression
+			// label
 			} else if (current.getToken().getTokenLabel().equals("label")) {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
+				
 				for (Node child : tmp) {
 					if (child.getToken().getTokenLabel().equals("identifier")) {
 						current.setName(child.getToken().getTokenString());
 						tmp2.add(child);
 					}		
 				}
+				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 			
@@ -587,6 +591,8 @@ public class ASTParser {
 				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+				
+				
 			} else if (current.getToken().getTokenLabel().equals("breakStmt")) {
 				
 				tmp = current.getChildren();
@@ -690,13 +696,13 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/goto.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 			
 			
 			ASTParser a = new ASTParser(p);
