@@ -45,7 +45,8 @@ public class ASTParser {
 				"if",
 				"else",
 				"for",
-				"colon"
+				"colon",
+				"while"
 			));
 
 	// Token labels that should not be rolled up, even if only one child
@@ -237,6 +238,41 @@ public class ASTParser {
 				tmp2.add(bodyNode);
 			
 				current.setChildren(tmp2);
+				
+			// handle while loops
+			} else if (current.getToken().getTokenLabel().equals("iterationStmt")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				
+				Node comparisonNode = null;
+				Node bodyNode = null;
+				
+				// search over child nodes for body and condition of the loop
+				for (Node child : tmp) {					
+					if (child.getToken().getTokenLabel().equals("whileLoop")) {
+						for (Node child2 : child.getChildren()) {
+							if (child2.getToken().getTokenLabel().equals("expression")) {
+								comparisonNode = child2;
+							}
+						}
+					} else if (child.getToken().getTokenLabel().equals("compoundStmt")) {
+						bodyNode = child;
+					}
+				}
+				
+				System.out.println(comparisonNode + " " + bodyNode);
+				
+				if (comparisonNode != null && bodyNode != null) {
+					
+					current.getToken().setTokenLabel("whileLoop");
+					
+					// ordered children
+					tmp = new ArrayList<Node>();
+					tmp.add(comparisonNode);
+					tmp.add(bodyNode);
+					
+					current.setChildren(tmp);
+				}
 						
 			// collapse single child nodes (non-terminals)
 			} else if ((current.getChildren().size() == 1) && (!ignoreRollup.contains(current.getToken().getTokenLabel()))) {				
@@ -624,7 +660,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/goto.c");
+		Scanner scanner = new Scanner("test/while.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
