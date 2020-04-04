@@ -26,6 +26,46 @@ public class Instruction {
 			"return"
 		));
 	
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public Instruction getOperand1() {
+		return operand1;
+	}
+
+	public void setOperand1(Instruction operand1) {
+		this.operand1 = operand1;
+	}
+
+	public String getOp1Name() {
+		return op1Name;
+	}
+
+	public void setOp1Name(String op1Name) {
+		this.op1Name = op1Name;
+	}
+
+	public Instruction getOperand2() {
+		return operand2;
+	}
+
+	public void setOperand2(Instruction operand2) {
+		this.operand2 = operand2;
+	}
+
+	public List<String> getSpecialInstructions() {
+		return specialInstructions;
+	}
+
+	public void setSpecialInstructions(List<String> specialInstructions) {
+		this.specialInstructions = specialInstructions;
+	}
+
 	public Instruction(String instrType, Node node, List<Instruction> operandList, Integer lineNumber) {
 		String label = null;
 		if (node != null) {

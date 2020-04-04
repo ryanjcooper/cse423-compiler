@@ -10,31 +10,17 @@ numeric_constant '0'	 [LeadingSpace]	Loc=<foldproptest.c:3:17>
 semi ';'		Loc=<foldproptest.c:3:18>
 int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:4:9>
 identifier 'b'	 [LeadingSpace]	Loc=<foldproptest.c:4:13>
-equal '='	 [LeadingSpace]	Loc=<foldproptest.c:4:15>
-numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:4:17>
-plus '+'	 [LeadingSpace]	Loc=<foldproptest.c:4:19>
-numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:4:21>
-semi ';'		Loc=<foldproptest.c:4:22>
-int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:5:9>
-identifier 'c'	 [LeadingSpace]	Loc=<foldproptest.c:5:13>
-equal '='	 [LeadingSpace]	Loc=<foldproptest.c:5:15>
-identifier 'b'	 [LeadingSpace]	Loc=<foldproptest.c:5:17>
-plus '+'	 [LeadingSpace]	Loc=<foldproptest.c:5:19>
-numeric_constant '2'	 [LeadingSpace]	Loc=<foldproptest.c:5:21>
-semi ';'		Loc=<foldproptest.c:5:22>
+semi ';'		Loc=<foldproptest.c:4:14>
+identifier 'b'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:6:9>
+equal '='	 [LeadingSpace]	Loc=<foldproptest.c:6:11>
+numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:6:13>
+plus '+'	 [LeadingSpace]	Loc=<foldproptest.c:6:15>
+numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:6:17>
+semi ';'		Loc=<foldproptest.c:6:18>
 identifier 'a'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:7:9>
 equal '='	 [LeadingSpace]	Loc=<foldproptest.c:7:11>
-numeric_constant '5'	 [LeadingSpace]	Loc=<foldproptest.c:7:13>
+identifier 'b'	 [LeadingSpace]	Loc=<foldproptest.c:7:13>
 plus '+'	 [LeadingSpace]	Loc=<foldproptest.c:7:15>
 numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:7:17>
 semi ';'		Loc=<foldproptest.c:7:18>
-identifier 'b'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:8:9>
-equal '='	 [LeadingSpace]	Loc=<foldproptest.c:8:11>
-identifier 'a'	 [LeadingSpace]	Loc=<foldproptest.c:8:13>
-plus '+'	 [LeadingSpace]	Loc=<foldproptest.c:8:15>
-identifier 'c'	 [LeadingSpace]	Loc=<foldproptest.c:8:17>
-semi ';'		Loc=<foldproptest.c:8:18>
-return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:10:9>
-numeric_constant '0'	 [LeadingSpace]	Loc=<foldproptest.c:10:16>
-semi ';'		Loc=<foldproptest.c:10:17>
-r_brace '}'	 [StartOfLine]	Loc=<foldproptest.c:11:1>
+r_brace '}'	 [StartOfLine]	Loc=<foldproptest.c:9:1>
