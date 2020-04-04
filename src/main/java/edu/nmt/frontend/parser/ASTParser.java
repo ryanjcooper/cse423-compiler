@@ -44,7 +44,8 @@ public class ASTParser {
 				"r_bracket",
 				"if",
 				"else",
-				"for"
+				"for",
+				"colon"
 			));
 
 	// Token labels that should not be rolled up, even if only one child
@@ -450,10 +451,14 @@ public class ASTParser {
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
-			// label unary ops in expression
+			// label unary ops in expression and collapse goto statements
 			} else if (current.getToken().getTokenLabel().equals("expression")) {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
+				
+				Node gotoNode = null;
+				Node identifierNode = null;
+				
 				for (Node child : tmp) {
 					if (child.getToken().getTokenLabel().equals("tilde")) {
 						current.setOp(child.getToken().getTokenString());
@@ -463,8 +468,20 @@ public class ASTParser {
 						current.setOp(child.getToken().getTokenString());
 						current.getToken().setTokenLabel("bitExpression");
 						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("goto")) {
+						gotoNode = child;
+					} else if (child.getToken().getTokenLabel().equals("identifier")) {
+						identifierNode = child;
 					}
 				}				
+				
+				// found valid goto expression
+				if (gotoNode != null && identifierNode != null) {
+					current.setName(identifierNode.getToken().getTokenString());
+					current.getToken().setTokenLabel(gotoNode.getToken().getTokenLabel());
+					tmp = new ArrayList<Node>();
+				}
+				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
@@ -503,7 +520,21 @@ public class ASTParser {
 				}				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+				
+			// label op in addExpression and binExpression
+			} else if (current.getToken().getTokenLabel().equals("label")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("identifier")) {
+						current.setName(child.getToken().getTokenString());
+						tmp2.add(child);
+					}		
+				}
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
 			}
+				
 			
 			stack.addAll(current.getChildren());
 		}
@@ -593,7 +624,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/goto.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
