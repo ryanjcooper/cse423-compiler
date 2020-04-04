@@ -154,7 +154,7 @@ public class TokenLabelerTest {
 		assertEquals("colon", TokenLabeler.labelToken(":"));		
 		//bit_op ^ & | ! << >>
 		assertEquals("bit_op", TokenLabeler.labelToken("^"));
-		assertEquals("bit_op", TokenLabeler.labelToken("&"));
+		assertEquals("ampersand", TokenLabeler.labelToken("&"));
 		assertEquals("bit_op", TokenLabeler.labelToken("|"));
 		assertEquals("bit_op", TokenLabeler.labelToken("<<"));
 		assertEquals("bit_op", TokenLabeler.labelToken(">>"));
