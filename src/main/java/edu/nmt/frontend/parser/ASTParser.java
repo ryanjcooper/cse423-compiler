@@ -65,6 +65,7 @@ public class ASTParser {
 	
 	/**
 	 * Single-pass parse tree reduction algorithm
+	 * It was decided not to break this up into separate methods as all of this code serves under the same functionality of tree reduction, just handling various cases.
 	 * @return true iff parse tree is reduced to ast
 	 */
 	public Boolean parse() {
@@ -586,6 +587,18 @@ public class ASTParser {
 				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+			} else if (current.getToken().getTokenLabel().equals("breakStmt")) {
+				
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("break")) {
+						current.getToken().setTokenLabel("break");
+						current.setChildren(tmp2);
+					}
+				}
+
 			}
 				
 			

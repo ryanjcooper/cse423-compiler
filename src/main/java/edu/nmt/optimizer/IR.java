@@ -17,7 +17,7 @@ import edu.nmt.frontend.scanner.Scanner;
 /**
  * 
  * @author	mattadik123
- * @todo	implement conditions (requires Jump), loops (requires Jump), functions (requires Call), structs, switch statements
+ * @todo	implement loops (requires Jump), functions (requires Call), structs, switch statements, and goto
  *
  */
 public class IR {
@@ -78,6 +78,8 @@ public class IR {
 				tokenString = "addExpression";
 			} else if (op.contentEquals("*") || op.contentEquals("/")) {
 				tokenString = "mulExpression";
+			} else if(op.contentEquals("%")) {
+				tokenString = "modExpression";
 			} else {
 				tokenString = "bitExpression";
 			}
@@ -102,20 +104,46 @@ public class IR {
 		
 		assignStmt.setOp("=");
 		addExpression.setOp(Character.toString(incExpr.getOp().charAt(0)));
+		numConst.setType("int");
 		addExpression.addChild(numConst);
 		addExpression.addChild(incExpr.getChildren().get(0));
 		assignStmt.addChild(addExpression);
 		assignStmt.addChild(idDuplicate);
+		assignStmt.setParent(incExpr.getParent().getParent());
 		
 		return assignStmt;
 	}
 	
-	private Instruction buildInstruction(Node node) {
+	private List<Instruction> buildInstruction(Node node) {
+		List<Instruction> returnInstr = new ArrayList<Instruction>();
 		List<Instruction> operandList = new ArrayList<Instruction>();
-		String label = node.getToken().getTokenLabel();
 		Instruction add = null;
+		String label = node.getToken().getTokenLabel();
 		
-		if (!node.getChildren().isEmpty()) {
+		if (this.ignoredLabels.contains(label)) {
+			for (Node c : node.getChildren()) {
+				returnInstr.addAll(this.buildInstruction(c));
+			}
+			return returnInstr;
+		}
+		
+		if (label.contentEquals("ifStmt")) {
+			return this.buildConditional(node, null);
+		} else if (label.contains("Loop")) {
+			return this.buildLoop(node);
+		}
+		
+		if (!node.getChildren().isEmpty() && !label.contentEquals("ifStmt")) {
+			if (label.contains("IncExpr")) {
+				// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
+				// then replaces the increment expression node with the new representation (which is an assignStmt)
+				Node replace = IR.convertIncExpr(node);
+				int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
+				node.getParent().getParent().getChildren().set(nodeIndex, replace);
+				node = replace;
+				label = "assignStmt";
+			}
+			
 			if (label.contentEquals("assignStmt")) {
 				// converts the AST representation of combination assignment statements (e.g. x += y) into its full formatting (e.g. x = x + y)
 				Node replace = IR.convertAssignStmt(node);
@@ -126,68 +154,197 @@ public class IR {
 					node.getParent().getChildren().set(nodeIndex, replace);
 					node = replace;
 				}
-
-				operandList.add(this.buildInstruction(replace.getChildren().get(0)));
-			} else if (label.contains("incExpr")) {
-				// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
-				// then replaces the increment expression node with the new representation
-				Node replace = IR.convertIncExpr(node);
-				int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
-				node.getParent().getParent().getChildren().set(nodeIndex, replace);
-				node = replace;
+				// index 1 contains the left-hand side of the assignment, so there is no need to recursively create instructions
+				// this is not true for index 0, which is the right-hand side
+				// the returned value will be a linearized instruction list of all the sub nodes of this statement in the AST
+				returnInstr.addAll(this.buildInstruction(replace.getChildren().get(0)));
 				
-				operandList.add(this.buildInstruction(replace.getChildren().get(0)));
+				// final member of tmp list is the root node of this node's subtree
+				operandList.add(returnInstr.get(returnInstr.size() - 1));
+			} else if (label.contentEquals("call")) {
+				returnInstr.addAll(this.buildCall(node));
+				add = returnInstr.get(returnInstr.size() - 1);
 			} else {
 				for (Node c : node.getChildren()) {
-					operandList.add(this.buildInstruction(c));
+					returnInstr.addAll(this.buildInstruction(c));
+					operandList.add(returnInstr.get(returnInstr.size() - 1));
 				}
 			}
 		}
 		
 		if (label.contentEquals("returnStmt")) {
 			add = new ReturnInstruction(node, operandList, this.instrCount);
-		} else if (label.contentEquals("call")) {
-			add = new CallInstruction(node, operandList, this.instrCount);
-		} else if (label.contentEquals("ifStmt") || label.contentEquals("goto")) {
-			add = new JumpInstruction(node, operandList, this.instrCount);
+		} else if(label.contentEquals("goto")) {
+			add = new JumpInstruction(node, operandList, this.instrCount, null);
 		} else {
 			add = new Instruction(null, node, operandList, this.instrCount);
 		}
 		
 		this.instrCount++;
-		this.instructionList.add(add);
-		return add;
+		if (add != null) {
+			returnInstr.add(add);
+		}
+		return returnInstr;
 	}
 	
-	
 	/**
-	 * @todo	check if an assignStmt is nested under an assignStmt, and change how the Instruction nodes are constructed accordingly
-	 * @param 	node
-	 * @return	
+	 * first child is parameter(s) unless no parameters
+	 * if first child is argList, then multiple parameters
+	 * second child is function identifier
+	 * @param call
+	 * @return
 	 */
-	private Instruction buildInstructionList(Node node) {
+	private List<Instruction> buildCall(Node call) {
+		Node args = call.getChildren().get(0);
+		return null;
+	}
+	
+	private List<Instruction> buildLoop(Node loopNode) {
+		boolean isForLoop = loopNode.getToken().getTokenLabel().contains("for");
+		List<Instruction> returnInstr = new ArrayList<Instruction>();
+		Node condition = loopNode.getChildren().get(0);
+		Node init = null;
+		Node increment = null;
+		Node body = null;
+		if (isForLoop) {
+			condition = condition.getChildren().get(0);
+			init = loopNode.getChildren().get(1);
+			increment = loopNode.getChildren().get(2);
+			body = loopNode.getChildren().get(3);
+		} else {
+			body = loopNode.getChildren().get(1);
+		}
+		
+		List<Instruction> initInstr = null;
+		if (isForLoop) {
+			initInstr = this.buildInstruction(init);
+		}
+		
+		Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfLoopBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
+		Instruction jumpToCondition = new JumpInstruction(null, Arrays.asList(endOfBlock), this.instrCount, null);
+		this.instrCount++;
+		
+		Instruction startOfBody = new Instruction(null, new Node(new Token("startOfLoopBody", "label")), new ArrayList<Instruction>(),this.instrCount);
+		this.instrCount++;
+		
+		List<Instruction> bodyInstr = new ArrayList<Instruction>();
+		if (!body.getChildren().isEmpty()) {
+			for (Node c : body.getChildren()) {
+				bodyInstr.addAll(this.buildInstruction(c));
+			}
+		}
+		
+		List<Instruction> incrementInstr = null;
+		if (isForLoop) {
+			incrementInstr = this.buildInstruction(increment);
+		}
+		
+		endOfBlock.setLineNumber(this.instrCount);
+		this.instrCount++;
+
+		List<Instruction> operandList = new ArrayList<Instruction>();
+		List<Instruction> condInstr = this.buildInstruction(condition);
+		operandList.add(condInstr.get(condInstr.size() - 1));
+		operandList.add(startOfBody);
+		Instruction jumpToBody = new JumpInstruction(new Node(new Token(null, "loopBody")), operandList, this.instrCount, "true");
+		this.instrCount++;
+		
+		if (isForLoop) {
+			returnInstr.addAll(initInstr);
+		}
+		returnInstr.add(jumpToCondition);
+		returnInstr.add(startOfBody);
+		returnInstr.addAll(bodyInstr);
+		if (isForLoop) {
+			returnInstr.addAll(incrementInstr);
+		}
+		returnInstr.add(endOfBlock);
+		returnInstr.addAll(condInstr);
+		returnInstr.add(jumpToBody);
+		return returnInstr;
+	}
+	
+	private List<Instruction> buildConditional(Node ifStmt, Instruction finalDestination) {
+		if (finalDestination == null) {
+			finalDestination = new Instruction(null, new Node(new Token("endOfFullConditionalBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
+		}
+		Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfConditionalBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
+		List<Instruction> returnInstr = new ArrayList<Instruction>();
+		List<Instruction> operandList = new ArrayList<Instruction>(); // operand list for conditional jump (if statement)
+		Node condition = null;
+		Node body = null;
+		Node elseStmt = null;
+		if (ifStmt.getChildren().size() == 1) {
+			body = ifStmt.getChildren().get(0);
+		} else {
+			condition = ifStmt.getChildren().get(0);
+			body = ifStmt.getChildren().get(1);
+		}
+		
+		if (ifStmt.getChildren().size() == 3) {
+			elseStmt = ifStmt.getChildren().get(2);
+		}
+		
+		// create boolean expression and add to operandList of JumpInstruction to be constructed
+		if (condition != null) {
+			returnInstr.addAll(this.buildInstruction(condition.getChildren().get(0)));
+			operandList.add(returnInstr.get(returnInstr.size() - 1));
+			// add end of conditional block to operandList of JumpInstruction to be constructed
+			operandList.add(endOfBlock);
+			returnInstr.add(new JumpInstruction(ifStmt, operandList, this.instrCount, "false"));
+			this.instrCount++;
+		}
+		// convert body nodes into instructions
+		if (!body.getChildren().isEmpty()) {
+			returnInstr.addAll(this.buildInstruction(body));
+		}
+		// unconditional jump to end of full conditional block
+		if (condition != null) {
+			returnInstr.add(new JumpInstruction(null, Arrays.asList(finalDestination), this.instrCount, null));
+			this.instrCount++;
+		}
+		
+		endOfBlock.setLineNumber(this.instrCount);
+		this.instrCount++;
+		returnInstr.add(endOfBlock);
+		
+		if (elseStmt != null) {
+			returnInstr.addAll(this.buildConditional(elseStmt, finalDestination));
+		}
+		
+		if (!ifStmt.getParent().getToken().getTokenLabel().contentEquals("ifStmt")) {
+			finalDestination.setLineNumber(this.instrCount);
+			returnInstr.add(finalDestination);
+			this.instrCount++;
+		}
+		
+		return returnInstr;
+	}
+	
+	private List<Instruction> buildInstructionList(Node node) {
 		String label = node.getToken().getTokenLabel();
-		Instruction add = null;
+		List<Instruction> returnInstr = new ArrayList<Instruction>();
 		
 		if (ignoredLabels.contains(label)) {
 			// if the label is ignored, then continue to recursively build instruction list for children without constructing a new object
 			for (Node c : node.getChildren()) {
-				this.buildInstructionList(c);
+				returnInstr.addAll(this.buildInstructionList(c));
 			}
 		} else {
-			add = this.buildInstruction(node);
+			returnInstr.addAll(this.buildInstruction(node));
 		}
 		
-		return add;
+		return returnInstr;
 	}
 	
 	public void buildFunctionIRs(Node root) {
+		if (this.functionIRs == null) {
+			this.functionIRs = new HashMap<String, List<Instruction>>();
+		}
 		for (Node c : root.getChildren()) {
 			if (c.getToken().getTokenLabel().contentEquals("funcDefinition")) {
-				this.buildInstructionList(c.getChildren().get(0));
-				this.functionIRs.put(c.getName(), new ArrayList<Instruction>(this.instructionList));
+				this.functionIRs.put(c.getName(), this.buildInstructionList(c.getChildren().get(0)));
 			}
-			this.instructionList.clear();
 		}
 	}
 	
@@ -217,7 +374,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/assignment_arith.c");
+		Scanner scanner = new Scanner("test/goto.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -234,10 +391,10 @@ public class IR {
 		a.printSymbolTable();
 		Node root = a.getRoot();
 		root.recursiveSetDepth();
-		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+//		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(a);
 		List<Instruction> mainList = test.getFunctionIRs().get("main");
-		System.out.println(mainList.get(0));
+//		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 		
 	}
