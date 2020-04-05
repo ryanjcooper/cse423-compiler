@@ -43,6 +43,14 @@ public class IR {
 		this.functionIRs = new HashMap<String, List<Instruction>>();
 	}
 	
+	public Integer getInstrCount() {
+		return instrCount;
+	}
+
+	public void setInstrCount(Integer instrCount) {
+		this.instrCount = instrCount;
+	}
+
 	public IR(ASTParser a) {
 		this(a.getRoot());
 		this.a = a;
