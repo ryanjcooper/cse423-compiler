@@ -22,6 +22,8 @@ import edu.nmt.RuntimeSettings;
 public class Main {
 	
 	private static String sourceFilename;
+	private static String irFilenameIn;
+	private static String irFilenameOut;
 	private static Boolean storeTokens;
 	private static Boolean printParseTree;
 	private static String writeParseFile;
@@ -30,6 +32,7 @@ public class Main {
 	private static Boolean printT;
 	private static Boolean writeIR;
 	private static Boolean printIR;
+	private static Boolean readIR;
 	private static Boolean optimize1;
 	
 	private static void parseArgs(String[] args) {
@@ -69,13 +72,18 @@ public class Main {
         stp.setRequired(false);
         options.addOption(stp);
         
-        Option wir = new Option("iro", "write-ir", false, "write ir to file");
+        Option wir = new Option("iro", "write-ir", true, "write ir to file");
         wir.setRequired(false);
         options.addOption(wir);
+        
+        Option rir = new Option("irn", "read-ir", true, "read in ir from file, must have .ir extension in build folder");
+        rir.setRequired(false);
+        options.addOption(rir);
         
         Option pir = new Option("pir", "print-ir", false, "print ir");
         pir.setRequired(false);
         options.addOption(pir);
+        
         Option o1 = new Option("o1", "IR optimizations", false, "Add optimizations");
         stp.setRequired(false);
         options.addOption(stp);
@@ -101,12 +109,21 @@ public class Main {
             printT = cmd.hasOption("pt");
             writeIR = cmd.hasOption("iro");
             printIR = cmd.hasOption("pir");
+            readIR = cmd.hasOption("irn");
             optimize1 = cmd.hasOption("o1");
             
             if (cmd.hasOption("wp")) {
             	writeParseFile = cmd.getOptionValue("wp");
             } else {
             	writeParseFile = null;
+            }
+            
+            if (readIR) {
+            	irFilenameIn = cmd.getOptionValue("irn");
+            }
+            
+            if (writeIR) {
+            	irFilenameOut = cmd.getOptionValue("iro");
             }
 
             if (arglist.size() == 1) {
@@ -172,14 +189,20 @@ public class Main {
     		}
     		
     		// Start IR
-    		IR ir = new IR(a);
+    		IR ir = new IR();
+    		
+    		if (readIR) {
+    			ir.initFromFile(irFilenameIn);
+    		} else {
+    			ir = new IR(a);
+    		}
     		
     		if (printIR) {
     			IR.printMain(ir.getFunctionIRs());
     		}
     		
     		if (writeIR) {
-    			ir.outputToFile();
+    			ir.outputToFile(irFilenameOut);
     		}
     	}
     }
