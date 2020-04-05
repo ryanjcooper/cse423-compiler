@@ -166,7 +166,6 @@ public class ASTParser {
 										} else if (child3.getToken().getTokenLabel().equals("type")) {
 											typeNode = child3;
 										} else if (child3.getToken().getTokenLabel().equals("paramList")) {
-											System.out.println(child3.getChildren());
 											nextNode = child3;
 										}
 										
@@ -206,10 +205,7 @@ public class ASTParser {
 										} else {
 											tmp.add(param);
 										}
-										
-
 									}
-									
 									
 									tmp = currentNode.getChildren();
 									tmp.remove(nextNode);
@@ -275,7 +271,6 @@ public class ASTParser {
 										} else if (child3.getToken().getTokenLabel().equals("type")) {
 											typeNode = child3;
 										} else if (child3.getToken().getTokenLabel().equals("paramList")) {
-											System.out.println(child3.getChildren());
 											nextNode = child3;
 										}
 										
@@ -315,10 +310,7 @@ public class ASTParser {
 										} else {
 											tmp.add(param);
 										}
-										
-
 									}
-									
 									
 									tmp = currentNode.getChildren();
 									tmp.remove(nextNode);
