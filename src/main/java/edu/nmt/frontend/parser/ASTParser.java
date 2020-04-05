@@ -666,6 +666,10 @@ public class ASTParser {
 		}
 		
 	}
+	
+	public String getFilename() {
+		return this.p.getFilename();
+	}
 
 	/**
 	 * determine if this ast is typed correctly or not

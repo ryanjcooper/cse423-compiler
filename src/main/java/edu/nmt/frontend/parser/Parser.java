@@ -147,4 +147,8 @@ public class Parser {
 	public Node getParseTree() {
 		return this.parseTree;
 	}
+	
+	public String getFilename() {
+		return this.filename;
+	}
 }

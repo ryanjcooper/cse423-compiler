@@ -1,12 +1,15 @@
 package edu.nmt.optimizer;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.nmt.RuntimeSettings;
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
 import edu.nmt.frontend.Token;
@@ -22,10 +25,11 @@ import edu.nmt.frontend.scanner.Scanner;
  */
 public class IR {
 	ASTParser a;
-	public static Map<String, Instruction> variableMap = new HashMap<String, Instruction>();
 	private Boolean hasBreakOrGoto = false;
 	private Integer instrCount = 1;
+	private String fileName;
 	private List<Instruction> instructionList;
+	public Map<String, Instruction> labelMap;
 	private Map<String, List<Instruction>> functionIRs;
 	private List<String> ignoredLabels = new ArrayList<String>(Arrays.asList(
 			"compoundStmt",
@@ -35,6 +39,7 @@ public class IR {
 	
 	public IR() {
 		this.instructionList = new ArrayList<Instruction>();
+		this.functionIRs = new HashMap<String, List<Instruction>>();
 	}
 	
 	public IR(ASTParser a) {
@@ -382,22 +387,128 @@ public class IR {
 		}
 	}
 	
-	public void fileToIR(String fileName) {
+	public String getFilename() {
+		return this.fileName;
+	}
+	
+	public boolean equals(IR ir2) {
+		for (String key : this.functionIRs.keySet()) {
+			if (!ir2.functionIRs.keySet().contains(key))
+				return false;
+			
+			List<Instruction> il1 = this.functionIRs.get(key);
+			List<Instruction> il2 = ir2.functionIRs.get(key);
+			
+			for (int i = 0; i < il1.size(); i++) {
+				if (!il1.get(i).equals(il2.get(i)))
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * default outputToFile class, uses filename from parser
+	 */
+	public void outputToFile() {
+		this.fileName = this.a.getFilename().split(".c")[0];
+		outputToFile(this.fileName);
+	}
+	
+	/**
+	 * outputs IR to readable format for input
+	 * @param filename is the name of file without extension
+	 */
+	public void outputToFile(String filename) {
+		try {
+			String file = "";
+			this.fileName = filename;
+			filename = RuntimeSettings.buildDir + "/" + filename + ".ir";
+			FileWriter writer = new FileWriter(filename);
+			
+			System.out.println(filename);
+			
+			for (String key : this.functionIRs.keySet()) {
+				file += "#" + key + "\n";
+				
+				for (Instruction instr : this.functionIRs.get(key)) {
+					file += instr.instrToStr() + "\n";
+				}
+			}
+			
+			writer.write(file);
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * intialize an IR from a file
+	 * @param fileName is the file to init from, no extension (file needs to be .ir)
+	 */
+	public void initFromFile(String fileName) {
 		java.util.Scanner irScanner = null;
+		this.labelMap = new HashMap<String, Instruction>();
 		
 		try {
-			File irFile = new File(fileName);
+			File irFile = new File(RuntimeSettings.buildDir + "/" + fileName + ".ir");
 			irScanner = new java.util.Scanner(irFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		while (irScanner.hasNext()) {
-			String line = irScanner.next();
-			this.instructionList.add(Instruction.strToInstr(line));
+		while (irScanner.hasNextLine()) {
+			String line = irScanner.nextLine();
+			//System.out.println("line " + line);
+			if (line.charAt(0) == '#') {
+				this.instructionList = new ArrayList<Instruction>();
+				this.functionIRs.put(line.substring(1, line.length()), this.instructionList);
+			} else {
+				this.instructionList.add(new Instruction());
+				String[] lineSplit = line.split(" ");
+				
+				int currentIndex = Integer.parseInt(lineSplit[0]) - 1;
+				
+				Instruction op1 = null;
+				Instruction op2 = null;
+				
+				if (!lineSplit[4].equals("null")) {
+					int op1Index = Integer.parseInt(lineSplit[4]) - 1;
+					
+					while (op1Index >= this.instructionList.size()) {
+						this.instructionList.add(new Instruction());
+					}
+					
+					op1 = this.instructionList.get(op1Index);
+				}
+				
+				if (!lineSplit[6].equals("null")) {
+					int op2Index = Integer.parseInt(lineSplit[6]) - 1;
+					
+					while (op2Index >= this.instructionList.size()) {
+						this.instructionList.add(new Instruction());
+					}
+					
+					op2 = this.instructionList.get(op2Index);
+				}
+				
+				this.instructionList.get(currentIndex).copy(Instruction.strToInstr(line, op1, op2));	
+			}
 		}
 		
 		irScanner.close();
+	}
+	
+	public void printIR() {
+		for (String key : this.functionIRs.keySet()) {
+			System.out.println(key);
+			
+			for (Instruction instr : this.functionIRs.get(key)) {
+				System.out.println(instr);
+			}
+		}
 	}
 	
 	public static void printMain(Map<String, List<Instruction>> functionMap) {
@@ -431,5 +542,11 @@ public class IR {
 //		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 		
+		//test.printIR();
+		
+		test.outputToFile();
+		IR tmp = new IR();
+		tmp.initFromFile(test.getFilename());
+		System.out.println(test.equals(tmp));
 	}
 }
