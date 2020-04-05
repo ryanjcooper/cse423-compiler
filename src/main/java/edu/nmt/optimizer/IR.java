@@ -1,12 +1,15 @@
 package edu.nmt.optimizer;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.nmt.RuntimeSettings;
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
 import edu.nmt.frontend.Token;
@@ -22,9 +25,11 @@ import edu.nmt.frontend.scanner.Scanner;
  */
 public class IR {
 	ASTParser a;
-	public static Map<String, Instruction> variableMap = new HashMap<String, Instruction>();
+	private Boolean hasBreakOrGoto = false;
 	private Integer instrCount = 1;
+	private String fileName;
 	private List<Instruction> instructionList;
+	public Map<String, Instruction> labelMap;
 	private Map<String, List<Instruction>> functionIRs;
 	private List<String> ignoredLabels = new ArrayList<String>(Arrays.asList(
 			"compoundStmt",
@@ -34,6 +39,7 @@ public class IR {
 	
 	public IR() {
 		this.instructionList = new ArrayList<Instruction>();
+		this.functionIRs = new HashMap<String, List<Instruction>>();
 	}
 	
 	public IR(ASTParser a) {
@@ -130,10 +136,14 @@ public class IR {
 		if (label.contentEquals("ifStmt")) {
 			return this.buildConditional(node, null);
 		} else if (label.contains("Loop")) {
-			return this.buildLoop(node);
+			returnInstr.addAll(this.buildLoop(node));
+			Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfFullLoopBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
+			this.instrCount++;
+			returnInstr.add(endOfBlock);
+			return returnInstr;
 		}
 		
-		if (!node.getChildren().isEmpty() && !label.contentEquals("ifStmt")) {
+		if (!node.getChildren().isEmpty()) {
 			if (label.contains("IncExpr")) {
 				// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
 				// then replaces the increment expression node with the new representation (which is an assignStmt)
@@ -175,7 +185,25 @@ public class IR {
 		if (label.contentEquals("returnStmt")) {
 			add = new ReturnInstruction(node, operandList, this.instrCount);
 		} else if(label.contentEquals("goto")) {
-			add = new JumpInstruction(node, operandList, this.instrCount, null);
+			Instruction jumpLabel = new Instruction(null, new Node(new Token(node.getName(), "label")), new ArrayList<Instruction>(), this.instrCount);
+			add = new JumpInstruction(node, Arrays.asList(jumpLabel), this.instrCount, node.getName() + "TEMPORARYLABEL");
+			this.hasBreakOrGoto = true;
+		} else if(label.contentEquals("break")) {
+			Node breakNode = node;
+			String breakLabel = node.getToken().getTokenLabel().toLowerCase();
+			while (!breakLabel.contains("switch") && !breakLabel.contains("loop")) {
+				breakNode = breakNode.getParent();
+				breakLabel = breakNode.getToken().getTokenLabel().toLowerCase();
+			}
+			String jumpLabelString = null;
+			if (breakNode.getToken().getTokenLabel().toLowerCase().contains("loop")) {
+				jumpLabelString = "endOfFullLoopBlock";
+			} else {
+				jumpLabelString = "endOfSwitchBlock";
+			}
+			Instruction jumpLabel = new Instruction(null, new Node(new Token(jumpLabelString, "label")), new ArrayList<Instruction>(), this.instrCount);
+			add = new JumpInstruction(node, Arrays.asList(jumpLabel), this.instrCount, jumpLabelString + "TEMPORARYLABEL");
+			this.hasBreakOrGoto = true;
 		} else {
 			add = new Instruction(null, node, operandList, this.instrCount);
 		}
@@ -220,8 +248,8 @@ public class IR {
 			initInstr = this.buildInstruction(init);
 		}
 		
-		Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfLoopBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
-		Instruction jumpToCondition = new JumpInstruction(null, Arrays.asList(endOfBlock), this.instrCount, null);
+		Instruction endOfBody = new Instruction(null, new Node(new Token("endOfLoopBody", "label")), new ArrayList<Instruction>(), this.instrCount);
+		Instruction jumpToCondition = new JumpInstruction(null, Arrays.asList(endOfBody), this.instrCount, null);
 		this.instrCount++;
 		
 		Instruction startOfBody = new Instruction(null, new Node(new Token("startOfLoopBody", "label")), new ArrayList<Instruction>(),this.instrCount);
@@ -239,7 +267,7 @@ public class IR {
 			incrementInstr = this.buildInstruction(increment);
 		}
 		
-		endOfBlock.setLineNumber(this.instrCount);
+		endOfBody.setLineNumber(this.instrCount);
 		this.instrCount++;
 
 		List<Instruction> operandList = new ArrayList<Instruction>();
@@ -258,7 +286,7 @@ public class IR {
 		if (isForLoop) {
 			returnInstr.addAll(incrementInstr);
 		}
-		returnInstr.add(endOfBlock);
+		returnInstr.add(endOfBody);
 		returnInstr.addAll(condInstr);
 		returnInstr.add(jumpToBody);
 		return returnInstr;
@@ -322,17 +350,8 @@ public class IR {
 	}
 	
 	private List<Instruction> buildInstructionList(Node node) {
-		String label = node.getToken().getTokenLabel();
 		List<Instruction> returnInstr = new ArrayList<Instruction>();
-		
-		if (ignoredLabels.contains(label)) {
-			// if the label is ignored, then continue to recursively build instruction list for children without constructing a new object
-			for (Node c : node.getChildren()) {
-				returnInstr.addAll(this.buildInstructionList(c));
-			}
-		} else {
-			returnInstr.addAll(this.buildInstruction(node));
-		}
+		returnInstr.addAll(this.buildInstruction(node));
 		
 		return returnInstr;
 	}
@@ -344,26 +363,152 @@ public class IR {
 		for (Node c : root.getChildren()) {
 			if (c.getToken().getTokenLabel().contentEquals("funcDefinition")) {
 				this.functionIRs.put(c.getName(), this.buildInstructionList(c.getChildren().get(0)));
+				if (this.hasBreakOrGoto) {
+					this.fixJumpDestinations(functionIRs.get(c.getName()));
+					this.hasBreakOrGoto = false;
+				}
 			}
 		}
 	}
 	
-	public void fileToIR(String fileName) {
+	private void fixJumpDestinations(List<Instruction> functionIR) {
+		for (int i = 0; i < functionIR.size(); i++) {
+			Instruction x = functionIR.get(i);
+			if (x.getType().contentEquals("unconditionalJump") && x.getOp1Name() != null && x.getOp1Name().contains("TEMPORARYLABEL")) {
+				String trueDestination = x.getOp1Name().replace("TEMPORARYLABEL", "");
+				for (int j = i + 1; j < functionIR.size(); j++) {
+					Instruction y = functionIR.get(j);
+					if (y.getType().contentEquals("label") && y.getOp1Name() != null && y.getOp1Name().contentEquals(trueDestination)) {
+						x.setOperand2(y);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	public String getFilename() {
+		return this.fileName;
+	}
+	
+	public boolean equals(IR ir2) {
+		for (String key : this.functionIRs.keySet()) {
+			if (!ir2.functionIRs.keySet().contains(key))
+				return false;
+			
+			List<Instruction> il1 = this.functionIRs.get(key);
+			List<Instruction> il2 = ir2.functionIRs.get(key);
+			
+			for (int i = 0; i < il1.size(); i++) {
+				if (!il1.get(i).equals(il2.get(i)))
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * default outputToFile class, uses filename from parser
+	 */
+	public void outputToFile() {
+		this.fileName = this.a.getFilename().split(".c")[0];
+		outputToFile(this.fileName);
+	}
+	
+	/**
+	 * outputs IR to readable format for input
+	 * @param filename is the name of file without extension
+	 */
+	public void outputToFile(String filename) {
+		try {
+			String file = "";
+			this.fileName = filename;
+			filename = RuntimeSettings.buildDir + "/" + filename + ".ir";
+			FileWriter writer = new FileWriter(filename);
+			
+			System.out.println(filename);
+			
+			for (String key : this.functionIRs.keySet()) {
+				file += "#" + key + "\n";
+				
+				for (Instruction instr : this.functionIRs.get(key)) {
+					file += instr.instrToStr() + "\n";
+				}
+			}
+			
+			writer.write(file);
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * intialize an IR from a file
+	 * @param fileName is the file to init from, no extension (file needs to be .ir)
+	 */
+	public void initFromFile(String fileName) {
 		java.util.Scanner irScanner = null;
+		this.labelMap = new HashMap<String, Instruction>();
 		
 		try {
-			File irFile = new File(fileName);
+			File irFile = new File(RuntimeSettings.buildDir + "/" + fileName + ".ir");
 			irScanner = new java.util.Scanner(irFile);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		while (irScanner.hasNext()) {
-			String line = irScanner.next();
-			this.instructionList.add(Instruction.strToInstr(line));
+		while (irScanner.hasNextLine()) {
+			String line = irScanner.nextLine();
+			//System.out.println("line " + line);
+			if (line.charAt(0) == '#') {
+				this.instructionList = new ArrayList<Instruction>();
+				this.functionIRs.put(line.substring(1, line.length()), this.instructionList);
+			} else {
+				this.instructionList.add(new Instruction());
+				String[] lineSplit = line.split(" ");
+				
+				int currentIndex = Integer.parseInt(lineSplit[0]) - 1;
+				
+				Instruction op1 = null;
+				Instruction op2 = null;
+				
+				if (!lineSplit[4].equals("null")) {
+					int op1Index = Integer.parseInt(lineSplit[4]) - 1;
+					
+					while (op1Index >= this.instructionList.size()) {
+						this.instructionList.add(new Instruction());
+					}
+					
+					op1 = this.instructionList.get(op1Index);
+				}
+				
+				if (!lineSplit[6].equals("null")) {
+					int op2Index = Integer.parseInt(lineSplit[6]) - 1;
+					
+					while (op2Index >= this.instructionList.size()) {
+						this.instructionList.add(new Instruction());
+					}
+					
+					op2 = this.instructionList.get(op2Index);
+				}
+				
+				this.instructionList.get(currentIndex).copy(Instruction.strToInstr(line, op1, op2));	
+			}
 		}
 		
 		irScanner.close();
+	}
+	
+	public void printIR() {
+		for (String key : this.functionIRs.keySet()) {
+			System.out.println(key);
+			
+			for (Instruction instr : this.functionIRs.get(key)) {
+				System.out.println(instr);
+			}
+		}
 	}
 	
 	public static void printMain(Map<String, List<Instruction>> functionMap) {
@@ -374,7 +519,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/goto.c");
+		Scanner scanner = new Scanner("test/break.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -397,5 +542,11 @@ public class IR {
 //		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 		
+		//test.printIR();
+		
+		test.outputToFile();
+		IR tmp = new IR();
+		tmp.initFromFile(test.getFilename());
+		System.out.println(test.equals(tmp));
 	}
 }

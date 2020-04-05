@@ -40,7 +40,11 @@ public class Instruction {
 			this.type = node.getType();
 			
 			if (label.contentEquals("label")) {
-				this.op1Name = node.getToken().getTokenString();
+				if (node.getName() == null) {
+					this.op1Name = node.getToken().getTokenString();
+				} else {
+					this.op1Name = node.getName();
+				}
 				this.operation = this.type = "label";
 			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
@@ -87,14 +91,14 @@ public class Instruction {
 				this.operand1 = operandList.get(0);
 				this.type = operand1.getType();
 			} else if (instrType.contentEquals("jump")) {
-				if (operandList.size() == 1 || label.contains("jump")) {
-					this.type = "unconditionalJump";
-					this.operand1 = null;
-					this.operand2 = operandList.get(0);
-				} else if (label.contentEquals("ifStmt") || label.contentEquals("loopBody")) {
+				if (label.contentEquals("ifStmt") || label.contentEquals("loopBody")) {
 					this.type = "conditionalJump";
 					this.operand1 = operandList.get(0);
 					this.operand2 = operandList.get(1);
+				} else {
+					this.type = "unconditionalJump";
+					this.operand1 = null;
+					this.operand2 = operandList.get(0);
 				}
 			}
 		}
@@ -102,24 +106,70 @@ public class Instruction {
 		
 	}
 	
-	public Instruction(String lineNum, String id, String op, String type, String constant, String op1, String op2) {
-		this.lineNumber = Integer.parseInt(lineNum);
+	public Instruction(Integer ln, String id, String op, String typ, Instruction op1, String name1, Instruction op2) {
+		this.lineNumber = ln;
 		this.instrID = id;
 		this.operation = op;
-		this.type = type;
-		this.op1Name = constant;
+		this.type = typ;
+		this.operand1 = op1;
+		this.op1Name = name1;
+		this.operand2 = op2;
+	}
+	
+	public Instruction() {
 		
-		if (op1 != null) {
-			this.operand1 = IR.variableMap.get(op1);
-		}
-		
-		if (op2 != null) {
-			this.operand2 = IR.variableMap.get(op2);
-		}
-		
-		if (IR.variableMap.get(instrID) == null) {
-			IR.variableMap.put(id, this);
-		}
+	}
+	
+	/**
+	 * copy of constructor for already existing object
+	 * @param ln is the line number
+	 * @param id is the instruction id
+	 * @param op is the operation
+	 * @param typ is the type
+	 * @param op1 is the first operand of the instruction
+	 * @param name1 is the name stored for operand 1
+	 * @param op2 is the second operand of the instruction
+	 */
+	public void Init(Integer ln, String id, String op, String typ, Instruction op1, String name1, Instruction op2) {
+		this.lineNumber = ln;
+		this.instrID = id;
+		this.operation = op;
+		this.type = typ;
+		this.operand1 = op1;
+		this.op1Name = name1;
+		this.operand2 = op2;
+	}
+	
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public String getOp1Name() {
+		return op1Name;
+	}
+
+	public void setOp1Name(String op1Name) {
+		this.op1Name = op1Name;
+	}
+
+	public Instruction getOperand1() {
+		return operand1;
+	}
+
+	public void setOperand1(Instruction operand1) {
+		this.operand1 = operand1;
+	}
+
+	public Instruction getOperand2() {
+		return operand2;
+	}
+
+	public void setOperand2(Instruction operand2) {
+		this.operand2 = operand2;
 	}
 	
 	public String getType() {
@@ -130,44 +180,84 @@ public class Instruction {
 		this.type = type;
 	}
 	
+	public boolean equals(Instruction i2) {
+		if (!(this.instrID == i2.instrID || this.instrID.equals(i2.instrID))) {
+			System.out.println("Instruction id do not match");
+			return false;
+		}
+		
+		if (!(this.lineNumber == i2.lineNumber)) {
+			System.out.println("Line numbers do not match");
+			return false;
+		}
+		
+		if (!(this.operation == i2.operation || this.operation.equals(i2.operation))) {
+			System.out.println("Operations do not match");
+			System.out.println(this.operation);
+			System.out.println(i2.operation);
+			return false;
+		}
+		
+		if (!(this.op1Name == i2.op1Name || this.op1Name.equals(i2.op1Name))) {
+			System.out.println("Op1 name do not match");
+			return false;
+		}
+		
+		if (!(this.operand1 == i2.operand1 || this.operand1.equals(i2.operand1))) {
+			System.out.println("Operand 1 do not match");
+			return false;
+		}
+		
+		if (!(this.operand2 == i2.operand2 || this.operand2.equals(i2.operand2))) {
+			System.out.println("Operand 2 do not match");
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public void copy(Instruction i2) {
+		this.instrID = i2.instrID;
+		this.lineNumber = i2.lineNumber;
+		this.operand1 = i2.operand1;
+		this.operand2 = i2.operand2;
+		this.operation = i2.operation;
+		this.op1Name = i2.op1Name;
+	}
+	
 	/**
 	 * converts a line of an IR output to an object
 	 * @param line is the string to convert
+	 * @param op1 is the first operand
+	 * @param op2 is the second operand
 	 * @return Instruction object representation of line
 	 */
-	public static Instruction strToInstr(String line) {
+	public static Instruction strToInstr(String line, Instruction op1, Instruction op2) {
 		String[] lineSplit = line.split(" ");
-		String[] maxSplit = new String[8];
-		int diff = maxSplit.length - lineSplit.length;
-		boolean constant = isConstant(lineSplit[3]);
 		
+		/* convert string nulls to actual nulls */
 		for (int i = 0; i < lineSplit.length; i++) {
-			if (i == 0) {
-				/* index 0 is line number */
-				maxSplit[0] = lineSplit[i].substring(0, lineSplit[i].length() - 1); // remove the semicolon
-			} else if (i >= lineSplit.length - 2) {
-				/* last two indexes remain as last two */
-				maxSplit[i + diff] = lineSplit[i];
-			} else {
-				/* rest of indexes match */
-				maxSplit[i] = lineSplit[i];
+			if (lineSplit[i].trim().equals("null")) {
+				lineSplit[i] = null;
 			}
 		}
 		
-		if (constant) {
-			return new Instruction(maxSplit[0], maxSplit[1], "varDeclaration", maxSplit[7], maxSplit[3], null, null);
-		} else {
-			
-			return new Instruction(maxSplit[0], maxSplit[1], "varDeclaration", maxSplit[7], null, maxSplit[3], maxSplit[5]);
-		}
+		return new Instruction(Integer.parseInt(lineSplit[0]), lineSplit[1], lineSplit[2], lineSplit[3], op1, lineSplit[5], op2);
 	}
 	
-	private static boolean isConstant(String str) {
-		if (TokenLabeler.isNumeric(str)) {
-			return true;
-		} else {
-			return false;
-		}
+	public String instrToStr() {
+		String op1 = null;
+		String op2 = null;
+		
+		if (operand1 != null)
+			op1 = operand1.getLineNumber().toString();
+		
+		if (operand2 != null)
+			op2 = operand2.getLineNumber().toString();
+		
+		return lineNumber + " " + instrID + " " + operation + " " 
+						  + type + " " + op1 + " " 
+						  + op1Name + " " + op2;
 	}
 
 	@Override
