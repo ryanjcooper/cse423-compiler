@@ -147,6 +147,7 @@ public class ASTParser {
 									Node idNode = null;
 									Node typeNode = null;
 									Node nestedNode = null;
+									System.out.println("here");
 									for (Node child3 : currentNode.getChildren()) { // param objects
 										tmp = child3.getChildren();
 										tmp2 = new ArrayList<Node>();
@@ -172,7 +173,7 @@ public class ASTParser {
 										tmp.removeAll(tmp2);
 										child3.setChildren(tmp);
 										
-										if (nestedNode != null) {
+										if (nestedNode != null && nestedNode.getParent() != child2) {
 											tmp = child2.getChildren();
 											int idx = tmp.indexOf(idNode);
 											
@@ -183,7 +184,6 @@ public class ASTParser {
 											} else {
 												tmp.add(nestedNode);
 											}
-											
 										}
 										
 									}
@@ -277,7 +277,7 @@ public class ASTParser {
 										tmp.removeAll(tmp2);
 										child3.setChildren(tmp);
 										
-										if (nestedNode != null) {
+										if (nestedNode != null && nestedNode.getParent() != child2) {
 											tmp = child2.getChildren();
 											int idx = tmp.indexOf(idNode);
 											
@@ -288,7 +288,6 @@ public class ASTParser {
 											} else {
 												tmp.add(nestedNode);
 											}
-											
 										}
 										
 									}
@@ -898,7 +897,7 @@ public class ASTParser {
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 			
 			
 			ASTParser a = new ASTParser(p);
