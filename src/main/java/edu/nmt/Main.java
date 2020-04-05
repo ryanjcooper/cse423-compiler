@@ -16,6 +16,7 @@ import edu.nmt.frontend.Node;
 import edu.nmt.frontend.parser.ASTParser;
 import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
+import edu.nmt.optimizer.IR;
 import edu.nmt.RuntimeSettings;
 
 public class Main {
@@ -27,6 +28,8 @@ public class Main {
 	private static Boolean printAST;
 	private static Boolean printST;
 	private static Boolean printT;
+	private static Boolean writeIR;
+	private static Boolean printIR;
 	private static Boolean optimize1;
 	
 	private static void parseArgs(String[] args) {
@@ -66,6 +69,13 @@ public class Main {
         stp.setRequired(false);
         options.addOption(stp);
         
+        Option wir = new Option("iro", "write-ir", false, "write ir to file");
+        wir.setRequired(false);
+        options.addOption(wir);
+        
+        Option pir = new Option("pir", "print-ir", false, "print ir");
+        pir.setRequired(false);
+        options.addOption(pir);
         Option o1 = new Option("o1", "IR optimizations", false, "Add optimizations");
         stp.setRequired(false);
         options.addOption(stp);
@@ -89,6 +99,8 @@ public class Main {
             printAST = cmd.hasOption("ap");
             printST = cmd.hasOption("stp");
             printT = cmd.hasOption("pt");
+            writeIR = cmd.hasOption("iro");
+            printIR = cmd.hasOption("pir");
             optimize1 = cmd.hasOption("o1");
             
             if (cmd.hasOption("wp")) {
@@ -157,7 +169,18 @@ public class Main {
     	    	if (printST) {
     	    		a.printSymbolTable();
     	    	}
-    		}    	
+    		}
+    		
+    		// Start IR
+    		IR ir = new IR(a);
+    		
+    		if (printIR) {
+    			IR.printMain(ir.getFunctionIRs());
+    		}
+    		
+    		if (writeIR) {
+    			ir.outputToFile();
+    		}
     	}
     }
 }
