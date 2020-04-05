@@ -36,6 +36,14 @@ public class IR {
 		this.instructionList = new ArrayList<Instruction>();
 	}
 	
+	public Integer getInstrCount() {
+		return instrCount;
+	}
+
+	public void setInstrCount(Integer instrCount) {
+		this.instrCount = instrCount;
+	}
+
 	public IR(ASTParser a) {
 		this(a.getRoot());
 		this.a = a;

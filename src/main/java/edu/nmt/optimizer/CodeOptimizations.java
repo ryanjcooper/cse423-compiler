@@ -1,8 +1,10 @@
 package edu.nmt.optimizer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
@@ -24,17 +26,42 @@ public class CodeOptimizations {
 	/*
 	 * Applies constant folding in place to the IR
 	 */
-	public void constFold() {
+	public Boolean constFold() {
+		String splitres[];
 		List<Instruction> instrList = target.getFunctionIRs().get("main");
-		System.out.println("Folding");
+		ExpressionEvaluator eval;
+		Boolean status = false;
+		
 		for (Instruction i : instrList) {
-			System.out.println(i.getLineNumber() + ": " + i + " type: " + i.getType());
-//			if(!i.operation.isEmpty()) {
-//				System.out.println(i.operand1 + i.operation + i.operand2);
-//			}
+			splitres = i.toString().split("=");
+			splitres[0] = splitres[0].replaceAll("\\s+", "");
+			splitres[1] = splitres[1].replaceAll("\\s+", "");
+			
+			eval = new ExpressionEvaluator(splitres[1]);
+			
+			if(eval.GetValue() != null) {
+				try {
+		    		i.setOperation("identifier");
+		    		i.op1Name  = Integer.toString(eval.GetValue().intValue());
+		    		
+		    		if(Integer.parseInt(splitres[1]) != eval.GetValue().intValue()) {
+		    			status = true;
+		    		}
+		    	} catch (NullPointerException e) {
+		    		i.op1Name  = Integer.toString(eval.GetValue().intValue());
+		    		if(Integer.parseInt(splitres[1]) != eval.GetValue().intValue()) {
+		    			status = true;
+		    		}
+				} catch (NumberFormatException e) {
+					status = false;
+				}
+			}
+			
+			
+			
 		}
 		
-		return;
+		return status;
 	}
 	
 	public Boolean constProp() {
@@ -43,7 +70,6 @@ public class CodeOptimizations {
 		Map<String, Integer> varMap = new HashMap<String, Integer>();
 		Instruction tmp;
 		Boolean status = false;
-		System.out.println("propagating");
 		
 		for (Instruction i : instrList) {
 			// Add or update values in list
@@ -52,15 +78,19 @@ public class CodeOptimizations {
 			splitres[1] = splitres[1].replaceAll("\\s+", "");
 			
 			//Try to propagate the rhs
-			if(varMap.get(splitres[1]) != null) {
-				try {
-					i.setOperation("identifier");
-					i.op1Name  = i.operand1.op1Name;
-					status = true;
-				} catch (NullPointerException e) {
-					i.setOp1Name(varMap.get(splitres[1]).toString());
-					status = true;
-				}
+			for (String key : varMap.keySet()) {
+			    if (splitres[1].contains(key)) {
+			    	// Modify for 2 possible types
+			    	try {
+			    		splitres[1] = splitres[1].replaceAll(key, varMap.get(key).toString());
+			    		i.setOperation("identifier");
+			    		i.op1Name  = splitres[1];
+			    		status = true;
+			    	} catch (NullPointerException e) {
+						i.setOp1Name(varMap.get(splitres[1]).toString());
+						status = true;
+					}
+			    }
 			}
 			
 			// Add to or update map
@@ -85,6 +115,49 @@ public class CodeOptimizations {
 		}
 		
 		return status;
+	}
+	
+	/**
+	 * Remove unnecessary lines obsoleted by fold and prop
+	 */
+	public void clean() {
+		String splitres[];
+		List<Instruction> instrList = target.getFunctionIRs().get("main");
+		Map<String, Integer> varMap = new HashMap<String, Integer>();
+		List<Instruction> deadLines = new ArrayList<Instruction>();
+		final Pattern isTmp = Pattern.compile("^_[0-9]*");
+		int count = 0;
+
+		// Find Dead lines
+		for (Instruction i : instrList) {
+			// Add or update values in list
+			splitres = i.toString().split("=");
+			splitres[0] = splitres[0].replaceAll("\\s+", "");
+			splitres[1] = splitres[1].replaceAll("\\s+", "");
+			
+			// Check if RHS is a constant
+			try {
+				// If RHS is a const and left a temp variable, remove
+				Integer.parseInt(splitres[1]);
+				if(splitres[0].charAt(0) == '_') {
+					deadLines.add(i);
+				}
+				
+			} catch (NumberFormatException e) {
+			}
+		}
+		
+		// Remove Dead Lines
+		instrList.removeAll(deadLines);
+		
+		count = 1;
+		for (Instruction i : instrList) {
+			i.lineNumber = count;
+			count++;
+		}
+		this.target.setInstrCount(count);
+		
+		return;
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -112,14 +185,21 @@ public class CodeOptimizations {
 		IR.printMain(test.getFunctionIRs());
 		
 		CodeOptimizations o1 = new CodeOptimizations(test);
-		o1.constFold();
+
 		
 		status = true;
 		while(status) {
+			status = false;
 			status = o1.constProp();
-			IR.printMain(o1.target.getFunctionIRs());
+			status |= o1.constFold();
 		}
+		
+		o1.clean();
+		
+		System.out.println("Post-Optimize");
 		IR.printMain(o1.target.getFunctionIRs());
+		
+		
 	}
 
 }
