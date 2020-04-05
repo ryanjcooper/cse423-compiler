@@ -27,6 +27,7 @@ public class Main {
 	private static Boolean printAST;
 	private static Boolean printST;
 	private static Boolean printT;
+	private static Boolean optimize1;
 	
 	private static void parseArgs(String[] args) {
 		
@@ -65,6 +66,10 @@ public class Main {
         stp.setRequired(false);
         options.addOption(stp);
         
+        Option o1 = new Option("o1", "IR optimizations", false, "Add optimizations");
+        stp.setRequired(false);
+        options.addOption(stp);
+        
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd;
@@ -84,6 +89,7 @@ public class Main {
             printAST = cmd.hasOption("ap");
             printST = cmd.hasOption("stp");
             printT = cmd.hasOption("pt");
+            optimize1 = cmd.hasOption("o1");
             
             if (cmd.hasOption("wp")) {
             	writeParseFile = cmd.getOptionValue("wp");

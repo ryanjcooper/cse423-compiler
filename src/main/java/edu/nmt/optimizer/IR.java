@@ -166,6 +166,7 @@ public class IR {
 				
 				// final member of tmp list is the root node of this node's subtree
 				operandList.add(returnInstr.get(returnInstr.size() - 1));
+
 			} else if (label.contentEquals("call")) {
 				returnInstr.addAll(this.buildCall(node));
 				add = returnInstr.get(returnInstr.size() - 1);
@@ -199,6 +200,7 @@ public class IR {
 			Instruction jumpLabel = new Instruction(null, new Node(new Token(jumpLabelString, "label")), new ArrayList<Instruction>(), this.instrCount);
 			add = new JumpInstruction(node, Arrays.asList(jumpLabel), this.instrCount, jumpLabelString + "TEMPORARYLABEL");
 			this.hasBreakOrGoto = true;
+
 		} else {
 			add = new Instruction(null, node, operandList, this.instrCount);
 		}
@@ -237,6 +239,7 @@ public class IR {
 		} else {
 			body = loopNode.getChildren().get(1);
 		}
+
 		
 		List<Instruction> initInstr = null;
 		if (isForLoop) {
@@ -349,6 +352,7 @@ public class IR {
 		returnInstr.addAll(this.buildInstruction(node));
 		
 		return returnInstr;
+
 	}
 	
 	public void buildFunctionIRs(Node root) {
@@ -409,6 +413,7 @@ public class IR {
 
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner("test/break.c");
+
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
