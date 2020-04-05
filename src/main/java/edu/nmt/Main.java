@@ -16,6 +16,7 @@ import edu.nmt.frontend.Node;
 import edu.nmt.frontend.parser.ASTParser;
 import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
+import edu.nmt.optimizer.CodeOptimizations;
 import edu.nmt.optimizer.IR;
 import edu.nmt.RuntimeSettings;
 
@@ -173,6 +174,10 @@ public class Main {
     		
     		// Start IR
     		IR ir = new IR(a);
+    		
+    		if (optimize1) {
+    			CodeOptimizations.l1Optimize(ir);
+    		}
     		
     		if (printIR) {
     			IR.printMain(ir.getFunctionIRs());
