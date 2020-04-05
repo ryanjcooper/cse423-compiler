@@ -1,0 +1,26 @@
+int 'int'	 [StartOfLine]	Loc=<foldproptest.c:1:1>
+identifier 'main'	 [LeadingSpace]	Loc=<foldproptest.c:1:5>
+l_paren '('		Loc=<foldproptest.c:1:9>
+r_paren ')'		Loc=<foldproptest.c:1:10>
+l_brace '{'	 [StartOfLine]	Loc=<foldproptest.c:2:1>
+int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:3:9>
+identifier 'a'	 [LeadingSpace]	Loc=<foldproptest.c:3:13>
+equal '='	 [LeadingSpace]	Loc=<foldproptest.c:3:15>
+numeric_constant '0'	 [LeadingSpace]	Loc=<foldproptest.c:3:17>
+semi ';'		Loc=<foldproptest.c:3:18>
+int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:4:9>
+identifier 'b'	 [LeadingSpace]	Loc=<foldproptest.c:4:13>
+semi ';'		Loc=<foldproptest.c:4:14>
+identifier 'b'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:6:9>
+equal '='	 [LeadingSpace]	Loc=<foldproptest.c:6:11>
+numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:6:13>
+plus '+'	 [LeadingSpace]	Loc=<foldproptest.c:6:15>
+numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:6:17>
+semi ';'		Loc=<foldproptest.c:6:18>
+identifier 'a'	 [StartOfLine] [LeadingSpace]	Loc=<foldproptest.c:7:9>
+equal '='	 [LeadingSpace]	Loc=<foldproptest.c:7:11>
+identifier 'b'	 [LeadingSpace]	Loc=<foldproptest.c:7:13>
+plus '+'	 [LeadingSpace]	Loc=<foldproptest.c:7:15>
+numeric_constant '1'	 [LeadingSpace]	Loc=<foldproptest.c:7:17>
+semi ';'		Loc=<foldproptest.c:7:18>
+r_brace '}'	 [StartOfLine]	Loc=<foldproptest.c:9:1>

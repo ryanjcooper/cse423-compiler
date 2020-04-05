@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,19 @@ public class IR {
 		this.functionIRs = functionIRs;
 	}
 	
+	private Node convertSwitchStmt(Node switchStmt) {
+		Node identifier = switchStmt.getChildren().get(0);
+		Node caseList = switchStmt.getChildren().get(1);
+		Collections.reverse(caseList.getChildren());
+		
+		
+		return null;
+	}
+	
+	private Node buildSwitchCondition(Node identifier, Node switchCase) {
+		return null;
+	}
+	
 	private static Node convertAssignStmt(Node assignStmt) {
 		String assignOp = assignStmt.getOp();
 		String op = assignOp.replace("=", "");
@@ -85,7 +99,6 @@ public class IR {
 			} else if (op.contentEquals("*") || op.contentEquals("/")) {
 				tokenString = "mulExpression";
 			} else if(op.contentEquals("%")) {
-				tokenString = "modExpression";
 			} else {
 				tokenString = "bitExpression";
 			}
@@ -171,6 +184,7 @@ public class IR {
 				
 				// final member of tmp list is the root node of this node's subtree
 				operandList.add(returnInstr.get(returnInstr.size() - 1));
+
 			} else if (label.contentEquals("call")) {
 				returnInstr.addAll(this.buildCall(node));
 				add = returnInstr.get(returnInstr.size() - 1);
@@ -204,6 +218,7 @@ public class IR {
 			Instruction jumpLabel = new Instruction(null, new Node(new Token(jumpLabelString, "label")), new ArrayList<Instruction>(), this.instrCount);
 			add = new JumpInstruction(node, Arrays.asList(jumpLabel), this.instrCount, jumpLabelString + "TEMPORARYLABEL");
 			this.hasBreakOrGoto = true;
+
 		} else {
 			add = new Instruction(null, node, operandList, this.instrCount);
 		}
@@ -242,6 +257,7 @@ public class IR {
 		} else {
 			body = loopNode.getChildren().get(1);
 		}
+
 		
 		List<Instruction> initInstr = null;
 		if (isForLoop) {
@@ -354,6 +370,7 @@ public class IR {
 		returnInstr.addAll(this.buildInstruction(node));
 		
 		return returnInstr;
+
 	}
 	
 	public void buildFunctionIRs(Node root) {
@@ -519,7 +536,8 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/break.c");
+		Scanner scanner = new Scanner("test/function.c");
+
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();

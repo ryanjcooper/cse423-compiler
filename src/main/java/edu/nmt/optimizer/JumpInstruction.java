@@ -8,6 +8,7 @@ import edu.nmt.frontend.Token;
 public class JumpInstruction extends Instruction {
 	/**
 	 * operand1 is the boolean expression (can be null for unconditional jumps)
+
 	 * operand2 is the destination of the jump statement
 	 * 
 	 * if the ifStmt does not have a condition, then it is an else statement, and does not have a destination
