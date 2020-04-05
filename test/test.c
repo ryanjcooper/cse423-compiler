@@ -1,14 +1,5 @@
-int foo(int i, int x);
-
-int main()
-{
-        int i = 0 + 7;
-
-        return foo(i + 1, 5);
-}
-
-int foo(int i, int x)
+int foo(int i, int x, int y)
 {
         i +=1;
-        return i;
+        return foo();
 }

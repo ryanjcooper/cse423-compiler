@@ -14,31 +14,31 @@
 | Identifiers | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Variables   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Functions   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
-| Keywords    | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Keywords    | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Arithmetic  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Assignment  | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Boolean     | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
-| Goto        | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
-| If / Else   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Boolean     | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| Goto        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| If / Else   | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Unary       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Return      | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Break       | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
-| While       | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
+| Break       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
+| While       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 #### Optional Features
 | Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
-| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | ++, - , -=. +=, \*=, /= | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | For Loops               | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
 | Binary Operators        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 |
-| Switch Statements       | :heavy_check_mark: | :heavy_check_mark:  | :x:  | :x:                 | :x:                 |
+| Switch Statements       | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
 #### Stretch-goal Features
 | Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
-| Pointers                | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
-| Arrays                  | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
-| Strings                 | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
-| Structs                 | :heavy_check_mark: | :heavy_check_mark:  | :x:                   | :x:                 | :x:                 |
+| Pointers                | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :x:                 | :x:                 |
+| Arrays                  | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
+| Strings                 | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
+| Structs                 | :heavy_check_mark: | :heavy_check_mark:  | :x:                 | :x:                 | :x:                 |
 | Enum                    | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 | Preprocessor Statements | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
 | Type Casting            | :x:                | :x:                 | :x:                 | :x:                 | :x:                 |
@@ -79,8 +79,7 @@ The parser supports everything labeled under the Features List that is not cross
 The following limitations include:
 * arrays can be declared, but not specified statically i.e char string[] = "" works but not char string[] = {'a', 'b'}
 * arrays can be referenced with an int i.e. a[1] but not without the int, so "a[] = b" will not work
-* variable lists are not permitted i.e. int i,j,k; is not allowed
-* pointers can only be in the form \*variable, not much else can be done with them
+* pointers can only be in the form \*variable
 * for loops have to be in the "form for (i = 0; i < 1; i++) {  }" not precise, just similar format
 * if statements, while loops, for loops all need braces around their interior
 
@@ -88,6 +87,40 @@ The following limitations include:
 ### Optimizer
 
 ### Intermediate Representation (IR)
+Our IR is represented as a Map of a List of Instructions, in which keys are function names.
+\
+Static Single Assignment (SSA) is used.
+
+Each Instruction contains the following information:
+\
+(1) Line Number \
+(2) Instruction ID \
+(3) Operation \
+(4) Type \
+(5) Operand 1 \
+(6) Operand 1 Name \
+(7) Operand 2 
+
+All 7 parameters are needed, making the I/O IR different from the human readable version.
+<br/><br/>
+<b>(base.c)</b>
+<pre>
+int main() 
+{ 
+  return 1;
+} 
+</pre>
+<b>(IR) </b>
+<pre>
+1: _1 = 1 type: int 
+2: return _1 type: int 
+</pre>
+<b>(IR to file)</b> 
+<pre>
+#main 
+1 _1 numeric_constant int null 1 null 
+2 null return int 1 null null 
+</pre>
 
 ### Optimizations
 

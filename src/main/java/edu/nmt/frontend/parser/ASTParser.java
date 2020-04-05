@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
 
 import edu.nmt.frontend.Grammar;
@@ -44,12 +47,19 @@ public class ASTParser {
 				"r_bracket",
 				"if",
 				"else",
-				"for"
+				"for",
+				"colon",
+				"while",
+				"switch",
+				"case",
+				"default",
+				"comma"
 			));
 
 	// Token labels that should not be rolled up, even if only one child
 	private List<String> ignoreRollup = new ArrayList<String>(Arrays.asList(
-				"condition"
+				"condition",
+				"body"
 			));
 	
 	/**
@@ -63,6 +73,7 @@ public class ASTParser {
 	
 	/**
 	 * Single-pass parse tree reduction algorithm
+	 * It was decided not to break this up into separate methods as all of this code serves under the same functionality of tree reduction, just handling various cases.
 	 * @return true iff parse tree is reduced to ast
 	 */
 	public Boolean parse() {
@@ -70,6 +81,7 @@ public class ASTParser {
 		Stack<Node> stack = new Stack<Node>();
 		List<Node> tmp;
 		List<Node> tmp2;
+		Set<Node> toInvert = new HashSet<Node>();
 		
 		// add parse tree root as this will always be program
 		stack.addAll(root.getChildren());
@@ -79,6 +91,9 @@ public class ASTParser {
 		// dfs over tree in 
 		while(!stack.empty()) {
 			Node current = stack.pop();
+			
+			
+//			System.out.println(current + " " + current.getParent().getChildren());
 			
 			// remove node if token doesnt contribute to semantics
 			if (syntaxConstructs.contains(current.getToken().getTokenLabel())) {
@@ -124,22 +139,80 @@ public class ASTParser {
 					if (child.getToken().getTokenLabel().equals("params")) {
 						for (Node child2 : child.getChildren()) {
 							if (child2.getToken().getTokenLabel().equals("paramList")) {
-								for (Node child3 : child2.getChildren()) { // param objects
-									tmp = child3.getChildren();
-									tmp2 = new ArrayList<Node>();
-									if (child3.getToken().getTokenLabel().equals("param")) {
-										for (Node paramFeatures : child3.getChildren()) {
-											if (paramFeatures.getToken().getTokenLabel().equals("type")) {
-												child3.setType(paramFeatures.getToken().getTokenString());
-												tmp2.add(paramFeatures);
-											} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
-												child3.setName(paramFeatures.getToken().getTokenString());
-												tmp2.add(paramFeatures);
+	
+								Node currentNode = child2;
+								Node nextNode = null;
+								
+								while (currentNode != null) {
+									Node idNode = null;
+									Node typeNode = null;
+									Node nestedNode = null;
+									for (Node child3 : currentNode.getChildren()) { // param objects
+										tmp = child3.getChildren();
+										tmp2 = new ArrayList<Node>();
+										if (child3.getToken().getTokenLabel().equals("param")) {
+											for (Node paramFeatures : child3.getChildren()) {
+												if (paramFeatures.getToken().getTokenLabel().equals("type")) {
+													child3.setType(paramFeatures.getToken().getTokenString());
+													tmp2.add(paramFeatures);
+												} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
+													child3.setName(paramFeatures.getToken().getTokenString());
+													tmp2.add(paramFeatures);
+													nestedNode = child3;
+												}
 											}
+										} else if (child3.getToken().getTokenLabel().equals("identifier")) {
+											idNode = child3;
+										} else if (child3.getToken().getTokenLabel().equals("type")) {
+											typeNode = child3;
+										} else if (child3.getToken().getTokenLabel().equals("paramList")) {
+											nextNode = child3;
+										}
+										
+										tmp.removeAll(tmp2);
+										child3.setChildren(tmp);
+										
+										if (nestedNode != null) {
+											tmp = child2.getChildren();
+											int idx = tmp.indexOf(idNode);
+											
+											if (idx != -1) {
+												tmp.add(idx, nestedNode);
+												tmp.remove(idNode);
+												tmp.remove(typeNode);
+											} else {
+												tmp.add(nestedNode);
+											}
+											
+										}
+										
+									}
+									
+									if (idNode != null && typeNode != null) {
+										Node param = new Node(new Token("param", "param"));
+										param.setType(typeNode.getToken().getTokenString());
+										param.setName(idNode.getToken().getTokenString());
+										
+										param.setParent(child2);
+										
+										tmp = child2.getChildren();
+										int idx = tmp.indexOf(idNode);
+										
+										if (idx != -1) {
+											tmp.add(idx, param);
+											tmp.remove(idNode);
+											tmp.remove(typeNode);
+										} else {
+											tmp.add(param);
 										}
 									}
-									tmp.removeAll(tmp2);
-									child3.setChildren(tmp);
+									
+									tmp = currentNode.getChildren();
+									tmp.remove(nextNode);
+									currentNode.setChildren(tmp);
+									
+									currentNode = nextNode;
+									nextNode = null;									
 								}
 							}
 						}
@@ -164,33 +237,93 @@ public class ASTParser {
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 //				current.setType("function"); // removed per discussion with Terence.
+
 				
 				// bring param nodes up and label their identifier and type
 				for (Node child : current.getChildren()) {
 					if (child.getToken().getTokenLabel().equals("params")) {
 						for (Node child2 : child.getChildren()) {
 							if (child2.getToken().getTokenLabel().equals("paramList")) {
-								for (Node child3 : child2.getChildren()) { // param objects
-									tmp = child3.getChildren();
-									tmp2 = new ArrayList<Node>();
-									if (child3.getToken().getTokenLabel().equals("param")) {
-										for (Node paramFeatures : child3.getChildren()) {
-											if (paramFeatures.getToken().getTokenLabel().equals("type")) {
-												child3.setType(paramFeatures.getToken().getTokenString());
-												tmp2.add(paramFeatures);
-											} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
-												child3.setName(paramFeatures.getToken().getTokenString());
-												tmp2.add(paramFeatures);
+	
+								Node currentNode = child2;
+								Node nextNode = null;
+								
+								while (currentNode != null) {
+									Node idNode = null;
+									Node typeNode = null;
+									Node nestedNode = null;
+									for (Node child3 : currentNode.getChildren()) { // param objects
+										tmp = child3.getChildren();
+										tmp2 = new ArrayList<Node>();
+										if (child3.getToken().getTokenLabel().equals("param")) {
+											for (Node paramFeatures : child3.getChildren()) {
+												if (paramFeatures.getToken().getTokenLabel().equals("type")) {
+													child3.setType(paramFeatures.getToken().getTokenString());
+													tmp2.add(paramFeatures);
+												} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
+													child3.setName(paramFeatures.getToken().getTokenString());
+													tmp2.add(paramFeatures);
+													nestedNode = child3;
+												}
 											}
+										} else if (child3.getToken().getTokenLabel().equals("identifier")) {
+											idNode = child3;
+										} else if (child3.getToken().getTokenLabel().equals("type")) {
+											typeNode = child3;
+										} else if (child3.getToken().getTokenLabel().equals("paramList")) {
+											nextNode = child3;
+										}
+										
+										tmp.removeAll(tmp2);
+										child3.setChildren(tmp);
+										
+										if (nestedNode != null) {
+											tmp = child2.getChildren();
+											int idx = tmp.indexOf(idNode);
+											
+											if (idx != -1) {
+												tmp.add(idx, nestedNode);
+												tmp.remove(idNode);
+												tmp.remove(typeNode);
+											} else {
+												tmp.add(nestedNode);
+											}
+											
+										}
+										
+									}
+									
+									if (idNode != null && typeNode != null) {
+										Node param = new Node(new Token("param", "param"));
+										param.setType(typeNode.getToken().getTokenString());
+										param.setName(idNode.getToken().getTokenString());
+										
+										param.setParent(child2);
+										
+										tmp = child2.getChildren();
+										int idx = tmp.indexOf(idNode);
+										
+										if (idx != -1) {
+											tmp.add(idx, param);
+											tmp.remove(idNode);
+											tmp.remove(typeNode);
+										} else {
+											tmp.add(param);
 										}
 									}
-									tmp.removeAll(tmp2);
-									child3.setChildren(tmp);
+									
+									tmp = currentNode.getChildren();
+									tmp.remove(nextNode);
+									currentNode.setChildren(tmp);
+									
+									currentNode = nextNode;
+									nextNode = null;									
 								}
 							}
 						}
 					}
 				}
+								
 			
 			// handle conditionals
 			} else if (current.getToken().getTokenLabel().equals("ifStmt")) {
@@ -236,17 +369,54 @@ public class ASTParser {
 				tmp2.add(bodyNode);
 			
 				current.setChildren(tmp2);
+				
+			// handle while loops
+			} else if (current.getToken().getTokenLabel().equals("iterationStmt")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				
+				Node comparisonNode = null;
+				Node bodyNode = null;
+				
+				// search over child nodes for body and condition of the loop
+				for (Node child : tmp) {					
+					if (child.getToken().getTokenLabel().equals("whileLoop")) {
+						for (Node child2 : child.getChildren()) {
+							if (child2.getToken().getTokenLabel().equals("expression")) {
+								comparisonNode = child2;
+							}
+						}
+					} else if (child.getToken().getTokenLabel().equals("compoundStmt")) {
+						bodyNode = child;
+					}
+				}
+								
+				if (comparisonNode != null && bodyNode != null) {
+					
+					current.getToken().setTokenLabel("whileLoop");
+					
+					// ordered children
+					tmp = new ArrayList<Node>();
+					tmp.add(comparisonNode);
+					tmp.add(bodyNode);
+					
+					comparisonNode.setParent(current);
+					bodyNode.setParent(current);
+					
+					current.setChildren(tmp);
+				}
 						
 			// collapse single child nodes (non-terminals)
 			} else if ((current.getChildren().size() == 1) && (!ignoreRollup.contains(current.getToken().getTokenLabel()))) {				
 				// remove node from parent
 				tmp = current.getParent().getChildren();
+				int idx = tmp.indexOf(current);
+				tmp.add(idx, current.getChildren().get(0));
+				current.getChildren().get(0).setParent(current.getParent());
 				tmp.remove(current);
 				current.getParent().setChildren(tmp);
-				// set only childs parent to current node
-				Node tmpNode = current.getChildren().get(0);
-				tmpNode.setParent(current.getParent());
-				current.getParent().addChild(tmpNode);
+				
+				toInvert.add(current.getParent());
 				
 			// collapse declarationList
 			} else if (current.getToken().getTokenLabel().equals("declarationList")) {
@@ -450,10 +620,14 @@ public class ASTParser {
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
-			// label unary ops in expression
+			// label unary ops in expression and collapse goto statements
 			} else if (current.getToken().getTokenLabel().equals("expression")) {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
+				
+				Node gotoNode = null;
+				Node identifierNode = null;
+				
 				for (Node child : tmp) {
 					if (child.getToken().getTokenLabel().equals("tilde")) {
 						current.setOp(child.getToken().getTokenString());
@@ -463,8 +637,31 @@ public class ASTParser {
 						current.setOp(child.getToken().getTokenString());
 						current.getToken().setTokenLabel("bitExpression");
 						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("goto")) {
+						gotoNode = child;
+					} else if (child.getToken().getTokenLabel().equals("identifier")) {
+						identifierNode = child;
 					}
 				}				
+				
+				// found valid goto expression
+				if (gotoNode != null && identifierNode != null) {
+					current.setName(identifierNode.getToken().getTokenString());
+					current.getToken().setTokenLabel(gotoNode.getToken().getTokenLabel());
+					tmp = new ArrayList<Node>();
+					
+					if (current.getParent().getToken().getTokenLabel().equals("exprStmt")) {
+						List<Node> a = current.getParent().getParent().getChildren();
+						int idx = a.indexOf(current.getParent());
+						a.remove(current.getParent());
+						a.add(idx, current);
+						
+						current.getParent().getParent().setChildren(a);
+						current.setParent(current.getParent().getParent());
+					}
+					
+				}
+				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
 				
@@ -503,11 +700,109 @@ public class ASTParser {
 				}				
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+				
+			// label
+			} else if (current.getToken().getTokenLabel().equals("label")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("identifier")) {
+						current.setName(child.getToken().getTokenString());
+						tmp2.add(child);
+					}		
+				}
+				
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+			
+			// collapse pointers
+			} else if (current.getToken().getTokenLabel().equals("pointer")) {
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+				
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("mul_op")) {
+						tmp2.add(child);
+					} else if (child.getToken().getTokenLabel().equals("identifier")) {
+						current.setName(child.getToken().getTokenString());
+						tmp2.add(child);
+					}
+				}
+				tmp.removeAll(tmp2);
+				current.setChildren(tmp);
+				
+				
+			} else if (current.getToken().getTokenLabel().equals("breakStmt")) {
+				
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("break")) {
+						current.getToken().setTokenLabel("break");
+						current.setChildren(tmp2);
+					}
+				}
+
+			} else if (current.getToken().getTokenLabel().equals("switchStmt")) {
+				
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("caseList")) {
+						for (Node child2 : child.getChildren()) {
+							if (child2.getToken().getTokenLabel().equals("switchCase")) {
+								Node bodyNode = new Node(new Token("body", "body"));
+								Node stmtListNode = null;
+								
+								for (Node child3 : child2.getChildren()) {
+									if (child3.getToken().getTokenLabel().equals("statementList")) {
+										stmtListNode = child3;									
+										
+									} else if (child3.getToken().getTokenLabel().equals("case") || child3.getToken().getTokenLabel().equals("default")) {
+										child2.setName(child3.getToken().getTokenLabel());
+									}
+									
+								}
+								
+								
+								if (stmtListNode != null) {
+									
+									// insert placeholder node into parent
+									tmp = child2.getChildren();
+									int idx = tmp.indexOf(stmtListNode);
+									tmp.add(idx, bodyNode);
+									tmp.remove(stmtListNode);
+									
+									child2.setChildren(tmp);
+									bodyNode.setParent(child2);
+									
+									// rollup statementList node to be child of body node
+									stmtListNode.setParent(bodyNode);
+									tmp = new ArrayList<Node>();
+									tmp.add(stmtListNode);
+									
+									bodyNode.setChildren(tmp);
+									
+								}
+							}
+						}
+					}
+				}
+
 			}
+				
+				
 			
 			stack.addAll(current.getChildren());
 		}
 
+		for (Node n : toInvert) {
+			Collections.reverse(n.getChildren());
+		}
+		
 		return true;
 	}
 	
@@ -541,6 +836,10 @@ public class ASTParser {
 			
 		}
 		
+	}
+	
+	public String getFilename() {
+		return this.p.getFilename();
 	}
 
 	/**
@@ -593,26 +892,31 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/base.c");
+		Scanner scanner = new Scanner("test/function.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-			;
-//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+			
+			
+			ASTParser a = new ASTParser(p);
+//			if (a.parse() && a.isTypedCorrectly()) {
+			if (a.parse()) {
+				a.printAST();
+//				if (a.isTypedCorrectly()) {
+//					System.out.println("Type check passed.");
+//				}
+			}
+			
+			a.printSymbolTable();
+			
+		} else {
+			System.out.println("FAILED TO PARSE");
 		}
 		
-		ASTParser a = new ASTParser(p);
-//		if (a.parse() && a.isTypedCorrectly()) {
-		if (a.parse()) {
-			a.printAST();
-//			if (a.isTypedCorrectly()) {
-//				System.out.println("Type check passed.");
-//			}
-		}
-		
-		a.printSymbolTable();
+
 		
 		
 	}
