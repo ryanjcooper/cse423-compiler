@@ -23,6 +23,7 @@ import edu.nmt.frontend.scanner.Scanner;
 public class IR {
 	ASTParser a;
 	public static Map<String, Instruction> variableMap = new HashMap<String, Instruction>();
+	private Boolean hasBreakOrGoto = false;
 	private Integer instrCount = 1;
 	private List<Instruction> instructionList;
 	private Map<String, List<Instruction>> functionIRs;
@@ -130,10 +131,14 @@ public class IR {
 		if (label.contentEquals("ifStmt")) {
 			return this.buildConditional(node, null);
 		} else if (label.contains("Loop")) {
-			return this.buildLoop(node);
+			returnInstr.addAll(this.buildLoop(node));
+			Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfFullLoopBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
+			this.instrCount++;
+			returnInstr.add(endOfBlock);
+			return returnInstr;
 		}
 		
-		if (!node.getChildren().isEmpty() && !label.contentEquals("ifStmt")) {
+		if (!node.getChildren().isEmpty()) {
 			if (label.contains("IncExpr")) {
 				// converts the AST representation of unary incrementation into its full formatting (e.g. a++ becomes a = a + 1)
 				// then replaces the increment expression node with the new representation (which is an assignStmt)
@@ -175,7 +180,25 @@ public class IR {
 		if (label.contentEquals("returnStmt")) {
 			add = new ReturnInstruction(node, operandList, this.instrCount);
 		} else if(label.contentEquals("goto")) {
-			add = new JumpInstruction(node, operandList, this.instrCount, null);
+			Instruction jumpLabel = new Instruction(null, new Node(new Token(node.getName(), "label")), new ArrayList<Instruction>(), this.instrCount);
+			add = new JumpInstruction(node, Arrays.asList(jumpLabel), this.instrCount, node.getName() + "TEMPORARYLABEL");
+			this.hasBreakOrGoto = true;
+		} else if(label.contentEquals("break")) {
+			Node breakNode = node;
+			String breakLabel = node.getToken().getTokenLabel().toLowerCase();
+			while (!breakLabel.contains("switch") && !breakLabel.contains("loop")) {
+				breakNode = breakNode.getParent();
+				breakLabel = breakNode.getToken().getTokenLabel().toLowerCase();
+			}
+			String jumpLabelString = null;
+			if (breakNode.getToken().getTokenLabel().toLowerCase().contains("loop")) {
+				jumpLabelString = "endOfFullLoopBlock";
+			} else {
+				jumpLabelString = "endOfSwitchBlock";
+			}
+			Instruction jumpLabel = new Instruction(null, new Node(new Token(jumpLabelString, "label")), new ArrayList<Instruction>(), this.instrCount);
+			add = new JumpInstruction(node, Arrays.asList(jumpLabel), this.instrCount, jumpLabelString + "TEMPORARYLABEL");
+			this.hasBreakOrGoto = true;
 		} else {
 			add = new Instruction(null, node, operandList, this.instrCount);
 		}
@@ -220,8 +243,8 @@ public class IR {
 			initInstr = this.buildInstruction(init);
 		}
 		
-		Instruction endOfBlock = new Instruction(null, new Node(new Token("endOfLoopBlock", "label")), new ArrayList<Instruction>(), this.instrCount);
-		Instruction jumpToCondition = new JumpInstruction(null, Arrays.asList(endOfBlock), this.instrCount, null);
+		Instruction endOfBody = new Instruction(null, new Node(new Token("endOfLoopBody", "label")), new ArrayList<Instruction>(), this.instrCount);
+		Instruction jumpToCondition = new JumpInstruction(null, Arrays.asList(endOfBody), this.instrCount, null);
 		this.instrCount++;
 		
 		Instruction startOfBody = new Instruction(null, new Node(new Token("startOfLoopBody", "label")), new ArrayList<Instruction>(),this.instrCount);
@@ -239,7 +262,7 @@ public class IR {
 			incrementInstr = this.buildInstruction(increment);
 		}
 		
-		endOfBlock.setLineNumber(this.instrCount);
+		endOfBody.setLineNumber(this.instrCount);
 		this.instrCount++;
 
 		List<Instruction> operandList = new ArrayList<Instruction>();
@@ -258,7 +281,7 @@ public class IR {
 		if (isForLoop) {
 			returnInstr.addAll(incrementInstr);
 		}
-		returnInstr.add(endOfBlock);
+		returnInstr.add(endOfBody);
 		returnInstr.addAll(condInstr);
 		returnInstr.add(jumpToBody);
 		return returnInstr;
@@ -322,17 +345,8 @@ public class IR {
 	}
 	
 	private List<Instruction> buildInstructionList(Node node) {
-		String label = node.getToken().getTokenLabel();
 		List<Instruction> returnInstr = new ArrayList<Instruction>();
-		
-		if (ignoredLabels.contains(label)) {
-			// if the label is ignored, then continue to recursively build instruction list for children without constructing a new object
-			for (Node c : node.getChildren()) {
-				returnInstr.addAll(this.buildInstructionList(c));
-			}
-		} else {
-			returnInstr.addAll(this.buildInstruction(node));
-		}
+		returnInstr.addAll(this.buildInstruction(node));
 		
 		return returnInstr;
 	}
@@ -344,6 +358,26 @@ public class IR {
 		for (Node c : root.getChildren()) {
 			if (c.getToken().getTokenLabel().contentEquals("funcDefinition")) {
 				this.functionIRs.put(c.getName(), this.buildInstructionList(c.getChildren().get(0)));
+				if (this.hasBreakOrGoto) {
+					this.fixJumpDestinations(functionIRs.get(c.getName()));
+					this.hasBreakOrGoto = false;
+				}
+			}
+		}
+	}
+	
+	private void fixJumpDestinations(List<Instruction> functionIR) {
+		for (int i = 0; i < functionIR.size(); i++) {
+			Instruction x = functionIR.get(i);
+			if (x.getType().contentEquals("unconditionalJump") && x.getOp1Name() != null && x.getOp1Name().contains("TEMPORARYLABEL")) {
+				String trueDestination = x.getOp1Name().replace("TEMPORARYLABEL", "");
+				for (int j = i + 1; j < functionIR.size(); j++) {
+					Instruction y = functionIR.get(j);
+					if (y.getType().contentEquals("label") && y.getOp1Name() != null && y.getOp1Name().contentEquals(trueDestination)) {
+						x.setOperand2(y);
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -374,7 +408,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/goto.c");
+		Scanner scanner = new Scanner("test/break.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();

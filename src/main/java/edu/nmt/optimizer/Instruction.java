@@ -40,7 +40,11 @@ public class Instruction {
 			this.type = node.getType();
 			
 			if (label.contentEquals("label")) {
-				this.op1Name = node.getToken().getTokenString();
+				if (node.getName() == null) {
+					this.op1Name = node.getToken().getTokenString();
+				} else {
+					this.op1Name = node.getName();
+				}
 				this.operation = this.type = "label";
 			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
@@ -87,14 +91,14 @@ public class Instruction {
 				this.operand1 = operandList.get(0);
 				this.type = operand1.getType();
 			} else if (instrType.contentEquals("jump")) {
-				if (operandList.size() == 1 || label.contains("jump")) {
-					this.type = "unconditionalJump";
-					this.operand1 = null;
-					this.operand2 = operandList.get(0);
-				} else if (label.contentEquals("ifStmt") || label.contentEquals("loopBody")) {
+				if (label.contentEquals("ifStmt") || label.contentEquals("loopBody")) {
 					this.type = "conditionalJump";
 					this.operand1 = operandList.get(0);
 					this.operand2 = operandList.get(1);
+				} else {
+					this.type = "unconditionalJump";
+					this.operand1 = null;
+					this.operand2 = operandList.get(0);
 				}
 			}
 		}
@@ -102,6 +106,38 @@ public class Instruction {
 		
 	}
 	
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public String getOp1Name() {
+		return op1Name;
+	}
+
+	public void setOp1Name(String op1Name) {
+		this.op1Name = op1Name;
+	}
+
+	public Instruction getOperand1() {
+		return operand1;
+	}
+
+	public void setOperand1(Instruction operand1) {
+		this.operand1 = operand1;
+	}
+
+	public Instruction getOperand2() {
+		return operand2;
+	}
+
+	public void setOperand2(Instruction operand2) {
+		this.operand2 = operand2;
+	}
+
 	public Instruction(String lineNum, String id, String op, String type, String constant, String op1, String op2) {
 		this.lineNumber = Integer.parseInt(lineNum);
 		this.instrID = id;
