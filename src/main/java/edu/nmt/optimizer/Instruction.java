@@ -142,6 +142,8 @@ public class Instruction {
 					this.operand1 = null;
 					this.operand2 = operandList.get(0);
 				}
+			} else if (instrType.contentEquals("call")) {
+				
 			}
 		}
 		
@@ -180,38 +182,6 @@ public class Instruction {
 		this.operand1 = op1;
 		this.op1Name = name1;
 		this.operand2 = op2;
-	}
-	
-	public String getOperation() {
-		return operation;
-	}
-
-	public void setOperation(String operation) {
-		this.operation = operation;
-	}
-
-	public String getOp1Name() {
-		return op1Name;
-	}
-
-	public void setOp1Name(String op1Name) {
-		this.op1Name = op1Name;
-	}
-
-	public Instruction getOperand1() {
-		return operand1;
-	}
-
-	public void setOperand1(Instruction operand1) {
-		this.operand1 = operand1;
-	}
-
-	public Instruction getOperand2() {
-		return operand2;
-	}
-
-	public void setOperand2(Instruction operand2) {
-		this.operand2 = operand2;
 	}
 	
 	public String getType() {
