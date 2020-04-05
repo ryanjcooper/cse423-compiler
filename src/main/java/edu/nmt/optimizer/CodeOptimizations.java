@@ -53,18 +53,14 @@ public class CodeOptimizations {
 			
 			//Try to propagate the rhs
 			if(varMap.get(splitres[1]) != null) {
-				System.out.println("Found a prop");
-				System.out.println("_-_-  " + splitres[0] + "=" + splitres[1]);
 				try {
 					i.setOperation("identifier");
 					i.op1Name  = i.operand1.op1Name;
 					status = true;
 				} catch (NullPointerException e) {
 					i.setOp1Name(varMap.get(splitres[1]).toString());
-					System.out.println("Instr ID: " + i.operand1);
 					status = true;
 				}
-				System.out.println("new line: " + i);
 			}
 			
 			// Add to or update map
@@ -83,9 +79,9 @@ public class CodeOptimizations {
 			}
 			
 			// Test statement to print map
-			for (Map.Entry<String, Integer> entry : varMap.entrySet()) {
-			    System.out.println(entry.getKey() + ":" + entry.getValue().toString());
-			}
+//			for (Map.Entry<String, Integer> entry : varMap.entrySet()) {
+//			    System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+//			}
 		}
 		
 		return status;
