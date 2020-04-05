@@ -223,58 +223,6 @@ public class ASTParser {
 					}
 				}
 				
-//				// bring param nodes up and label their identifier and type
-//				for (Node child : current.getChildren()) {
-//					if (child.getToken().getTokenLabel().equals("params")) {
-//						for (Node child2 : child.getChildren()) {
-//							if (child2.getToken().getTokenLabel().equals("paramList")) {
-//								
-//								Node idNode = null;
-//								Node typeNode = null;
-//								
-//								for (Node child3 : child2.getChildren()) { // param objects
-//									tmp = child3.getChildren();
-//									tmp2 = new ArrayList<Node>();
-//									if (child3.getToken().getTokenLabel().equals("param")) {
-//										for (Node paramFeatures : child3.getChildren()) {
-//											if (paramFeatures.getToken().getTokenLabel().equals("type")) {
-//												child3.setType(paramFeatures.getToken().getTokenString());
-//												tmp2.add(paramFeatures);
-//											} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
-//												child3.setName(paramFeatures.getToken().getTokenString());
-//												tmp2.add(paramFeatures);
-//											}
-//										}
-//										tmp.removeAll(tmp2);
-//										child3.setChildren(tmp);
-//									} else if (child3.getToken().getTokenLabel().equals("identifier")) {
-//										idNode = child3;
-//									} else if (child3.getToken().getTokenLabel().equals("type")) {
-//										typeNode = child3;
-//									}
-//
-//								}
-//								
-//								if (idNode != null && typeNode != null) {
-//									Node param = new Node(new Token("param", "param"));
-//									param.setType(typeNode.getToken().getTokenString());
-//									param.setName(idNode.getToken().getTokenString());
-//									
-//									param.setParent(child2);
-//									
-//									tmp = child2.getChildren();
-//									int idx = tmp.indexOf(idNode);
-//									
-//									tmp.add(idx, param);
-//									tmp.remove(idNode);
-//									tmp.remove(typeNode);
-//								}
-//								
-//							}
-//						}
-//					}
-//				}
-				
 			// collapse function declarations
 			} else if (current.getToken().getTokenLabel().equals("funcDeclaration")) {
 				tmp = current.getChildren();
@@ -379,76 +327,11 @@ public class ASTParser {
 									currentNode = nextNode;
 									nextNode = null;									
 								}
-								
-//								for (Node child3 : child2.getChildren()) { // param objects
-//									tmp = child3.getChildren();
-//									tmp2 = new ArrayList<Node>();
-//									if (child3.getToken().getTokenLabel().equals("param")) {
-//										for (Node paramFeatures : child3.getChildren()) {
-//											if (paramFeatures.getToken().getTokenLabel().equals("type")) {
-//												child3.setType(paramFeatures.getToken().getTokenString());
-//												tmp2.add(paramFeatures);
-//											} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
-//												child3.setName(paramFeatures.getToken().getTokenString());
-//												tmp2.add(paramFeatures);
-//											}
-//										}
-//										tmp.removeAll(tmp2);
-//										child3.setChildren(tmp);
-//									} else if (child3.getToken().getTokenLabel().equals("identifier")) {
-//										idNode = child3;
-//									} else if (child3.getToken().getTokenLabel().equals("type")) {
-//										typeNode = child3;
-//									}
-//
-//								}
-								
-//								if (idNode != null && typeNode != null) {
-//									Node param = new Node(new Token("param", "param"));
-//									param.setType(typeNode.getToken().getTokenString());
-//									param.setName(idNode.getToken().getTokenString());
-//									
-//									param.setParent(child2);
-//									
-//									tmp = child2.getChildren();
-//									int idx = tmp.indexOf(idNode);
-//									
-//									tmp.add(idx, param);
-//									tmp.remove(idNode);
-//									tmp.remove(typeNode);
-//								}
-								
 							}
 						}
 					}
 				}
-				
-//				// bring param nodes up and label their identifier and type
-//				for (Node child : current.getChildren()) {
-//					if (child.getToken().getTokenLabel().equals("params")) {
-//						for (Node child2 : child.getChildren()) {
-//							if (child2.getToken().getTokenLabel().equals("paramList")) {
-//								for (Node child3 : child2.getChildren()) { // param objects
-//									tmp = child3.getChildren();
-//									tmp2 = new ArrayList<Node>();
-//									if (child3.getToken().getTokenLabel().equals("param")) {
-//										for (Node paramFeatures : child3.getChildren()) {
-//											if (paramFeatures.getToken().getTokenLabel().equals("type")) {
-//												child3.setType(paramFeatures.getToken().getTokenString());
-//												tmp2.add(paramFeatures);
-//											} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
-//												child3.setName(paramFeatures.getToken().getTokenString());
-//												tmp2.add(paramFeatures);
-//											}
-//										}
-//									}
-//									tmp.removeAll(tmp2);
-//									child3.setChildren(tmp);
-//								}
-//							}
-//						}
-//					}
-//				}
+								
 			
 			// handle conditionals
 			} else if (current.getToken().getTokenLabel().equals("ifStmt")) {
