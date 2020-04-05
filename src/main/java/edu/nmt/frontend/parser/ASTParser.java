@@ -49,12 +49,16 @@ public class ASTParser {
 				"else",
 				"for",
 				"colon",
-				"while"
+				"while",
+				"switch",
+				"case",
+				"default"
 			));
 
 	// Token labels that should not be rolled up, even if only one child
 	private List<String> ignoreRollup = new ArrayList<String>(Arrays.asList(
-				"condition"
+				"condition",
+				"body"
 			));
 	
 	/**
@@ -622,7 +626,55 @@ public class ASTParser {
 					}
 				}
 
+			} else if (current.getToken().getTokenLabel().equals("switchStmt")) {
+				
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+
+				for (Node child : tmp) {
+					if (child.getToken().getTokenLabel().equals("caseList")) {
+						for (Node child2 : child.getChildren()) {
+							if (child2.getToken().getTokenLabel().equals("switchCase")) {
+								Node bodyNode = new Node(new Token("body", "body"));
+								Node stmtListNode = null;
+								
+								for (Node child3 : child2.getChildren()) {
+									if (child3.getToken().getTokenLabel().equals("statementList")) {
+										stmtListNode = child3;									
+										
+									} else if (child3.getToken().getTokenLabel().equals("case") || child3.getToken().getTokenLabel().equals("default")) {
+										child2.setName(child3.getToken().getTokenLabel());
+									}
+									
+								}
+								
+								
+								if (stmtListNode != null) {
+									
+									// insert placeholder node into parent
+									tmp = child2.getChildren();
+									int idx = tmp.indexOf(stmtListNode);
+									tmp.add(idx, bodyNode);
+									tmp.remove(stmtListNode);
+									
+									child2.setChildren(tmp);
+									bodyNode.setParent(child2);
+									
+									// rollup statementList node to be child of body node
+									stmtListNode.setParent(bodyNode);
+									tmp = new ArrayList<Node>();
+									tmp.add(stmtListNode);
+									
+									bodyNode.setChildren(tmp);
+									
+								}
+							}
+						}
+					}
+				}
+
 			}
+				
 				
 			
 			stack.addAll(current.getChildren());
@@ -665,6 +717,10 @@ public class ASTParser {
 			
 		}
 		
+	}
+	
+	public String getFilename() {
+		return this.p.getFilename();
 	}
 
 	/**
@@ -717,7 +773,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/goto.c");
+		Scanner scanner = new Scanner("test/switch.c");
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
