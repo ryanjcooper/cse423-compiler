@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
@@ -68,7 +67,6 @@ public class CodeOptimizations {
 		String splitres[];
 		List<Instruction> instrList = target.getFunctionIRs().get("main");
 		Map<String, Integer> varMap = new HashMap<String, Integer>();
-		Instruction tmp;
 		Boolean status = false;
 		
 		for (Instruction i : instrList) {
@@ -123,9 +121,7 @@ public class CodeOptimizations {
 	public void clean() {
 		String splitres[];
 		List<Instruction> instrList = target.getFunctionIRs().get("main");
-		Map<String, Integer> varMap = new HashMap<String, Integer>();
 		List<Instruction> deadLines = new ArrayList<Instruction>();
-		final Pattern isTmp = Pattern.compile("^_[0-9]*");
 		int count = 0;
 
 		// Find Dead lines
@@ -160,9 +156,29 @@ public class CodeOptimizations {
 		return;
 	}
 	
-	public static void main(String[] args) throws Exception {
+	/**
+	 * Wraps all Level 1 optimizations together
+	 * @param target
+	 * @return Optimized IR
+	 */
+	public static void l1Optimize(IR target) {
 		Boolean status;
+		CodeOptimizations o1 = new CodeOptimizations(target);
+
+		status = true;
+		while(status) {
+			status = false;
+			status = o1.constProp();
+			status |= o1.constFold();
+		}
+		o1.clean();
+		
+		return;
+	}
+	
+	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner("test/foldproptest.c");
+
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
@@ -176,30 +192,27 @@ public class CodeOptimizations {
 			a.printAST();	
 		}
 		
-//		a.printSymbolTable();
+		a.printSymbolTable();
 		Node root = a.getRoot();
 		root.recursiveSetDepth();
-		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+//		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(a);
 		List<Instruction> mainList = test.getFunctionIRs().get("main");
+//		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 		
-		CodeOptimizations o1 = new CodeOptimizations(test);
-
+		//test.printIR();
 		
-		status = true;
-		while(status) {
-			status = false;
-			status = o1.constProp();
-			status |= o1.constFold();
-		}
+		test.outputToFile();
+		IR tmp = new IR();
+		tmp.initFromFile(test.getFilename());
+		System.out.println(test.equals(tmp));
 		
-		o1.clean();
-		
-		System.out.println("Post-Optimize");
-		IR.printMain(o1.target.getFunctionIRs());
-		
-		
+		System.out.println("Pre-Optimization");
+		IR.printMain(test.getFunctionIRs());
+		CodeOptimizations.l1Optimize(test); //  Example for calling L1 Opt
+		System.out.println("\nPost-Optimization");
+		IR.printMain(test.getFunctionIRs());
 	}
 
 }
