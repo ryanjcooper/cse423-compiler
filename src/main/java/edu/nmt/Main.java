@@ -147,68 +147,67 @@ public class Main {
 	
     public static void main(String[] args) throws Exception {
     	parseArgs(args);
+    	IR ir = new IR();
     	
-    	// Start scanner
-    	Scanner s = new Scanner(sourceFilename);
-    	s.scan();
-    	if (storeTokens) {
-    		s.offloadToFile();
-    	}
-    	
-    	if (printT) {
-    		s.printTokens();
-    	}
-    	
-    	
-    	// Initialize grammar
-    	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
-    	grammar.loadGrammar();
-    	
-    	// Start parser
-    	Parser p = new Parser(grammar, s);
+    	if (!readIR) {
+    		/* when reading in an IR, scanner, parser, etc not needed */
+        	// Start scanner
+        	Scanner s = new Scanner(sourceFilename);
+        	s.scan();
+        	if (storeTokens) {
+        		s.offloadToFile();
+        	}
+        	
+        	if (printT) {
+        		s.printTokens();
+        	}
+        	
+        	
+        	// Initialize grammar
+        	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
+        	grammar.loadGrammar();
+        	
+        	// Start parser
+        	Parser p = new Parser(grammar, s);
 
-    	if (p.parse()) {
-    		if (printParseTree) {
-        		p.printParseTree();
-        	}
-        	
-        	if (writeParseFile != null) {
-        		//p.writeParseTree(writeParseFile);
-        	}
-        	
-        	// Start AST Parser
-    		ASTParser a = new ASTParser(p);
-    		
-    		if (a.parse()) {
-    	    	if (printAST) {
-    	    		a.printAST();
-    	    	}
-    	    	
-    	    	if (printST) {
-    	    		a.printSymbolTable();
-    	    	}
-    		}
-    		
-    		// Start IR
-    		IR ir = new IR();
-    		
-    		if (readIR) {
-    			ir.initFromFile(irFilenameIn);
-    		} else {
+        	if (p.parse()) {
+        		if (printParseTree) {
+            		p.printParseTree();
+            	}
+            	
+            	if (writeParseFile != null) {
+            		//p.writeParseTree(writeParseFile);
+            	}
+            	
+            	// Start AST Parser
+        		ASTParser a = new ASTParser(p);
+        		
+        		if (a.parse()) {
+        	    	if (printAST) {
+        	    		a.printAST();
+        	    	}
+        	    	
+        	    	if (printST) {
+        	    		a.printSymbolTable();
+        	    	}
+        		}
+        		
     			ir = new IR(a);
-    		}
-    		
-    		if (optimize1) {
-    			CodeOptimizations.l1Optimize(ir);
-    		}
-    		
-    		if (printIR) {
-    			IR.printMain(ir.getFunctionIRs());
-    		}
-    		
-    		if (writeIR) {
-    			ir.outputToFile(irFilenameOut);
-    		}
+        	}
+    	} else {
+			ir.initFromFile(irFilenameIn);
     	}
+    		
+		if (optimize1) {
+			CodeOptimizations.l1Optimize(ir);
+		}
+		
+		if (printIR) {
+			IR.printMain(ir.getFunctionIRs());
+		}
+		
+		if (writeIR) {
+			ir.outputToFile(irFilenameOut);
+		}
     }
 }
