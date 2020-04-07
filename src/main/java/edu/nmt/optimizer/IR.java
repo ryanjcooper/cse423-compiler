@@ -410,6 +410,14 @@ public class IR {
 
 	}
 	
+	public Integer getInstrCount() {
+		return instrCount;
+	}
+
+	public void setInstrCount(Integer instrCount) {
+		this.instrCount = instrCount;
+	}
+
 	public void buildFunctionIRs(Node root) {
 		if (this.functionIRs == null) {
 			this.functionIRs = new HashMap<String, List<Instruction>>();
