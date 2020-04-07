@@ -88,10 +88,13 @@ public class Instruction {
 				}
 
 				this.operation = this.type = "label";
+			} else if (label.contentEquals("param")) {
+				this.instrID = node.getName();
+				this.operation = "funcParam";
 			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
-				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+//				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
 			} else if (label.contains("constant")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
@@ -143,7 +146,7 @@ public class Instruction {
 					this.operand2 = operandList.get(0);
 				}
 			} else if (instrType.contentEquals("call")) {
-				
+				this.instrID = this.op1Name = node.getToken().getTokenString();
 			}
 		}
 		
@@ -285,14 +288,14 @@ public class Instruction {
 				builder.append(operand1.getInstrID() + " ");
 			}
 		} else {
-			builder.append(" = ");
+			builder.append(" =");
 			if (operand1 == null && operand2 == null && operation == null) {
 				builder.append("null");
 			} else if (operation != null && (operation.contentEquals("!") || operation.contentEquals("~"))) {
 				builder.append(operation + operand1.getInstrID());
 			} else {
 				if (operand1 != null)
-					builder.append(operand1.getInstrID());
+					builder.append(" " + operand1.getInstrID());
 				
 				if (operation != null)
 					builder.append(" " + operation);
