@@ -43,14 +43,6 @@ public class IR {
 		this.functionIRs = new HashMap<String, List<Instruction>>();
 	}
 	
-	public Integer getInstrCount() {
-		return instrCount;
-	}
-
-	public void setInstrCount(Integer instrCount) {
-		this.instrCount = instrCount;
-	}
-
 	public IR(ASTParser a) {
 		this(a.getRoot());
 		this.a = a;
@@ -195,7 +187,7 @@ public class IR {
 
 			} else if (label.contentEquals("call")) {
 				returnInstr.addAll(this.buildCall(node));
-				add = returnInstr.get(returnInstr.size() - 1);
+				operandList.add(returnInstr.get(returnInstr.size() - 1));
 			} else {
 				for (Node c : node.getChildren()) {
 					returnInstr.addAll(this.buildInstruction(c));
@@ -246,8 +238,29 @@ public class IR {
 	 * @return
 	 */
 	private List<Instruction> buildCall(Node call) {
+		List<Instruction> returnInstr = new ArrayList<Instruction>();
+		List<Instruction> argListInstr = new ArrayList<Instruction>();
+		List<Instruction> paramList = new ArrayList<Instruction>();
 		Node args = call.getChildren().get(0);
-		return null;
+		Node funcID = call.getChildren().get(1);
+		if (args.getToken().getTokenLabel().contentEquals("argList")) {
+			Collections.reverse(args.getChildren());
+			for (Node c : args.getChildren()) {
+				argListInstr.addAll(this.buildInstruction(c));
+				paramList.add(argListInstr.get(argListInstr.size() - 1));
+			}
+		} else {
+			argListInstr.addAll(this.buildInstruction(args));
+			paramList.add(argListInstr.get(argListInstr.size() - 1));
+		}
+		
+		Instruction callInstr = new CallInstruction(funcID, paramList, this.instrCount);
+		this.instrCount++;
+		
+		returnInstr.addAll(argListInstr);
+		returnInstr.add(callInstr);
+		
+		return returnInstr;
 	}
 	
 	private List<Instruction> buildLoop(Node loopNode) {
@@ -375,7 +388,23 @@ public class IR {
 	
 	private List<Instruction> buildInstructionList(Node node) {
 		List<Instruction> returnInstr = new ArrayList<Instruction>();
-		returnInstr.addAll(this.buildInstruction(node));
+		Node paramList = null;
+		if (node.getToken().getTokenLabel().contentEquals("funcDefinition") && node.getChildren().size() > 1) {
+			paramList = node.getChildren().get(1);
+		}
+		
+		if (paramList != null) {
+			if (paramList.getToken().getTokenLabel().contentEquals("paramList")) {
+				Collections.reverse(paramList.getChildren());
+				for (Node c : paramList.getChildren()) {
+					returnInstr.addAll(this.buildInstruction(c)); 
+				}
+			} else {
+				returnInstr.addAll(this.buildInstruction(paramList));
+			}
+		}
+		
+		returnInstr.addAll(this.buildInstruction(node.getChildren().get(0)));
 		
 		return returnInstr;
 
@@ -387,7 +416,7 @@ public class IR {
 		}
 		for (Node c : root.getChildren()) {
 			if (c.getToken().getTokenLabel().contentEquals("funcDefinition")) {
-				this.functionIRs.put(c.getName(), this.buildInstructionList(c.getChildren().get(0)));
+				this.functionIRs.put(c.getName(), this.buildInstructionList(c));
 				if (this.hasBreakOrGoto) {
 					this.fixJumpDestinations(functionIRs.get(c.getName()));
 					this.hasBreakOrGoto = false;
@@ -437,7 +466,7 @@ public class IR {
 	 * default outputToFile class, uses filename from parser
 	 */
 	public void outputToFile() {
-		this.fileName = this.a.getFilename().split(".c")[0] + ".ir";
+		this.fileName = this.a.getFilename().split(".c")[0];
 		outputToFile(this.fileName);
 	}
 	
@@ -449,8 +478,10 @@ public class IR {
 		try {
 			String file = "";
 			this.fileName = filename;
-			filename = RuntimeSettings.buildDir + "/" + filename;
+			filename = RuntimeSettings.buildDir + "/" + filename + ".ir";
 			FileWriter writer = new FileWriter(filename);
+			
+			System.out.println(filename);
 			
 			for (String key : this.functionIRs.keySet()) {
 				file += "#" + key + "\n";
@@ -476,7 +507,7 @@ public class IR {
 		this.labelMap = new HashMap<String, Instruction>();
 		
 		try {
-			File irFile = new File(RuntimeSettings.buildDir + "/" + fileName);
+			File irFile = new File(RuntimeSettings.buildDir + "/" + fileName + ".ir");
 			irScanner = new java.util.Scanner(irFile);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -540,6 +571,13 @@ public class IR {
 			System.out.println(i.getLineNumber() + ": " + i + " type: " + i.getType());
 		}
 	}
+	
+	public static void printFunc(Map<String, List<Instruction>> functionMap, String funcName) {
+		List<Instruction> instrList = functionMap.get(funcName);
+		for (Instruction i : instrList) {
+			System.out.println(i.getLineNumber() + ": " + i + " type: " + i.getType());
+		}
+	}
 
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner("test/function.c");
@@ -563,14 +601,17 @@ public class IR {
 //		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(a);
 		List<Instruction> mainList = test.getFunctionIRs().get("main");
+		List<Instruction> foo = test.getFunctionIRs().get("foo");
 //		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
+		System.out.println("printing foo");
+		IR.printFunc(test.getFunctionIRs(), "foo");
 		
 		//test.printIR();
 		
-		test.outputToFile();
-		IR tmp = new IR();
-		tmp.initFromFile(test.getFilename());
-		System.out.println(test.equals(tmp));
+//		test.outputToFile();
+//		IR tmp = new IR();
+//		tmp.initFromFile(test.getFilename());
+//		System.out.println(test.equals(tmp));
 	}
 }
