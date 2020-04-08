@@ -277,11 +277,12 @@ public class Instruction {
 		
 		if (operand2 != null)
 			op2 = operand2.getLineNumber().toString();
-		
+	
 		return lineNumber + " " + instrID + " " + operation + " " 
 						  + type + " " + op1 + " " 
-						  + op1Name + " " + op2;
+						  + op1Name + " " + op2 + " null";
 	}
+	
 
 	@Override
 	public String toString() {

@@ -792,9 +792,7 @@ public class ASTParser {
 								Node cur = child;
 								Node next = null;
 													
-								while (cur != null) {
-									System.out.println("xd");
-									
+								while (cur != null) {									
 									tmp2 = new ArrayList<Node>();
 									
 									for (Node child2 : cur.getChildren()) {						

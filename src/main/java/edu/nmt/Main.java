@@ -2,6 +2,7 @@ package edu.nmt;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -206,7 +207,7 @@ public class Main {
 		}
 		
 		if (printIR) {
-			IR.printMain(ir.getFunctionIRs());
+			IR.printIR(ir);
 		}
 		
 		if (writeIR) {
