@@ -170,7 +170,7 @@ public class Main {
         	grammar.loadGrammar();
         	
         	// Start parser
-        	Parser p = new Parser(grammar, s);
+        	Parser p = new Parser(grammar, s);  
 
         	if (p.parse()) {
         		if (printParseTree) {
@@ -185,7 +185,10 @@ public class Main {
         		ASTParser a = new ASTParser(p);
         		
         		if (a.parse()) {
-        			a.printAST(printAST);
+        			if (printAST) {
+        				a.printAST();
+        			}
+        			
         	    	
         	    	if (printST) {
         	    		a.printSymbolTable();
