@@ -4,6 +4,11 @@ import java.util.List;
 
 import edu.nmt.frontend.Node;
 
+/**
+ * @author	mattadik123
+ * @dated	03/02/2020
+ *
+ */
 public class ReturnInstruction extends Instruction {
 
 	public ReturnInstruction(Node node, List<Instruction> operandList, Integer lineNumber) {

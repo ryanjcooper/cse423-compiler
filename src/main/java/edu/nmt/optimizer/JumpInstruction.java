@@ -5,6 +5,11 @@ import java.util.List;
 import edu.nmt.frontend.Node;
 import edu.nmt.frontend.Token;
 
+/**
+ * @author	mattadik123
+ * @dated	03/02/2020
+ *
+ */
 public class JumpInstruction extends Instruction {
 	/**
 	 * operand1 is the boolean expression (can be null for unconditional jumps)
