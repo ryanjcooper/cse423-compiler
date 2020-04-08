@@ -806,6 +806,14 @@ public class ASTParser {
 	}
 	
 	
+
+	public void printAST(Boolean toPrint) {
+		String foo = Node.printTree(this.root, " ", false);
+		if (toPrint) {
+			System.out.println(foo);
+		}
+	}
+	
 	/**
 	 * Print out ast of this parser
 	 */

@@ -183,9 +183,7 @@ public class Main {
         		ASTParser a = new ASTParser(p);
         		
         		if (a.parse()) {
-        	    	if (printAST) {
-        	    		a.printAST();
-        	    	}
+        			a.printAST(printAST);
         	    	
         	    	if (printST) {
         	    		a.printSymbolTable();
