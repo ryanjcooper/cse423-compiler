@@ -156,7 +156,6 @@ public class Instruction {
 		this.lineNumber = ln;
 		this.instrID = id;
 		this.operation = op;
-		System.out.println(typ);
 		this.type = typ;
 		this.operand1 = op1;
 		this.op1Name = name1;
