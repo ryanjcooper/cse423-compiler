@@ -619,9 +619,9 @@ public class IR {
 		
 		//test.printIR();
 		
-//		test.outputToFile();
-//		IR tmp = new IR();
-//		tmp.initFromFile(test.getFilename());
-//		System.out.println(test.equals(tmp));
+		test.outputToFile();
+		IR tmp = new IR();
+		tmp.initFromFile(test.getFilename());
+		System.out.println(test.equals(tmp));
 	}
 }

@@ -1,0 +1,5 @@
+#main
+1 _1 numeric_constant int null 1 null
+2 a null int 1 a null
+3 _3 numeric_constant int null 1 null
+4 null return int 3 null null
