@@ -146,6 +146,7 @@ public class Instruction {
 				}
 			} else if (instrType.contentEquals("call")) {
 				this.instrID = this.op1Name = node.getToken().getTokenString();
+				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
 			}
 		}
 		
