@@ -127,7 +127,9 @@ public class Main {
             	irFilenameOut = cmd.getOptionValue("iro");
             }
 
-            if (arglist.size() == 1) {
+            if (readIR) {
+            	/* ignore source file if reading in IR */
+            } else if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
             } else if (arglist.size() == 0) {
                 formatter.printHelp(helpStatement, options);

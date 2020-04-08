@@ -474,7 +474,7 @@ public class IR {
 	 * default outputToFile class, uses filename from parser
 	 */
 	public void outputToFile() {
-		this.fileName = this.a.getFilename().split(".c")[0];
+		this.fileName = this.a.getFilename().split(".c")[0] + ".ir";
 		outputToFile(this.fileName);
 	}
 	
@@ -486,7 +486,6 @@ public class IR {
 		try {
 			String file = "";
 			this.fileName = filename;
-			filename = RuntimeSettings.buildDir + "/" + filename + ".ir";
 			FileWriter writer = new FileWriter(filename);
 			
 			System.out.println(filename);
@@ -515,7 +514,7 @@ public class IR {
 		this.labelMap = new HashMap<String, Instruction>();
 		
 		try {
-			File irFile = new File(RuntimeSettings.buildDir + "/" + fileName + ".ir");
+			File irFile = new File(fileName);
 			irScanner = new java.util.Scanner(irFile);
 		} catch (Exception e) {
 			e.printStackTrace();
