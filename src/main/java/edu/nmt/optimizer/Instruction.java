@@ -93,7 +93,7 @@ public class Instruction {
 			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
-				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+				this.type = node.getScope().get(node.getName()).getType();
 			} else if (label.contains("constant")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
@@ -146,7 +146,7 @@ public class Instruction {
 				}
 			} else if (instrType.contentEquals("call")) {
 				this.instrID = this.op1Name = node.getToken().getTokenString();
-				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+				this.type = node.getScope().get(node.getName()).getType();
 			}
 		}
 		
