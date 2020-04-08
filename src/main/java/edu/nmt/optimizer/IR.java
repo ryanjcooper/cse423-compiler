@@ -1,6 +1,8 @@
 package edu.nmt.optimizer;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +34,6 @@ public class IR {
 	private Boolean hasBreakOrGoto = false;
 	private Integer instrCount = 1;
 	private String fileName;
-	private List<Instruction> instructionList;
 	public Map<String, Instruction> labelMap;
 	private Map<String, List<Instruction>> functionIRs;
 	private List<String> ignoredLabels = new ArrayList<String>(Arrays.asList(
@@ -42,7 +43,6 @@ public class IR {
 		));
 	
 	public IR() {
-		this.instructionList = new ArrayList<Instruction>();
 		this.functionIRs = new HashMap<String, List<Instruction>>();
 	}
 	
@@ -52,17 +52,8 @@ public class IR {
 	}
 	
 	public IR(Node root) {
-		this.instructionList = new ArrayList<Instruction>();
 		this.functionIRs = new HashMap<String, List<Instruction>>();
 		this.buildFunctionIRs(root);
-	}
-
-	public List<Instruction> getInstructionList() {
-		return instructionList;
-	}
-
-	public void setInstructionList(List<Instruction> instructionList) {
-		this.instructionList = instructionList;
 	}
 
 	public Map<String, List<Instruction>> getFunctionIRs() {
@@ -516,6 +507,8 @@ public class IR {
 		java.util.Scanner irScanner = null;
 		this.labelMap = new HashMap<String, Instruction>();
 		
+		ArrayList<Instruction> instructionList = null;
+		
 		try {
 			File irFile = new File(fileName);
 			irScanner = new java.util.Scanner(irFile);
@@ -525,44 +518,112 @@ public class IR {
 		
 		while (irScanner.hasNextLine()) {
 			String line = irScanner.nextLine();
+			
 			//System.out.println("line " + line);
 			if (line.charAt(0) == '#') {
-				this.instructionList = new ArrayList<Instruction>();
-				this.functionIRs.put(line.substring(1, line.length()), this.instructionList);
+				
+				if (instructionList != null) {
+					for (Instruction inst: instructionList) {
+						if (inst.getOperation().equals("jump")) {
+							String dest = inst.getInstrID();
+							inst.setInstrID("jump");
+							inst.setOperand2(instructionList.get(Integer.parseInt(dest) - 1));							
+						}
+					}
+				}
+				
+				instructionList = new ArrayList<Instruction>();
+				this.functionIRs.put(line.substring(1, line.length()), instructionList);
 			} else {
-				this.instructionList.add(new Instruction());
+				instructionList.add(new Instruction());
 				String[] lineSplit = line.split(" ");
 				
 				int currentIndex = Integer.parseInt(lineSplit[0]) - 1;
-				
-				Instruction op1 = null;
+				Instruction op1 = null;  
 				Instruction op2 = null;
 				
-				if (!lineSplit[4].equals("null")) {
-					int op1Index = Integer.parseInt(lineSplit[4]) - 1;
+				
+				// special case for return
+				if (lineSplit[2].equals("return")) {
+					Instruction tmp = new ReturnInstruction();
+					Instruction tmp2 = instructionList.get(currentIndex);
 					
-					while (op1Index >= this.instructionList.size()) {
-						this.instructionList.add(new Instruction());
+					
+					tmp.setOperation("return");
+					tmp.setOp1Name(lineSplit[5]);
+					tmp.setInstrID("return");
+					tmp.setLineNumber(Integer.parseInt(lineSplit[0]));
+					tmp.setOperand1(instructionList.get((Integer.parseInt(lineSplit[4]) - 1)));					
+					tmp.setType(lineSplit[3]);
+					
+					instructionList.add(currentIndex, tmp);
+					instructionList.remove(tmp2);
+					
+				// special case for jump
+				} else if (lineSplit[2].equals("jump")) {
+					Instruction tmp = new JumpInstruction();
+					Instruction tmp2 = instructionList.get(currentIndex);
+					
+					
+					tmp.setOperation("jump");
+					
+//					tmp.setInstrID("jump");
+					tmp.setInstrID(lineSplit[6]);
+					tmp.setLineNumber(Integer.parseInt(lineSplit[0]));
+					
+					try {
+						tmp.setOperand1(instructionList.get((Integer.parseInt(lineSplit[4]) - 1)));	
+					} catch (java.lang.NumberFormatException e) {
+						tmp.setOperand1(null);
+					}
+					tmp.setOp1Name(lineSplit[5]);
+					
+					
+									
+					tmp.setType(lineSplit[3]);
+					
+					instructionList.add(currentIndex, tmp);
+					instructionList.remove(tmp2);
+						
+				} else {					
+					if (!lineSplit[4].equals("null")) {
+						int op1Index = Integer.parseInt(lineSplit[4]) - 1;
+						
+						while (op1Index >= instructionList.size()) {
+							instructionList.add(new Instruction());
+						}
+						
+						op1 = instructionList.get(op1Index);
 					}
 					
-					op1 = this.instructionList.get(op1Index);
-				}
-				
-				if (!lineSplit[6].equals("null")) {
-					int op2Index = Integer.parseInt(lineSplit[6]) - 1;
-					
-					while (op2Index >= this.instructionList.size()) {
-						this.instructionList.add(new Instruction());
+					if (!lineSplit[6].equals("null")) {
+						int op2Index = Integer.parseInt(lineSplit[6]) - 1;
+						
+						while (op2Index >= instructionList.size()) {
+							instructionList.add(new Instruction());
+						}
+						
+						op2 = instructionList.get(op2Index);
 					}
 					
-					op2 = this.instructionList.get(op2Index);
+					instructionList.get(currentIndex).copy(Instruction.strToInstr(line, op1, op2));
+				}	
+			}
+		}
+		
+		if (instructionList != null) {
+			for (Instruction inst: instructionList) {
+				if (inst.getOperation() != null && inst.getOperation().equals("jump")) {
+					String dest = inst.getInstrID();
+					inst.setInstrID("jump");
+					inst.setOperand2(instructionList.get(Integer.parseInt(dest) - 1));							
 				}
-				
-				this.instructionList.get(currentIndex).copy(Instruction.strToInstr(line, op1, op2));	
 			}
 		}
 		
 		irScanner.close();
+		
+		
 	}
 	
 	public void printIR() {

@@ -16,6 +16,10 @@ public class ReturnInstruction extends Instruction {
 		this.op1Name = this.operand1.getInstrID();
 	}
 
+	public ReturnInstruction() {
+		
+	}
+
 	@Override
 	public String toString() {
 		return "return " + this.op1Name;
