@@ -33,6 +33,29 @@ public class CodeOptimizations {
 		
 		for (Instruction i : instrList) {
 			splitres = i.toString().split("=");
+			if(splitres.length != 2) {
+				
+				eval = new ExpressionEvaluator(splitres[0]);
+				
+				if(eval.GetValue() != null) {
+					try {
+			    		i.setOperation("identifier");
+			    		i.op1Name  = Integer.toString(eval.GetValue().intValue());
+			    		
+			    		if(Integer.parseInt(splitres[0]) != eval.GetValue().intValue()) {
+			    			status = true;
+			    		}
+			    	} catch (NullPointerException e) {
+			    		i.op1Name  = Integer.toString(eval.GetValue().intValue());
+			    		if(Integer.parseInt(splitres[0]) != eval.GetValue().intValue()) {
+			    			status = true;
+			    		}
+					} catch (NumberFormatException e) {
+						status = false;
+					}
+				}
+				continue;
+			}
 			splitres[0] = splitres[0].replaceAll("\\s+", "");
 			splitres[1] = splitres[1].replaceAll("\\s+", "");
 			
@@ -72,6 +95,27 @@ public class CodeOptimizations {
 		for (Instruction i : instrList) {
 			// Add or update values in list
 			splitres = i.toString().split("=");
+			if(splitres.length != 2) {
+				for (String key : varMap.keySet()) {
+				    if (splitres[0].contains(key)) {
+				    	// Modify for 2 possible types
+				    	System.out.println("Big Yeet: " + i.toString());
+				    	try {
+				    		System.out.println("Little yeet" + splitres[0] + " " + i.op1Name);
+				    		splitres[0] = splitres[0].replaceAll(key, varMap.get(key).toString());
+				    		System.out.println("Second yeet" + splitres[0]);
+				    		i.setOperation("identifier");
+				    		i.op1Name  = splitres[0];
+				    		status = true;
+				    	} catch (NullPointerException e) {
+				    		System.out.println("Other yeet");
+							i.setOp1Name(varMap.get(splitres[0]).toString());
+							status = true;
+						}
+				    }
+				}
+				continue;
+			}
 			splitres[0] = splitres[0].replaceAll("\\s+", "");
 			splitres[1] = splitres[1].replaceAll("\\s+", "");
 			
@@ -128,6 +172,9 @@ public class CodeOptimizations {
 		for (Instruction i : instrList) {
 			// Add or update values in list
 			splitres = i.toString().split("=");
+			if(splitres.length != 2) {
+				continue;
+			}
 			splitres[0] = splitres[0].replaceAll("\\s+", "");
 			splitres[1] = splitres[1].replaceAll("\\s+", "");
 			
@@ -177,7 +224,7 @@ public class CodeOptimizations {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/foldproptest.c");
+		Scanner scanner = new Scanner("test/add.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
