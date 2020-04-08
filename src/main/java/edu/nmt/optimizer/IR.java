@@ -19,9 +19,12 @@ import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
 
 /**
- * 
+ * Convert an abstract syntax tree into a linearized intermediate representation.
+ * Iteratively traverse the uppermost statement list (which represent each individual line of code) of a function,
+ * and then recursively convert each of these subtrees into its linearized form with temporary variables
  * @author	mattadik123
- * @todo	implement loops (requires Jump), functions (requires Call), structs, switch statements, and goto
+ * @dated	03/02/2020
+ * @todo	implement switch statements
  *
  */
 public class IR {
@@ -588,7 +591,7 @@ public class IR {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/foldproptest.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
@@ -612,8 +615,8 @@ public class IR {
 		List<Instruction> foo = test.getFunctionIRs().get("foo");
 //		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
-		System.out.println("printing foo");
-		IR.printFunc(test.getFunctionIRs(), "foo");
+//		System.out.println("printing foo");
+//		IR.printFunc(test.getFunctionIRs(), "foo");
 		
 		//test.printIR();
 		

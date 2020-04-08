@@ -7,7 +7,6 @@ import edu.nmt.frontend.*;
 import edu.nmt.frontend.scanner.TokenLabeler;
 
 /**
- * 
  * @author	mattadik123
  * @dated	03/02/2020
  *
@@ -94,7 +93,7 @@ public class Instruction {
 			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
-//				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
 			} else if (label.contains("constant")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
@@ -290,7 +289,7 @@ public class Instruction {
 		} else {
 			builder.append(" =");
 			if (operand1 == null && operand2 == null && operation == null) {
-				builder.append("null");
+				builder.append(" null");
 			} else if (operation != null && (operation.contentEquals("!") || operation.contentEquals("~"))) {
 				builder.append(operation + operand1.getInstrID());
 			} else {
