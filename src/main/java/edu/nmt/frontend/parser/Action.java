@@ -93,6 +93,9 @@ public class Action {
 			// check if this state can directly transition to token
 			debugger.print("Transition from " + this.state + " to " + lookahead + "\n");
 			
+			debugger.print(this.state.getToken().getToken());
+			debugger.print(lookahead);
+			
 			Goto nextState = this.state.makeTransition(lookahead.getTokenLabel());
 	
 			if (nextState == null) {
@@ -174,6 +177,7 @@ public class Action {
 			// prevent the first declarationList from becoming a program
 			this.lockState(this.state);
 			this.state = Goto.get(lookahead.getTokenLabel());
+			this.state.setToken(new Node(new Token(lookahead)));
 			this.stack.push(this.state);
 			
 			return ActionType.SHIFT;
