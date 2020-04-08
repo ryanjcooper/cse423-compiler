@@ -1,0 +1,19 @@
+#main
+1 a null int null null null
+2 b null int null null null
+3 _3 numeric_constant int null 2 null
+4 _4 numeric_constant int null 1 null
+5 _5 + int 4 null 3
+6 _6 numeric_constant int null 0 null
+7 a = int 6 null null
+8 _8 numeric_constant int null 0 null
+9 b = int 8 null null
+10 _10 identifier int null b null
+11 _11 identifier int null a null
+12 _12 + int 11 null 10
+13 _13 numeric_constant int null 1 null
+14 _14 identifier int null a null
+15 _15 + int 14 null 13
+16 a = int 15 null null
+17 _17 numeric_constant int null 0 null
+18 null return int 17 null null

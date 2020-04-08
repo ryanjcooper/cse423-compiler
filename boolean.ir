@@ -1,0 +1,25 @@
+#main
+1 _1 numeric_constant int null 0 null
+2 _2 numeric_constant int null 1 null
+3 _3 == boolean 2 null 1
+4 _4 numeric_constant int null 0 null
+5 _5 numeric_constant int null 1 null
+6 _6 != boolean 5 null 4
+7 _7 numeric_constant int null 0 null
+8 _8 numeric_constant int null 1 null
+9 _9 && boolean 8 null 7
+10 _10 numeric_constant int null 0 null
+11 _11 numeric_constant int null 1 null
+12 _12 || boolean 11 null 10
+13 _13 numeric_constant int null 0 null
+14 _14 numeric_constant int null 1 null
+15 _15 <= boolean 14 null 13
+16 _16 numeric_constant int null 0 null
+17 _17 numeric_constant int null 1 null
+18 _18 >= boolean 17 null 16
+19 _19 numeric_constant int null 0 null
+20 _20 numeric_constant int null 1 null
+21 _21 < boolean 20 null 19
+22 _22 numeric_constant int null 0 null
+23 _23 numeric_constant int null 1 null
+24 _24 > boolean 23 null 22
