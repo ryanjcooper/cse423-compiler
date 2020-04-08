@@ -82,6 +82,7 @@ The following limitations include:
 * pointers can only be in the form \*variable
 * for loops have to be in the "form for (i = 0; i < 1; i++) {  }" not precise, just similar format
 * if statements, while loops, for loops all need braces around their interior
+* switch statements do not allow fall-through
 
 
 ### Optimizer
@@ -120,6 +121,119 @@ int main()
 #main
 1 _1 numeric_constant int null 1 null
 2 null return int 1 null null
+</pre>
+
+<b>(conditions.c)</b>
+<pre>
+int main()
+{
+	int a = 7;
+	if (a < 4) {
+		a += 3;
+	} else if (a == 7) {
+
+	} else if (a > 7) {
+		a *= 10;
+		a - 5;
+	} else {
+		a *= 5;
+	}
+
+	a++;
+	a *= 5;
+	return a;
+}
+</pre>
+<b>(IR) </b>
+<pre>
+# main
+1: _1 = 7 type: int
+2: a = _1 type: int
+3: _3 = 4 type: int
+4: _4 = a type: int
+5: _5 = _4 < _3 type: boolean
+6: jump _12 if _5 is false type: conditionalJump
+7: _7 = 3 type: int
+8: _8 = a type: int
+9: _9 = _8 + _7 type: int
+10: a = _9  type: int
+11: jump _37 type: unconditionalJump
+12: _12 = endOfConditionalBlock type: label
+13: _13 = 7 type: int
+14: _14 = a type: int
+15: _15 = _14 == _13 type: boolean
+16: jump _18 if _15 is false type: conditionalJump
+17: jump _37 type: unconditionalJump
+18: _18 = endOfConditionalBlock type: label
+19: _19 = 7 type: int
+20: _20 = a type: int
+21: _21 = _20 > _19 type: boolean
+22: jump _31 if _21 is false type: conditionalJump
+23: _23 = 10 type: int
+24: _24 = a type: int
+25: _25 = _24 * _23 type: int
+26: a = _25  type: int
+27: _27 = 5 type: int
+28: _28 = a type: int
+29: _29 = _28 - _27 type: int
+30: jump _37 type: unconditionalJump
+31: _31 = endOfConditionalBlock type: label
+32: _32 = 5 type: int
+33: _33 = a type: int
+34: _34 = _33 * _32 type: int
+35: a = _34  type: int
+36: _36 = endOfConditionalBlock type: label
+37: _37 = endOfFullConditionalBlock type: label
+38: _38 = 1 type: int
+39: _39 = a type: int
+40: _40 = _39 + _38 type: int
+41: a = _40  type: int
+42: _42 = 5 type: int
+43: _43 = a type: int
+44: _44 = _43 * _42 type: int
+45: a = _44  type: int
+46: _46 = a type: int
+47: return _46 type: int
+</pre>
+<b>(function.c)</b>
+<pre>
+int foo(int i);
+
+int main()
+{
+        int i = 0 + 7;
+
+        return foo(i + 1);
+}
+
+int foo(int i)
+{
+        i +=1;
+        return i;
+}
+
+</pre>
+<b>(IR) </b>
+<pre>
+# main
+1: _1 = 7 type: int
+2: _2 = 0 type: int
+3: _3 = _2 + _1 type: int
+4: i = _3 type: int
+5: _5 = 1 type: int
+6: _6 = i type: int
+7: _7 = _6 + _5 type: int
+8: push _7, then call function foo type: int
+9: _9 = foo type: int
+10: return _9 type: int
+# foo
+11: i = funcParam type: int
+12: _12 = 1 type: int
+13: _13 = i type: int
+14: _14 = _13 + _12 type: int
+15: i = _14  type: int
+16: _16 = i type: int
+17: return _16 type: int
 </pre>
 
 ### Optimizations
