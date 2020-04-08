@@ -98,18 +98,19 @@ public class CodeOptimizations {
 			if(splitres.length != 2) {
 				for (String key : varMap.keySet()) {
 				    if (splitres[0].contains(key)) {
-				    	// Modify for 2 possible types
-				    	System.out.println("Big Yeet: " + i.toString());
+				    	// Case for key words
 				    	try {
-				    		System.out.println("Little yeet" + splitres[0] + " " + i.op1Name);
 				    		splitres[0] = splitres[0].replaceAll(key, varMap.get(key).toString());
-				    		System.out.println("Second yeet" + splitres[0]);
-				    		i.setOperation("identifier");
+				    		splitres[0] = splitres[0].replaceAll("return", "");
+				    		splitres[0] = splitres[0].replaceAll("\\s+", "");
 				    		i.op1Name  = splitres[0];
 				    		status = true;
 				    	} catch (NullPointerException e) {
 				    		System.out.println("Other yeet");
-							i.setOp1Name(varMap.get(splitres[0]).toString());
+				    		splitres[0] = splitres[0].replaceAll(key, varMap.get(key).toString());
+				    		splitres[0] = splitres[0].replaceAll("return", "");
+				    		splitres[0] = splitres[0].replaceAll("\\s+", "");
+				    		i.op1Name  = splitres[0];
 							status = true;
 						}
 				    }
