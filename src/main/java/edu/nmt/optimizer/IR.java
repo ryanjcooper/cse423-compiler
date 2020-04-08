@@ -488,8 +488,6 @@ public class IR {
 			this.fileName = filename;
 			FileWriter writer = new FileWriter(filename);
 			
-			System.out.println(filename);
-			
 			for (String key : this.functionIRs.keySet()) {
 				file += "#" + key + "\n";
 				
@@ -500,6 +498,8 @@ public class IR {
 			
 			writer.write(file);
 			writer.close();
+			
+			System.out.println("Successfully wrote IR to " + filename);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
