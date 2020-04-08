@@ -63,6 +63,7 @@ public class Parser {
 	 */
 	public void printParseTree() {
 		System.out.println(Node.printTree(this.parseTree, " ", false));
+		Node.recrusiveChildReversal(this.parseTree);
 	}
 	
 	public void testParse(Node node) {

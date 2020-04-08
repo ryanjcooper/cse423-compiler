@@ -86,8 +86,8 @@ public class Main {
         options.addOption(pir);
         
         Option o1 = new Option("o1", "IR optimizations", false, "Add optimizations");
-        stp.setRequired(false);
-        options.addOption(stp);
+        o1.setRequired(false);
+        options.addOption(o1);
         
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -127,7 +127,9 @@ public class Main {
             	irFilenameOut = cmd.getOptionValue("iro");
             }
 
-            if (arglist.size() == 1) {
+            if (readIR) {
+            	/* ignore source file if reading in IR */
+            } else if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
             } else if (arglist.size() == 0) {
                 formatter.printHelp(helpStatement, options);
@@ -168,7 +170,7 @@ public class Main {
         	grammar.loadGrammar();
         	
         	// Start parser
-        	Parser p = new Parser(grammar, s);
+        	Parser p = new Parser(grammar, s);  
 
         	if (p.parse()) {
         		if (printParseTree) {
@@ -183,9 +185,10 @@ public class Main {
         		ASTParser a = new ASTParser(p);
         		
         		if (a.parse()) {
-        	    	if (printAST) {
-        	    		a.printAST();
-        	    	}
+        			if (printAST) {
+        				a.printAST();
+        			}
+        			
         	    	
         	    	if (printST) {
         	    		a.printSymbolTable();

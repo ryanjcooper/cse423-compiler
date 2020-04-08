@@ -802,15 +802,17 @@ public class ASTParser {
 			Collections.reverse(n.getChildren());
 		}
 		
+		Node.recrusiveChildReversal(this.root);
+		
 		return true;
 	}
-	
 	
 	/**
 	 * Print out ast of this parser
 	 */
 	public void printAST() {
 		System.out.println(Node.printTree(this.root, " ", false));
+		Node.recrusiveChildReversal(this.root);
 	} 
 	
 	
