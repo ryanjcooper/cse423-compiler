@@ -13,11 +13,12 @@ public class ReturnInstruction extends Instruction {
 
 	public ReturnInstruction(Node node, List<Instruction> operandList, Integer lineNumber) {
 		super("return", node, operandList, lineNumber);
+		this.op1Name = this.operand1.getInstrID();
 	}
 
 	@Override
 	public String toString() {
-		return "return " + this.operand1.getInstrID();
+		return "return " + this.op1Name;
 	}
 	
 	
