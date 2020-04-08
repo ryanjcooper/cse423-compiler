@@ -1,0 +1,25 @@
+#main
+1 _1 numeric_constant int null 0 null
+2 i null int 1 i null
+3 _3 numeric_constant int null 0xFF null
+4 _4 identifier int null i null
+5 _5 ^ int 4 null 3
+6 i = int 5 null null
+7 _7 numeric_constant int null 32 null
+8 _8 identifier int null i null
+9 _9 >> int 8 null 7
+10 i = int 9 null null
+11 _11 numeric_constant int null 1 null
+12 _12 identifier int null i null
+13 _13 << int 12 null 11
+14 i = int 13 null null
+15 _15 numeric_constant int null 0 null
+16 _16 identifier int null i null
+17 _17 & int 16 null 15
+18 i = int 17 null null
+19 _19 numeric_constant int null 1 null
+20 _20 identifier int null i null
+21 _21 | int 20 null 19
+22 i = int 21 null null
+23 _23 numeric_constant int null 0 null
+24 null return int 23 null null

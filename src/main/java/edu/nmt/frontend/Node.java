@@ -120,7 +120,7 @@ public class Node {
 		sb.append(node.toString() + "\n");
 
 		List<Node> children = node.getChildren();
-		Collections.reverse(children);
+		Collections.reverse(children);    
 
 		for (int i = 0; i < children.size(); i++) {
 			sb.append(printTree(children.get(i), indent, i == children.size() - 1));
@@ -128,6 +128,20 @@ public class Node {
 
 		return sb.toString();
 	}
+	
+	public static void recrusiveChildReversal(Node node) {
+		List<Node> children = node.getChildren();
+		Collections.reverse(children);    
+
+		for (int i = 0; i < children.size(); i++) {
+			recrusiveChildReversal(children.get(i));
+		}  
+
+		return;
+	}
+
+	
+	
 
 	public static void writeFile(String fileName, Node node) throws IOException {
 		String out = printTree(node, " ", false);

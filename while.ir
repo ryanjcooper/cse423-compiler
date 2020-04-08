@@ -1,0 +1,15 @@
+#main
+1 _1 numeric_constant int null 0 null
+2 i null int 1 i null
+3 null jump unconditionalJump null null 9
+4 _4 label label null startOfLoopBody null
+5 _5 numeric_constant int null 1 null
+6 _6 identifier int null i null
+7 _7 + int 6 null 5
+8 i = int 7 null null
+9 _9 label label null endOfLoopBody null
+10 _10 numeric_constant int null 25 null
+11 _11 identifier int null i null
+12 _12 < boolean 11 null 10
+13 null jump conditionalJump 12 true 4
+14 _14 label label null endOfFullLoopBlock null

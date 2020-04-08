@@ -7,7 +7,6 @@ import edu.nmt.frontend.*;
 import edu.nmt.frontend.scanner.TokenLabeler;
 
 /**
- * 
  * @author	mattadik123
  * @dated	03/02/2020
  *
@@ -88,6 +87,9 @@ public class Instruction {
 				}
 
 				this.operation = this.type = "label";
+			} else if (label.contentEquals("param")) {
+				this.instrID = node.getName();
+				this.operation = "funcParam";
 			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
@@ -143,7 +145,7 @@ public class Instruction {
 					this.operand2 = operandList.get(0);
 				}
 			} else if (instrType.contentEquals("call")) {
-				
+				this.instrID = this.op1Name = node.getToken().getTokenString();
 			}
 		}
 		
@@ -154,6 +156,7 @@ public class Instruction {
 		this.lineNumber = ln;
 		this.instrID = id;
 		this.operation = op;
+		System.out.println(typ);
 		this.type = typ;
 		this.operand1 = op1;
 		this.op1Name = name1;
@@ -210,6 +213,13 @@ public class Instruction {
 			return false;
 		}
 		
+		if (!(this.type == i2.type || this.type.equals(i2.type))) {
+			System.out.println("Types do not match");
+			System.out.println(this.type);
+			System.out.println(i2.type);
+			return false;
+		}		
+		
 		if (!(this.op1Name == i2.op1Name || this.op1Name.equals(i2.op1Name))) {
 			System.out.println("Op1 name do not match");
 			return false;
@@ -231,6 +241,7 @@ public class Instruction {
 	public void copy(Instruction i2) {
 		this.instrID = i2.instrID;
 		this.lineNumber = i2.lineNumber;
+		this.type = i2.type;
 		this.operand1 = i2.operand1;
 		this.operand2 = i2.operand2;
 		this.operation = i2.operation;
@@ -285,14 +296,14 @@ public class Instruction {
 				builder.append(operand1.getInstrID() + " ");
 			}
 		} else {
-			builder.append(" = ");
+			builder.append(" =");
 			if (operand1 == null && operand2 == null && operation == null) {
-				builder.append("null");
+				builder.append(" null");
 			} else if (operation != null && (operation.contentEquals("!") || operation.contentEquals("~"))) {
 				builder.append(operation + operand1.getInstrID());
 			} else {
 				if (operand1 != null)
-					builder.append(operand1.getInstrID());
+					builder.append(" " + operand1.getInstrID());
 				
 				if (operation != null)
 					builder.append(" " + operation);

@@ -23,6 +23,8 @@ import edu.nmt.RuntimeSettings;
 public class Main {
 	
 	private static String sourceFilename;
+	private static String irFilenameIn;
+	private static String irFilenameOut;
 	private static Boolean storeTokens;
 	private static Boolean printParseTree;
 	private static String writeParseFile;
@@ -31,6 +33,7 @@ public class Main {
 	private static Boolean printT;
 	private static Boolean writeIR;
 	private static Boolean printIR;
+	private static Boolean readIR;
 	private static Boolean optimize1;
 	
 	private static void parseArgs(String[] args) {
@@ -70,16 +73,21 @@ public class Main {
         stp.setRequired(false);
         options.addOption(stp);
         
-        Option wir = new Option("iro", "write-ir", false, "write ir to file");
+        Option wir = new Option("iro", "write-ir", true, "write ir to file");
         wir.setRequired(false);
         options.addOption(wir);
+        
+        Option rir = new Option("irn", "read-ir", true, "read in ir from file, must have .ir extension in build folder");
+        rir.setRequired(false);
+        options.addOption(rir);
         
         Option pir = new Option("pir", "print-ir", false, "print ir");
         pir.setRequired(false);
         options.addOption(pir);
+        
         Option o1 = new Option("o1", "IR optimizations", false, "Add optimizations");
-        stp.setRequired(false);
-        options.addOption(stp);
+        o1.setRequired(false);
+        options.addOption(o1);
         
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -102,6 +110,7 @@ public class Main {
             printT = cmd.hasOption("pt");
             writeIR = cmd.hasOption("iro");
             printIR = cmd.hasOption("pir");
+            readIR = cmd.hasOption("irn");
             optimize1 = cmd.hasOption("o1");
             
             if (cmd.hasOption("wp")) {
@@ -109,8 +118,18 @@ public class Main {
             } else {
             	writeParseFile = null;
             }
+            
+            if (readIR) {
+            	irFilenameIn = cmd.getOptionValue("irn");
+            }
+            
+            if (writeIR) {
+            	irFilenameOut = cmd.getOptionValue("iro");
+            }
 
-            if (arglist.size() == 1) {
+            if (readIR) {
+            	/* ignore source file if reading in IR */
+            } else if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
             } else if (arglist.size() == 0) {
                 formatter.printHelp(helpStatement, options);
@@ -130,62 +149,68 @@ public class Main {
 	
     public static void main(String[] args) throws Exception {
     	parseArgs(args);
+    	IR ir = new IR();
     	
-    	// Start scanner
-    	Scanner s = new Scanner(sourceFilename);
-    	s.scan();
-    	if (storeTokens) {
-    		s.offloadToFile();
-    	}
-    	
-    	if (printT) {
-    		s.printTokens();
-    	}
-    	
-    	
-    	// Initialize grammar
-    	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
-    	grammar.loadGrammar();
-    	
-    	// Start parser
-    	Parser p = new Parser(grammar, s);
+    	if (!readIR) {
+    		/* when reading in an IR, scanner, parser, etc not needed */
+        	// Start scanner
+        	Scanner s = new Scanner(sourceFilename);
+        	s.scan();
+        	if (storeTokens) {
+        		s.offloadToFile();
+        	}
+        	
+        	if (printT) {
+        		s.printTokens();
+        	}
+        	
+        	
+        	// Initialize grammar
+        	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
+        	grammar.loadGrammar();
+        	
+        	// Start parser
+        	Parser p = new Parser(grammar, s);  
 
-    	if (p.parse()) {
-    		if (printParseTree) {
-        		p.printParseTree();
+        	if (p.parse()) {
+        		if (printParseTree) {
+            		p.printParseTree();
+            	}
+            	
+            	if (writeParseFile != null) {
+            		//p.writeParseTree(writeParseFile);
+            	}
+            	
+            	// Start AST Parser
+        		ASTParser a = new ASTParser(p);
+        		
+        		if (a.parse()) {
+        			if (printAST) {
+        				a.printAST();
+        			}
+        			
+        	    	
+        	    	if (printST) {
+        	    		a.printSymbolTable();
+        	    	}
+        		}
+        		
+    			ir = new IR(a);
         	}
-        	
-        	if (writeParseFile != null) {
-        		//p.writeParseTree(writeParseFile);
-        	}
-        	
-        	// Start AST Parser
-    		ASTParser a = new ASTParser(p);
-    		
-    		if (a.parse()) {
-    	    	if (printAST) {
-    	    		a.printAST();
-    	    	}
-    	    	
-    	    	if (printST) {
-    	    		a.printSymbolTable();
-    	    	}
-    		}
-    		
-    		// Start IR
-    		IR ir = new IR(a);
-    		
-    		if (optimize1) {
-    			CodeOptimizations.l1Optimize(ir);
-    		}
-    		
-    		if (printIR) {
-    			IR.printMain(ir.getFunctionIRs());
-    		}
-    		
-    		if (writeIR) {
-    			ir.outputToFile();
-    		}
+    	} else {
+			ir.initFromFile(irFilenameIn);
     	}
+    		
+		if (optimize1) {
+			CodeOptimizations.l1Optimize(ir);
+		}
+		
+		if (printIR) {
+			IR.printMain(ir.getFunctionIRs());
+		}
+		
+		if (writeIR) {
+			ir.outputToFile(irFilenameOut);
+		}
     }
 }
