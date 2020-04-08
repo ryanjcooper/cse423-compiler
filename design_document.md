@@ -89,7 +89,7 @@ The following limitations include:
 ### Intermediate Representation (IR)
 Our IR is represented as a Map of a List of Instructions, in which keys are function names.
 \
-Static Single Assignment (SSA) is used.
+3 Address Static Single Assignment (SSA) is used.
 
 Each Instruction contains the following information:
 \
@@ -99,33 +99,42 @@ Each Instruction contains the following information:
 (4) Type \
 (5) Operand 1 \
 (6) Operand 1 Name \
-(7) Operand 2 
+(7) Operand 2
 
 All 7 parameters are needed, making the I/O IR different from the human readable version.
 <br/><br/>
 <b>(base.c)</b>
 <pre>
-int main() 
-{ 
+int main()
+{
   return 1;
-} 
+}
 </pre>
 <b>(IR) </b>
 <pre>
-1: _1 = 1 type: int 
-2: return _1 type: int 
+1: _1 = 1 type: int
+2: return _1 type: int
 </pre>
-<b>(IR to file)</b> 
+<b>(IR to file)</b>
 <pre>
-#main 
-1 _1 numeric_constant int null 1 null 
-2 null return int 1 null null 
+#main
+1 _1 numeric_constant int null 1 null
+2 null return int 1 null null
 </pre>
 
 ### Optimizations
+The level one optimizations use three different functions to apply constant propagation
+and constant folding. The constant folding parses the lines as text using an infix
+calculator and determines the new value if possible, otherwise the value is unchanged.
+The constant propagation function will determine if a variable has a clear state,
+and saves the value to a hashmap. When a new state is discovered, the entry will
+be adjusted or removed. If a known variable is found, the hashmap will overwrite
+the existing value with the constant. After no more changes can be made, the clean
+functions deletes the unused lines from the IR. These have not yet been fully tested
+using loops and may not functions as expected.
 
 #### Optimization
 | Item        | Status           |
 | ------------- |-------------|
-| Constant Propagation     | :x: |
-| Constant Folding | :x: |
+| Constant Propagation     | :warning: |
+| Constant Folding | :warning: |
