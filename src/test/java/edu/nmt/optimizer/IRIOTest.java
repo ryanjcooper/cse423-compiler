@@ -15,7 +15,7 @@ import edu.nmt.optimizer.IR;
 
 public class IRIOTest {
 	
-	/*@Test
+	@Test
 	public void testConditions() throws IOException {
 		Scanner scanner = new Scanner("test/conditions.c");
 		scanner.scan();
@@ -36,8 +36,8 @@ public class IRIOTest {
 		testCopy.initFromFile(test.getFilename());
 		
 		assertTrue(test.equals(testCopy));
-	}	*/
-	
+	}	
+
 	@Test
 	public void testFor() throws IOException {
 		Scanner scanner = new Scanner("test/for.c");
