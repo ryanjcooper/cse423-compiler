@@ -86,8 +86,8 @@ public class Main {
         options.addOption(pir);
         
         Option o1 = new Option("o1", "IR optimizations", false, "Add optimizations");
-        stp.setRequired(false);
-        options.addOption(stp);
+        o1.setRequired(false);
+        options.addOption(o1);
         
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
