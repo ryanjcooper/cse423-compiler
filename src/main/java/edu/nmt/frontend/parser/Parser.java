@@ -96,6 +96,7 @@ public class Parser {
 				return false;
 			case SHIFT:		
 				try {
+					debugger.print(token);
 					token = tokenIt.next();
 				} catch (NoSuchElementException nse) {
 					token = null;
@@ -143,6 +144,10 @@ public class Parser {
 		//p.testParse(p.parseTree);
 		//System.out.println("Output of parse(): " + p.parse() + "\n");
 		p.printParseTree();
+		
+		ASTParser a = new ASTParser(p);
+		a.parse();
+		a.printAST();
 	}
 
 	public Node getParseTree() {

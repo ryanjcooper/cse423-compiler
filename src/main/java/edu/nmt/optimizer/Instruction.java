@@ -93,7 +93,7 @@ public class Instruction {
 			} else if (label.contentEquals("identifier")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
-				this.type = node.getScopeNode().getSymbolTable().get(node.getName()).getType();
+				this.type = node.getScope().get(node.getName()).getType();
 			} else if (label.contains("constant")) {
 				this.operation = label;
 				this.op1Name = node.getToken().getTokenString();
@@ -146,6 +146,7 @@ public class Instruction {
 				}
 			} else if (instrType.contentEquals("call")) {
 				this.instrID = this.op1Name = node.getToken().getTokenString();
+				this.type = node.getScope().get(node.getName()).getType();
 			}
 		}
 		
@@ -156,7 +157,6 @@ public class Instruction {
 		this.lineNumber = ln;
 		this.instrID = id;
 		this.operation = op;
-		System.out.println(typ);
 		this.type = typ;
 		this.operand1 = op1;
 		this.op1Name = name1;
@@ -277,11 +277,12 @@ public class Instruction {
 		
 		if (operand2 != null)
 			op2 = operand2.getLineNumber().toString();
-		
+	
 		return lineNumber + " " + instrID + " " + operation + " " 
 						  + type + " " + op1 + " " 
-						  + op1Name + " " + op2;
+						  + op1Name + " " + op2 + " null";
 	}
+	
 
 	@Override
 	public String toString() {

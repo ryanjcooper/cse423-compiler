@@ -59,6 +59,20 @@ public class Node {
 		}
 		return current;
 	}
+	
+	public Map<String, Node> getScope() {
+		Map<String, Node> scope_table = new HashMap<String, Node>();
+		Node current = this.parent;
+		while(current != null) {
+			if (current.isScopeNode()) {
+				scope_table.putAll(current.getSymbolTable());
+			}
+			current = current.parent;
+		}
+		return scope_table;
+	}
+	
+	
 
 	public Token getToken() {
 		return this.token;

@@ -1,7 +1,0 @@
-#main
-1 _1 char_constant char null 'a' null
-2 a null char 1 a null
-3 _3 numeric_constant int null 1 null
-4 b null unsigned 3 b null
-5 _5 numeric_constant int null 0 null
-6 null return int 5 null null

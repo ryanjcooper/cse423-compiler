@@ -59,7 +59,8 @@ public class ASTParser {
 	// Token labels that should not be rolled up, even if only one child
 	private List<String> ignoreRollup = new ArrayList<String>(Arrays.asList(
 				"condition",
-				"body"
+				"body",
+				"argList"
 			));
 	
 	/**
@@ -124,6 +125,7 @@ public class ASTParser {
 				}
 				tmp.removeAll(tmp2);
 				current.setChildren(tmp);
+//				System.out.println(current.getChildren());
 //				current.setType("function"); // removed per discussion with Terence.
 				
 				// add function to current node's parent scope (supports nested functions!)
@@ -147,7 +149,6 @@ public class ASTParser {
 									Node idNode = null;
 									Node typeNode = null;
 									Node nestedNode = null;
-									System.out.println("here");
 									for (Node child3 : currentNode.getChildren()) { // param objects
 										tmp = child3.getChildren();
 										tmp2 = new ArrayList<Node>();
@@ -158,6 +159,7 @@ public class ASTParser {
 													tmp2.add(paramFeatures);
 												} else if (paramFeatures.getToken().getTokenLabel().equals("identifier")) {
 													child3.setName(paramFeatures.getToken().getTokenString());
+
 													tmp2.add(paramFeatures);
 													nestedNode = child3;
 												}
@@ -173,9 +175,17 @@ public class ASTParser {
 										tmp.removeAll(tmp2);
 										child3.setChildren(tmp);
 										
+										// multi arg case
 										if (nestedNode != null && nestedNode.getParent() != child2) {
 											tmp = child2.getChildren();
 											int idx = tmp.indexOf(idNode);
+											
+											try {
+												current.addSymbol(nestedNode.getName(), nestedNode);
+											} catch (Exception e) {
+												e.printStackTrace();
+												return false;
+											}
 											
 											if (idx != -1) {
 												tmp.add(idx, nestedNode);
@@ -184,14 +194,32 @@ public class ASTParser {
 											} else {
 												tmp.add(nestedNode);
 											}
+											
+										// single arg case, 
+										} else if (child3.getName() != null) {
+
+											try {
+												current.addSymbol(child3.getName(), child3);
+											} catch (Exception e) {
+												e.printStackTrace();
+												return false;
+											}
 										}
 										
 									}
 									
 									if (idNode != null && typeNode != null) {
+										
 										Node param = new Node(new Token("param", "param"));
 										param.setType(typeNode.getToken().getTokenString());
 										param.setName(idNode.getToken().getTokenString());
+																			
+										try {
+											current.addSymbol(param.getName(), param);
+										} catch (Exception e) {
+											e.printStackTrace();
+											return false;
+										}
 										
 										param.setParent(child2);
 										
@@ -296,6 +324,13 @@ public class ASTParser {
 										Node param = new Node(new Token("param", "param"));
 										param.setType(typeNode.getToken().getTokenString());
 										param.setName(idNode.getToken().getTokenString());
+//										
+//										try {
+//											current.addSymbol(idNode.getToken().getTokenString(), idNode);
+//										} catch (Exception e) {
+//											e.printStackTrace();
+//											return false;
+//										}
 										
 										param.setParent(child2);
 										
@@ -743,6 +778,55 @@ public class ASTParser {
 						current.setChildren(tmp2);
 					}
 				}
+				
+			} else if (current.getToken().getTokenLabel().equals("call")) {
+
+				tmp = current.getChildren();
+				tmp2 = new ArrayList<Node>();
+
+				for (Node child1 : tmp) {
+					if (child1.getToken().getTokenLabel().equals("args")) {
+						for (Node child : child1.getChildren()) {
+
+							if (child.getToken().getTokenLabel().equals("argList")) {
+								Node cur = child;
+								Node next = null;
+													
+								while (cur != null) {									
+									tmp2 = new ArrayList<Node>();
+									
+									for (Node child2 : cur.getChildren()) {						
+										if (child2.getToken().getTokenLabel().equals("argList")) {
+											
+											tmp2.addAll(child2.getChildren());
+											
+											next = child2;
+											
+										} 
+									}
+									
+									if (next != null) {
+
+										tmp = child.getChildren();
+										tmp.addAll(tmp2);
+										tmp.remove(next);
+										child.setChildren(tmp);
+									
+										for (Node child3 : tmp2) {
+											child3.setParent(child);
+										}
+									}
+									
+									cur = next;
+									next = null;
+								}						
+							}		
+							
+						}
+					
+					}
+				}
+				
 
 			} else if (current.getToken().getTokenLabel().equals("switchStmt")) {
 				
@@ -895,6 +979,9 @@ public class ASTParser {
 	public static void main(String argv[]) throws Exception {
 		Scanner scanner = new Scanner("test/function.c");
 		scanner.scan();
+		
+//		scanner.printTokens();
+		
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);

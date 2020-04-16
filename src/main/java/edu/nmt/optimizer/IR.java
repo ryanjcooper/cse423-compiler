@@ -1,6 +1,8 @@
 package edu.nmt.optimizer;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ public class IR {
 	private Boolean hasBreakOrGoto = false;
 	private Integer instrCount = 1;
 	private String fileName;
-	private List<Instruction> instructionList;
+	private ArrayList<String> functionOrder;
 	public Map<String, Instruction> labelMap;
 	private Map<String, List<Instruction>> functionIRs;
 	private List<String> ignoredLabels = new ArrayList<String>(Arrays.asList(
@@ -42,7 +44,6 @@ public class IR {
 		));
 	
 	public IR() {
-		this.instructionList = new ArrayList<Instruction>();
 		this.functionIRs = new HashMap<String, List<Instruction>>();
 	}
 	
@@ -52,17 +53,8 @@ public class IR {
 	}
 	
 	public IR(Node root) {
-		this.instructionList = new ArrayList<Instruction>();
 		this.functionIRs = new HashMap<String, List<Instruction>>();
 		this.buildFunctionIRs(root);
-	}
-
-	public List<Instruction> getInstructionList() {
-		return instructionList;
-	}
-
-	public void setInstructionList(List<Instruction> instructionList) {
-		this.instructionList = instructionList;
 	}
 
 	public Map<String, List<Instruction>> getFunctionIRs() {
@@ -422,11 +414,15 @@ public class IR {
 	}
 
 	public void buildFunctionIRs(Node root) {
+		
+		this.functionOrder = new ArrayList<String>();
+		
 		if (this.functionIRs == null) {
 			this.functionIRs = new HashMap<String, List<Instruction>>();
 		}
 		for (Node c : root.getChildren()) {
 			if (c.getToken().getTokenLabel().contentEquals("funcDefinition")) {
+				functionOrder.add(c.getName());
 				this.functionIRs.put(c.getName(), this.buildInstructionList(c));
 				if (this.hasBreakOrGoto) {
 					this.fixJumpDestinations(functionIRs.get(c.getName()));
@@ -434,6 +430,8 @@ public class IR {
 				}
 			}
 		}
+		
+//		Collections.reverse(functionOrder);
 	}
 	
 	private void fixJumpDestinations(List<Instruction> functionIR) {
@@ -491,7 +489,7 @@ public class IR {
 			this.fileName = filename;
 			FileWriter writer = new FileWriter(filename);
 			
-			for (String key : this.functionIRs.keySet()) {
+			for (String key : this.functionOrder) {
 				file += "#" + key + "\n";
 				
 				for (Instruction instr : this.functionIRs.get(key)) {
@@ -515,6 +513,10 @@ public class IR {
 	public void initFromFile(String fileName) {
 		java.util.Scanner irScanner = null;
 		this.labelMap = new HashMap<String, Instruction>();
+		this.functionOrder = new ArrayList<String>();
+		Map <String, Integer> functionIndex = new HashMap<String, Integer>();
+		
+		ArrayList<Instruction> instructionList = new ArrayList<Instruction>();
 		
 		try {
 			File irFile = new File(fileName);
@@ -525,56 +527,177 @@ public class IR {
 		
 		while (irScanner.hasNextLine()) {
 			String line = irScanner.nextLine();
-			//System.out.println("line " + line);
+
 			if (line.charAt(0) == '#') {
-				this.instructionList = new ArrayList<Instruction>();
-				this.functionIRs.put(line.substring(1, line.length()), this.instructionList);
+				functionOrder.add(line.substring(1, line.length()));
+				functionIndex.put(line.substring(1, line.length()), instructionList.size());
+
 			} else {
-				this.instructionList.add(new Instruction());
+				instructionList.add(new Instruction());
 				String[] lineSplit = line.split(" ");
 				
 				int currentIndex = Integer.parseInt(lineSplit[0]) - 1;
-				
-				Instruction op1 = null;
+				Instruction op1 = null;  
 				Instruction op2 = null;
 				
-				if (!lineSplit[4].equals("null")) {
-					int op1Index = Integer.parseInt(lineSplit[4]) - 1;
+				
+				// special case for return
+				if (lineSplit[2].equals("return")) {
+					ReturnInstruction tmp = new ReturnInstruction();
+					Instruction tmp2 = instructionList.get(currentIndex);
 					
-					while (op1Index >= this.instructionList.size()) {
-						this.instructionList.add(new Instruction());
+					
+					tmp.setOperation("return");
+					tmp.setOp1Name(lineSplit[5]);
+					tmp.setInstrID("return");
+					tmp.setLineNumber(Integer.parseInt(lineSplit[0]));
+					tmp.setOperand1(instructionList.get((Integer.parseInt(lineSplit[4]) - 1)));					
+					tmp.setType(lineSplit[3]);
+					
+					instructionList.add(currentIndex, tmp);
+					instructionList.remove(tmp2);
+					
+					
+				// special case for call
+				} if (lineSplit[2].equals("call")) {
+					
+					ArrayList<String> params = new ArrayList<String>();
+					ArrayList<Instruction> paramList = new ArrayList<Instruction>();
+					
+					for (int i = 7; i < lineSplit.length; i++) {
+						params.add(lineSplit[i]);
 					}
 					
-					op1 = this.instructionList.get(op1Index);
-				}
-				
-				if (!lineSplit[6].equals("null")) {
-					int op2Index = Integer.parseInt(lineSplit[6]) - 1;
+					CallInstruction tmp = new CallInstruction();
+					Instruction tmp2 = instructionList.get(currentIndex);
+	
+					tmp.setOperation("call");
 					
-					while (op2Index >= this.instructionList.size()) {
-						this.instructionList.add(new Instruction());
+					tmp.setInstrID(lineSplit[1]);
+					tmp.setOp1Name(lineSplit[5]);
+					tmp.setLineNumber(Integer.parseInt(lineSplit[0]));
+					
+//					tmp.setOperand1(instructionList.get((Integer.parseInt(lineSplit[4]) - 1)));					
+					tmp.setType(lineSplit[3]);
+					
+					for (String param : params) {
+						for (Instruction i : instructionList) {
+							if (i.getInstrID().equals(param)) {
+								paramList.add(i);
+								break;
+							}
+						}
 					}
 					
-					op2 = this.instructionList.get(op2Index);
-				}
+					tmp.setParamList(paramList);
+					
+//					
+					instructionList.add(currentIndex, tmp);
+					instructionList.remove(tmp2);
+//					
+				// special case for jump
+				} else if (lineSplit[2].equals("jump")) {
+					JumpInstruction tmp = new JumpInstruction();
+					Instruction tmp2 = instructionList.get(currentIndex);
+					
+					
+					tmp.setOperation("jump");
+					
+//					tmp.setInstrID("jump");
+					tmp.setInstrID(lineSplit[6]);
+					tmp.setLineNumber(Integer.parseInt(lineSplit[0]));
+					
+					try {
+						tmp.setOperand1(instructionList.get((Integer.parseInt(lineSplit[4]) - 1)));	
+					} catch (java.lang.NumberFormatException e) {
+						tmp.setOperand1(null);
+					}
+					tmp.setOp1Name(lineSplit[5]);
+					
+					
+									
+					tmp.setType(lineSplit[3]);
+					
+					instructionList.add(currentIndex, tmp);
+					instructionList.remove(tmp2);
+						
+				} else {					
+					if (!lineSplit[4].equals("null")) {
+						int op1Index = Integer.parseInt(lineSplit[4]) - 1;
+						
+						while (op1Index >= instructionList.size()) {
+							instructionList.add(new Instruction());
+						}
+						
+						op1 = instructionList.get(op1Index);
+					}
+					
+					if (!lineSplit[6].equals("null")) {
+						int op2Index = Integer.parseInt(lineSplit[6]) - 1;
+						
+						while (op2Index >= instructionList.size()) {
+							instructionList.add(new Instruction());
+						}
+						
+						op2 = instructionList.get(op2Index);
+					}
+					
+					
+					instructionList.get(currentIndex).copy(Instruction.strToInstr(line, op1, op2));
+				}	
 				
-				this.instructionList.get(currentIndex).copy(Instruction.strToInstr(line, op1, op2));	
+			}
+		}
+		
+		if (instructionList != null) {
+			for (Instruction inst: instructionList) {
+				if (inst.getOperation() != null && inst.getOperation().equals("jump")) {
+					String dest = inst.getInstrID();
+					inst.setInstrID("jump");
+					inst.setOperand2(instructionList.get(Integer.parseInt(dest) - 1));							
+				}
 			}
 		}
 		
 		irScanner.close();
+		
+		
+		// invert lookup
+		Map<Integer, String> functionIndexInv = new HashMap<Integer, String>();
+		for(Map.Entry<String, Integer> entry : functionIndex.entrySet()){
+			functionIndexInv.put(entry.getValue(), entry.getKey());
+		}
+		
+		// fix functions
+		
+		ArrayList<Integer> functionBounds = new ArrayList<Integer>();
+		
+		for (String funcName : functionIndex.keySet()) {
+			functionBounds.add(functionIndex.get(funcName));
+		}
+		
+		functionBounds.add(instructionList.size());
+		Collections.sort(functionBounds);
+		
+		for (int i = 0; i < functionBounds.size() - 1; i++) {
+			int curLine = functionBounds.get(i);
+			int nextLine = functionBounds.get(i + 1);
+			this.functionIRs.put(functionIndexInv.get(curLine), instructionList.subList(curLine, nextLine));
+		}
+		
 	}
 	
-	public void printIR() {
-		for (String key : this.functionIRs.keySet()) {
-			System.out.println(key);
-			
-			for (Instruction instr : this.functionIRs.get(key)) {
-				System.out.println(instr);
-			}
+	public static void printIR(IR ir) {
+		for (String funcName : ir.getFunctionOrder()) {
+			System.out.println("# " + funcName);
+			IR.printFunc(ir.getFunctionIRs(), funcName);
 		}
 	}
 	
+	private ArrayList<String> getFunctionOrder() {
+		return this.functionOrder;
+	}
+
 	public static void printMain(Map<String, List<Instruction>> functionMap) {
 		List<Instruction> instrList = functionMap.get("main");
 		for (Instruction i : instrList) {
@@ -589,6 +712,8 @@ public class IR {
 		}
 	}
 
+	
+	
 	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner("test/foldproptest.c");
 
