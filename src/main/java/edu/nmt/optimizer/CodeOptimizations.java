@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
@@ -86,15 +87,62 @@ public class CodeOptimizations {
 		return status;
 	}
 	
+	/**
+	 * Applies constant propagation to the IR
+	 * @return true if something was changed
+	 */
 	public Boolean constProp() {
 		String splitres[];
 		List<Instruction> instrList = target.getFunctionIRs().get("main");
 		Map<String, Integer> varMap = new HashMap<String, Integer>();
+		Map<String, Integer> copy = null;
+		List<String> removalKeys = new ArrayList<String>();
+		Stack<Map<String, Integer>> scoping = new Stack<Map<String, Integer>>();
+		String json = null;
 		Boolean status = false;
 		
 		for (Instruction i : instrList) {
+			System.out.println("List is currently: " + varMap);
 			// Add or update values in list
 			splitres = i.toString().split("=");
+			if(splitres[0].contains("jump")) {
+				status = false;
+				scoping.push(varMap);
+				// Create Deep Clone
+				copy = new HashMap<String, Integer>();
+				for(Map.Entry<String, Integer> entry : varMap.entrySet()) {
+					copy.put(entry.getKey(), entry.getValue());
+				}
+				varMap = copy;
+				System.out.println("Stacked");
+				continue;
+			} else if(splitres.length > 1 && splitres[1].contains("end")) {
+				// Return scoped list
+				System.out.println("Unstacked");
+				copy = varMap;
+				varMap = scoping.pop();
+				// Mark changed values
+//				System.out.println("************** Entry checking *********************88");
+				removalKeys = new ArrayList<String>();
+//				System.out.println("List is: " + copy);
+				for(Map.Entry<String, Integer> entry : copy.entrySet()) {
+					try {
+						if (entry.getValue().equals(varMap.get(entry.getKey())) == false) {
+							removalKeys.add(entry.getKey());
+//							System.out.println("************** Entry marked *********************88");
+						}
+					} catch(NullPointerException e) {
+						removalKeys.add(entry.getKey());
+					}
+					
+				}
+				// Remove values
+				for (int j = 0; j < removalKeys.size(); j++) {
+					varMap.replace(removalKeys.get(j), null);
+				}
+//				System.out.println("List is: " + varMap);
+			}
+			
 			if(splitres.length != 2) {
 				for (String key : varMap.keySet()) {
 				    if (splitres[0].contains(key)) {
@@ -106,7 +154,7 @@ public class CodeOptimizations {
 				    		i.op1Name  = splitres[0];
 				    		status = true;
 				    	} catch (NullPointerException e) {
-				    		System.out.println("Other yeet");
+//				    		System.out.println(i.toString());
 				    		splitres[0] = splitres[0].replaceAll(key, varMap.get(key).toString());
 				    		splitres[0] = splitres[0].replaceAll("return", "");
 				    		splitres[0] = splitres[0].replaceAll("\\s+", "");
@@ -124,7 +172,10 @@ public class CodeOptimizations {
 			for (String key : varMap.keySet()) {
 			    if (splitres[1].contains(key)) {
 			    	// Modify for 2 possible types
+//			    	System.out.println(i.toString());
 			    	try {
+			    		key = key + "(?!.+[0-9])";
+			    		System.out.println("THIS IS THE STRING FOR REPS: " + key);
 			    		splitres[1] = splitres[1].replaceAll(key, varMap.get(key).toString());
 			    		i.setOperation("identifier");
 			    		i.op1Name  = splitres[1];
@@ -216,10 +267,12 @@ public class CodeOptimizations {
 		status = true;
 		while(status) {
 			status = false;
+			IR.printMain(target.getFunctionIRs());
 			status = o1.constProp();
+			IR.printMain(target.getFunctionIRs());
 			status |= o1.constFold();
 		}
-		o1.clean();
+		//o1.clean();
 		
 		return;
 	}
@@ -261,6 +314,10 @@ public class CodeOptimizations {
 		CodeOptimizations.l1Optimize(test); //  Example for calling L1 Opt
 		System.out.println("\nPost-Optimization");
 		IR.printMain(test.getFunctionIRs());
+		
+		ExpressionEvaluator eval;
+		eval = new ExpressionEvaluator("5 * 70");
+		System.out.println(eval.GetValue());
 	}
 
 }
