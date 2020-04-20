@@ -22,6 +22,8 @@ public class Optimizations {
 		returnStatement,
 		conditionStatement,
 		deScope,
+		loopify,
+		deloopify,
 	}
 	
 	/*
@@ -45,17 +47,11 @@ public class Optimizations {
 		Stack<Map<String, Integer>> scoping = new Stack<Map<String, Integer>>();
 		Boolean status = false;
 		Integer counter = 0;
+		Integer loopNest = 0;
 		Statement stattype;
 		
 		for (Instruction i : instrList) {
 			splitres = i.toString().split(" ");
-			
-			// Temporary prints, delete later
-			System.out.printf("Set of strings: {");
-			for (String a : splitres) {
-	            System.out.printf("%s|", a);
-			}
-			System.out.printf("}\n");
 			
 			// Set the types of the operation
 			if(i.type.contentEquals("int") && splitres[1].equals("=")) {
@@ -64,11 +60,21 @@ public class Optimizations {
 				stattype = Statement.returnStatement;
 			} else if(splitres[0].contentEquals("jump")) {
 				stattype = Statement.conditionStatement;
-			}  else if((splitres.length > 2) &&splitres[2].contains("endOf")) {
-				System.out.println("WHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+			} else if((splitres.length > 2) && (splitres[2].contains("endOfConditional") || splitres[2].contains("endOfFullConditional"))) {
 				stattype = Statement.deScope;
+			} else if((splitres.length > 2) && splitres[2].contentEquals("startOfLoopBody")) {
+				stattype = Statement.loopify;
+				loopNest++;
+			} else if((splitres.length > 2) && splitres[2].contentEquals("endOfLoopBody")) {
+				stattype = Statement.deloopify;
+				loopNest--;
 			} else {
 				stattype = Statement.invalid;
+			}
+			
+			// Accounting for loops, disables propagation on loops
+			if(loopNest != 0) {
+				continue;
 			}
 			
 			// Attempt Propagation dependent on type
@@ -91,19 +97,19 @@ public class Optimizations {
 				    		i.setOperation("identifier");
 				    		if(i.op1Name != null) {
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
+//				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			System.out.println("*****Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//				    			System.out.println("*****Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 				    		}
 				    		status = true;
 				    	} catch (NullPointerException e) {
 				    		i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-			    			System.out.println("*******************Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//			    			System.out.println("*******************Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 							status = true;
 						}
 						splitres = i.toString().split(" ");
-						System.out.println("Now this is: " + i.toString());
+//						System.out.println("Now this is: " + i.toString());
 					}
 				}
 			} else if (stattype.equals(Statement.returnStatement)) {
@@ -114,19 +120,19 @@ public class Optimizations {
 				    		i.setOperation("identifier");
 				    		if(i.op1Name != null) {
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
+//				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			System.out.println("*****Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//				    			System.out.println("*****Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 				    		}
 				    		status = true;
 				    	} catch (NullPointerException e) {
 				    		i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-			    			System.out.println("*******************Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//			    			System.out.println("*******************Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 							status = true;
 						}
 						splitres = i.toString().split(" ");
-						System.out.println("Now this is: " + i.toString());
+//						System.out.println("Now this is: " + i.toString());
 					}
 				}
 			} else if(stattype.equals(Statement.conditionStatement)) {
@@ -265,6 +271,14 @@ public class Optimizations {
 		
 		// Remove Dead lines
 		instrList.removeAll(deadLines);
+		
+		// Re-assign line numbers
+//		count = 1;
+//		for (Instruction i : instrList) {
+//			i.lineNumber = count;
+//			count++;
+//		}
+//		this.target.setInstrCount(count);
 	}
 	
 	/**
