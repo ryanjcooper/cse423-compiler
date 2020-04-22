@@ -60,7 +60,8 @@ public class ASTParser {
 	private List<String> ignoreRollup = new ArrayList<String>(Arrays.asList(
 				"condition",
 				"body",
-				"argList"
+				"argList",
+				"returnStmt"
 			));
 	
 	/**
@@ -839,46 +840,63 @@ public class ASTParser {
 							if (child2.getToken().getTokenLabel().equals("switchCase")) {
 								Node bodyNode = new Node(new Token("body", "body"));
 								Node stmtListNode = null;
+								Node switchLabelNode = null;
+								
+//								System.out.println(child2.getChildren());
 								
 								for (Node child3 : child2.getChildren()) {
 									if (child3.getToken().getTokenLabel().equals("statementList")) {
 										stmtListNode = child3;									
 										
-									} else if (child3.getToken().getTokenLabel().equals("case") || child3.getToken().getTokenLabel().equals("default")) {
-										child2.setName(child3.getToken().getTokenLabel());
+									}  else if (child3.getToken().getTokenLabel().equals("switchLabel")) {
+										switchLabelNode = child3;
+										String caseType = null;
+										for(Node child4 : child3.getChildren()) {
+											if (child4.getToken().getTokenLabel().equals("case")) {
+												caseType = "case";
+											}
+										}
+										if (caseType == null) {
+											caseType = "default";
+										}
+										child2.setName(caseType);
 									}
 									
 								}
 								
-								
-								if (stmtListNode != null) {
-									
-									// insert placeholder node into parent
-									tmp = child2.getChildren();
-									int idx = tmp.indexOf(stmtListNode);
-									tmp.add(idx, bodyNode);
-									tmp.remove(stmtListNode);
-									
-									child2.setChildren(tmp);
-									bodyNode.setParent(child2);
-									
-									// rollup statementList node to be child of body node
-									stmtListNode.setParent(bodyNode);
-									tmp = new ArrayList<Node>();
-									tmp.add(stmtListNode);
-									
-									bodyNode.setChildren(tmp);
-									
+								if ((switchLabelNode != null) && (child2.getName().equals("default"))) {
+									tmp2 = child2.getChildren();
+									tmp2.remove(switchLabelNode);
+									child2.setChildren(tmp2);
 								}
+								
+//								
+//								if (stmtListNode != null) {
+//									
+//									// insert placeholder node into parent
+//									tmp = child2.getChildren();
+//									int idx = tmp.indexOf(stmtListNode);
+//									tmp.add(idx, bodyNode);
+//									tmp.remove(stmtListNode);
+//									
+//									child2.setChildren(tmp);
+//									bodyNode.setParent(child2);
+//									
+//									// rollup statementList node to be child of body node
+//									stmtListNode.setParent(bodyNode);
+//									tmp = new ArrayList<Node>();
+//									tmp.add(stmtListNode);
+//									
+//									bodyNode.setChildren(tmp);
+//									
+//								}
 							}
 						}
 					}
 				}
 
 			}
-				
-				
-			
+
 			stack.addAll(current.getChildren());
 		}
 
@@ -977,7 +995,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/switch.c");
 		scanner.scan();
 		
 //		scanner.printTokens();
@@ -986,7 +1004,7 @@ public class ASTParser {
 		g.loadGrammar();
 		Parser p = new Parser(g, scanner, false);
 		if (p.parse()) {
-//			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
+			System.out.println(Node.printTree(p.getParseTree(), " ", false));	
 			
 			
 			ASTParser a = new ASTParser(p);
