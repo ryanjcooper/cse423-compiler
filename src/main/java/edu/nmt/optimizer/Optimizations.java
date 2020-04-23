@@ -87,7 +87,6 @@ public class Optimizations {
 					} catch (NumberFormatException e) {
 						
 					}
-					System.out.println("Current mapping: "+varMap);
 				}
 				
 				// Propagating goes here
@@ -273,12 +272,12 @@ public class Optimizations {
 		instrList.removeAll(deadLines);
 		
 		// Re-assign line numbers
-//		count = 1;
-//		for (Instruction i : instrList) {
+		count = 1;
+		for (Instruction i : instrList) {
 //			i.lineNumber = count;
-//			count++;
-//		}
-//		this.target.setInstrCount(count);
+			count++;
+		}
+		this.target.setInstrCount(count);
 	}
 	
 	/**
@@ -293,7 +292,6 @@ public class Optimizations {
 		status = true;
 		while(status) {
 			status = false;
-			IR.printMain(target.getFunctionIRs());
 			status |= o1.constProp();
 			status |= o1.constFold();
 		}
