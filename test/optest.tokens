@@ -1,0 +1,28 @@
+int 'int'	 [StartOfLine]	Loc=<optest.c:2:1>
+identifier 'main'	 [LeadingSpace]	Loc=<optest.c:2:5>
+l_paren '('		Loc=<optest.c:2:9>
+r_paren ')'		Loc=<optest.c:2:10>
+l_brace '{'	 [StartOfLine]	Loc=<optest.c:3:1>
+int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<optest.c:4:9>
+identifier 'a'	 [LeadingSpace]	Loc=<optest.c:4:13>
+semi ';'		Loc=<optest.c:4:14>
+int 'int'	 [StartOfLine] [LeadingSpace]	Loc=<optest.c:5:9>
+identifier 'b'	 [LeadingSpace]	Loc=<optest.c:5:13>
+semi ';'		Loc=<optest.c:5:14>
+identifier 'a'	 [StartOfLine] [LeadingSpace]	Loc=<optest.c:6:9>
+equal '='	 [LeadingSpace]	Loc=<optest.c:6:11>
+numeric_constant '1'	 [LeadingSpace]	Loc=<optest.c:6:13>
+semi ';'		Loc=<optest.c:6:14>
+identifier 'b'	 [StartOfLine] [LeadingSpace]	Loc=<optest.c:7:9>
+equal '='	 [LeadingSpace]	Loc=<optest.c:7:11>
+numeric_constant '3'	 [LeadingSpace]	Loc=<optest.c:7:13>
+semi ';'		Loc=<optest.c:7:14>
+identifier 'a'	 [StartOfLine] [LeadingSpace]	Loc=<optest.c:8:9>
+plusplus '++'		Loc=<optest.c:8:10>
+semi ';'		Loc=<optest.c:8:12>
+return 'return'	 [StartOfLine] [LeadingSpace]	Loc=<optest.c:9:9>
+identifier 'a'	 [LeadingSpace]	Loc=<optest.c:9:16>
+plus '+'		Loc=<optest.c:9:17>
+identifier 'b'		Loc=<optest.c:9:18>
+semi ';'		Loc=<optest.c:9:19>
+r_brace '}'	 [StartOfLine]	Loc=<optest.c:10:1>
