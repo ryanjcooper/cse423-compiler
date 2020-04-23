@@ -132,6 +132,8 @@ public class Main {
             	/* ignore source file if reading in IR */
             } else if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
+            	RuntimeSettings.sourceFilename = sourceFilename;
+            	
             } else if (arglist.size() == 0) {
                 formatter.printHelp(helpStatement, options);
 

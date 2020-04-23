@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
@@ -940,6 +941,25 @@ public class ASTParser {
 		}
 		
 	}
+	
+	public Map<String, Node> getFunctionSymbolTable(String func) {	
+		Stack<Node> stack = new Stack<Node>();
+		stack.add(this.root);
+		
+		while(!stack.empty()) {
+			Node cur = stack.pop();
+			stack.addAll(cur.getChildren());
+			
+			if (cur.isScopeNode() && cur.getName().equals(func)) {
+				return cur.getScope();
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
 	
 	public String getFilename() {
 		return this.p.getFilename();
