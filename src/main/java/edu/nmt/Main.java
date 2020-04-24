@@ -155,66 +155,81 @@ public class Main {
     	parseArgs(args);
     	IR ir = new IR();
     	
-    	if (!readIR) {
-    		/* when reading in an IR, scanner, parser, etc not needed */
-        	// Start scanner
-        	Scanner s = new Scanner(sourceFilename);
-        	s.scan();
-        	if (storeTokens) {
-        		s.offloadToFile();
-        	}
-        	
-        	if (printT) {
-        		s.printTokens();
-        	}
-        	
-        	
-        	// Initialize grammar
-        	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
-        	grammar.loadGrammar();
-        	
-        	// Start parser
-        	Parser p = new Parser(grammar, s);  
+    	try {
+        	if (!readIR) {
+        		/* when reading in an IR, scanner, parser, etc not needed */
+            	// Start scanner
+            	Scanner s = new Scanner(sourceFilename);
+            	s.scan();
+            	if (storeTokens) {
+            		s.offloadToFile();
+            	}
+            	
+            	if (printT) {
+            		s.printTokens();
+            	}
+            	
+            	
+            	// Initialize grammar
+            	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
+            	grammar.loadGrammar();
+            	
+            	// Start parser
+            	Parser p = new Parser(grammar, s);  
 
-        	if (p.parse()) {
-        		if (printParseTree) {
-            		p.printParseTree();
+            	if (p.parse()) {
+            		if (printParseTree) {
+                		p.printParseTree();
+                	}
+                	
+                	if (writeParseFile != null) {
+                		//p.writeParseTree(writeParseFile);
+                	}
+                	
+                	// Start AST Parser
+            		ASTParser a = new ASTParser(p);
+            		
+            		if (a.parse()) {
+            			if (printAST) {
+            				a.printAST();
+            			}
+            			
+            	    	
+            	    	if (printST) {
+            	    		a.printSymbolTable();
+            	    	}
+            		}
+            		
+        			ir = new IR(a);
             	}
-            	
-            	if (writeParseFile != null) {
-            		//p.writeParseTree(writeParseFile);
-            	}
-            	
-            	// Start AST Parser
-        		ASTParser a = new ASTParser(p);
-        		
-        		if (a.parse()) {
-        			if (printAST) {
-        				a.printAST();
-        			}
-        			
-        	    	
-        	    	if (printST) {
-        	    		a.printSymbolTable();
-        	    	}
-        		}
-        		
-    			ir = new IR(a);
+        	} else {
+    			ir.initFromFile(irFilenameIn);
         	}
-    	} else {
-			ir.initFromFile(irFilenameIn);
-    	}
+        		
+    		if (optimize1) {
+    			CodeOptimizations.l1Optimize(ir);
+    		}
     		
-		if (optimize1) {
-			Optimizations.l1Optimize(ir);
-		}
-		
-		if (printIR) {
-			IR.printIR(ir);
-		}
-		
-		if (writeIR) {
-			ir.outputToFile(irFilenameOut);
-		}
+    		if (printIR) {
+    			IR.printIR(ir);
+    		}
+    		
+    		if (writeIR) {
+    			ir.outputToFile(irFilenameOut);
+    		}	
+    	} catch (Exception e) {
+    		System.out.println("An internal error has occurred.");
+    		printLimitations();
+    	}
+    }
+    
+    private static void printLimitations() {
+    	System.out.println("Make sure the input program does not disregard the following limitations:\n");
+    	System.out.println("arrays can be declared, but not specified statically i.e char string[] = \"\" works but not char string[] = {'a', 'b'}");
+    	System.out.println("arrays can be referenced with an int i.e. a[1] but not without the int, so \"a[] = b\" will not work");
+    	System.out.println("pointers can only be in the form *variable");
+    	System.out.println("for loops have to be in the \"form for (i = 0; i < 1; i++) { }\" not precise, just similar format");
+    	System.out.println("if statements, while loops, for loops all need braces around their interior");
+    	System.out.println("switch statements do not allow fall-through");
     }
 }

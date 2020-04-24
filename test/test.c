@@ -1,19 +1,11 @@
-int foo(int i);
-
-int main(int argc, int argv)
+int main()
 {
-        int i = 0 + 7;
+  int i;
+  int j = 5;
+  int k = 0;
 
-        return foo(i + 1);
-}
+  for(i = 0; i < j; i++)
+    k = 3;
 
-int foo(int i)
-{
-        i +=1;
-        return i;
-}
-
-int bar () {
-    int kys;
-    return kys;
+  return k;
 }
