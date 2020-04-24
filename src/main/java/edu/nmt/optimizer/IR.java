@@ -715,7 +715,7 @@ public class IR {
 	
 	
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/foldproptest.c");
+		Scanner scanner = new Scanner("test/test.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
@@ -744,9 +744,9 @@ public class IR {
 		
 		//test.printIR();
 		
-		test.outputToFile();
-		IR tmp = new IR();
-		tmp.initFromFile(test.getFilename());
-		System.out.println(test.equals(tmp));
+		//test.outputToFile();
+		//IR tmp = new IR();
+		//tmp.initFromFile(test.getFilename());
+		//System.out.println(test.equals(tmp));
 	}
 }
