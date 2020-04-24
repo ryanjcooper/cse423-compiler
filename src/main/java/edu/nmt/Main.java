@@ -19,6 +19,7 @@ import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
 import edu.nmt.optimizer.CodeOptimizations;
 import edu.nmt.optimizer.IR;
+import edu.nmt.optimizer.Optimizations;
 import edu.nmt.RuntimeSettings;
 
 public class Main {
@@ -132,6 +133,8 @@ public class Main {
             	/* ignore source file if reading in IR */
             } else if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
+            	RuntimeSettings.sourceFilename = sourceFilename;
+            	
             } else if (arglist.size() == 0) {
                 formatter.printHelp(helpStatement, options);
 

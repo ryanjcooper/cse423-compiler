@@ -12,6 +12,8 @@ import org.apache.commons.io.FileUtils;
 
 public class RuntimeSettings {
 
+	public static String sourceFilename;
+	
 	public static final String buildDir;
 	
 	static {
