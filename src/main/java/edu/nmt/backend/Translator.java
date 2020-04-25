@@ -157,27 +157,32 @@ public class Translator {
 					
 					
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + offset + "(%rbp), %" + getRegisterModifier(returnValueSize) + "ax\n");					
-				} else if (inst.getOperation().equals("+")) {	
+				} else if (inst.getOperation().equals("+") || inst.getOperation().equals("-")) {	
 					String instrValue1 = inst.getOperand1().getInstrID();
 					String instrValue2 = inst.getOperand2().getInstrID();
-					String instrValue3 = inst.getInstrID();
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					String regModifier = getRegisterModifier(variableSizes.get(instrValue2));
 					Integer offset = variableOffsets.get(instrValue1);
 					
 					/* move first operand into register */
-					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "dx\n");
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
 					
 					offset = variableOffsets.get(instrValue2);
 					
-					/* add second operand to register */
-					asm.add("\tadd" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "dx\n");
+					if (inst.getOperation().equals("+"))
+						/* add second operand to register */
+						asm.add("\tadd" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					else
+						/* sub second operand to register */
+						asm.add("\tsub" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
 					
 					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);;
 					
 					/* move register value to stack */
-					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "dx, " + offset + "(%rbp), \n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp), \n");
 					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("identifier")) {
 					/* assigning the value of an identifier to a variable */
 					System.out.println(inst.getOp1Name());
@@ -190,6 +195,62 @@ public class Translator {
 					
 					/* move register value to stack */
 					asm.add("\tmov" + sizeModifier + "\t" + idOffset + "(%rbp), " + offset + "(%rbp), \n");
+					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if (inst.getOperation().equals("*")) {
+					String instrValue1 = inst.getOperand1().getInstrID();
+					String instrValue2 = inst.getOperand2().getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue2));
+					Integer offset = variableOffsets.get(instrValue1);
+					
+					/* move first operand into ax */
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "ax\n");
+					
+					offset = variableOffsets.get(instrValue2);
+					
+					/* move second operand into register */
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					
+					/* empty rdx */
+					asm.add("\tmov" + sizeModifier + "\t$0, " + regModifier + "dx\n");
+					
+					/* multiply*/
+					asm.add("\timul\t%" + regModifier + "bx\n");
+					
+					/* move result into dest */
+					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp), \n");
+					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if (inst.getOperation().equals("/")) {
+					String instrValue1 = inst.getOperand1().getInstrID();
+					String instrValue2 = inst.getOperand2().getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue2));
+					Integer offset = variableOffsets.get(instrValue1);
+					
+					/* move first operand into ax */
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "ax\n");
+					
+					offset = variableOffsets.get(instrValue2);
+					
+					/* move second operand into register */
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					
+					/* empty rdx */
+					asm.add("\tmov" + sizeModifier + "\t$0, " + regModifier + "dx\n");
+					
+					/* divide */
+					asm.add("\tidiv\t%" + regModifier + "bx\n");
+					
+					/* move result into dest */
+					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp), \n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
