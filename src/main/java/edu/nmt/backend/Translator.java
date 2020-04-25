@@ -38,12 +38,11 @@ public class Translator {
 	public Integer getNextBaseOffset(Map<String, Integer> variableOffsets) {
 		
 		try {
-			Integer maxOffset = Collections.min(variableOffsets.values());
+			// Max offset.
+			return Collections.min(variableOffsets.values());
 		} catch (java.util.NoSuchElementException e) {
 			return 0;
 		}		
-		
-		return null;
 	}
 	
 	public String getSizeModifier(Integer size) {
@@ -118,10 +117,22 @@ public class Translator {
 			
 			for (Instruction inst : funcInstr) {
 			
+				System.out.println(inst);
 				
 				// since this is already linearized, just simply translate Instruction object to corresponding assembly command(s)
-								
-				if (inst.getOperation().equals("numeric_constant")) {
+				if (inst.getOperation() == null) {
+					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					String instrValue = inst.getOperand1().getInstrID();
+					
+					System.out.println(instrValue);
+					System.out.println(variableOffsets.get(instrValue));
+					
+					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + variableOffsets.get(instrValue) + "(%rbp), " + offset + "(%rbp)\n");
+					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+					
+				} else if (inst.getOperation().equals("numeric_constant")) {
 					
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 
@@ -142,9 +153,47 @@ public class Translator {
 					Integer returnValueSize = variableSizes.get(returnValueName);
 					Integer offset = variableOffsets.get(returnValueName);
 					
+					System.out.println(returnValueSize);
+					
 					
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + offset + "(%rbp), %" + getRegisterModifier(returnValueSize) + "ax\n");					
-				}				
+				} else if (inst.getOperation().equals("+")) {	
+					String instrValue1 = inst.getOperand1().getInstrID();
+					String instrValue2 = inst.getOperand2().getInstrID();
+					String instrValue3 = inst.getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue2));
+					Integer offset = variableOffsets.get(instrValue1);
+					
+					/* move first operand into register */
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "dx\n");
+					
+					offset = variableOffsets.get(instrValue2);
+					
+					/* add second operand to register */
+					asm.add("\tadd" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "dx\n");
+					
+					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);;
+					
+					/* move register value to stack */
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "dx, " + offset + "(%rbp), \n");
+					
+				} else if (inst.getOperation().equals("identifier")) {
+					/* assigning the value of an identifier to a variable */
+					System.out.println(inst.getOp1Name());
+					String id = inst.getOp1Name();
+					String instrValue = inst.getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					String regModifier = getRegisterModifier(variableSizes.get(id));
+					Integer idOffset = variableOffsets.get(id);
+					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					
+					/* move register value to stack */
+					asm.add("\tmov" + sizeModifier + "\t" + idOffset + "(%rbp), " + offset + "(%rbp), \n");
+					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				}
 			}
 			
 			// function footer
@@ -169,7 +218,7 @@ public class Translator {
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/base.c");
+		Scanner s = new Scanner("test/test.c");
     	s.scan();
     
 //		s.printTokens();
