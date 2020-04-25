@@ -1,11 +1,8 @@
 int main()
 {
-  int i;
-  int j = 5;
-  int k = 0;
-
-  for(i = 0; i < j; i++)
-    k = 3;
-
-  return k;
+  int i = 0;
+  i = i + 1;
+  i++;
+  i += 1;
+  return i;
 }
