@@ -117,7 +117,7 @@ public class Translator {
 			
 			for (Instruction inst : funcInstr) {
 			
-				System.out.println(inst);
+				System.out.println(inst.getOperation() + " goes to: " + inst);
 				
 				// since this is already linearized, just simply translate Instruction object to corresponding assembly command(s)
 				if (inst.getOperation() == null) {
@@ -133,7 +133,7 @@ public class Translator {
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 					
 				} else if (inst.getOperation().equals("numeric_constant")) {
-					
+					System.out.println("Constant: "+inst);
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t$" + inst.getOp1Name() + ", " + offset + "(%rbp)\n");
@@ -254,6 +254,15 @@ public class Translator {
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if(inst.getOperation().equals("jump")) {
+					String splitres[];
+					splitres = inst.toString().split(" ");
+					asm.add("\tJMP" + "\t" +splitres[1] + "\n");
+				} else if(inst.getOperation().equals("label")) {
+					String splitres[];
+					splitres = inst.toString().split("=");
+					
+					asm.add(splitres[0].replace(" ", "") + ": \n");
 				}
 			}
 			
@@ -279,7 +288,7 @@ public class Translator {
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/test.c");
+		Scanner s = new Scanner("test/goto.c");
     	s.scan();
     
 //		s.printTokens();
