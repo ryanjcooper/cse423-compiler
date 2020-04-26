@@ -157,7 +157,9 @@ public class Translator {
 					
 					
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + offset + "(%rbp), %" + getRegisterModifier(returnValueSize) + "ax\n");					
-				} else if (inst.getOperation().equals("+") || inst.getOperation().equals("-")) {	
+				} else if (inst.getOperation().equals("+") || inst.getOperation().equals("-") || inst.getOperation().equals("&") 
+														   || inst.getOperation().equals("|") || inst.getOperation().equals("^")
+														   || inst.getOperation().equals("<<") || inst.getOperation().equals(">>")) {	
 					String instrValue1 = inst.getOperand1().getInstrID();
 					String instrValue2 = inst.getOperand2().getInstrID();
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
@@ -172,9 +174,24 @@ public class Translator {
 					if (inst.getOperation().equals("+"))
 						/* add second operand to register */
 						asm.add("\tadd" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
-					else
+					else if (inst.getOperation().equals("-"))
 						/* sub second operand to register */
 						asm.add("\tsub" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					else if (inst.getOperation().equals("&"))
+						/* and second operand to register */
+						asm.add("\tand" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					else if (inst.getOperation().equals("|"))
+						/* or second operand to register */
+						asm.add("\tor" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					else if (inst.getOperation().equals("^"))
+						/* xor second operand to register */
+						asm.add("\txor" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					else if (inst.getOperation().equals("<<"))
+						/* left shift second operand to register */
+						asm.add("\tshl" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					else if (inst.getOperation().equals(">>"))
+						/* right shift second operand to register */
+						asm.add("\tshr" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");			
 					
 					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);;
 					
@@ -226,7 +243,7 @@ public class Translator {
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
-				} else if (inst.getOperation().equals("/")) {
+				} else if (inst.getOperation().equals("/") || inst.getOperation().equals("%")) {
 					String instrValue1 = inst.getOperand1().getInstrID();
 					String instrValue2 = inst.getOperand2().getInstrID();
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
@@ -250,10 +267,16 @@ public class Translator {
 					/* move result into dest */
 					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					
-					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp), \n");
+					/* div uses ax, mod uses dx */
+					if (inst.getOperation().equals("/"))
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp), \n");
+					else
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "dx, " + offset + "(%rbp), \n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if (inst.getOperation().equals("~")) {
+					
 				}
 			}
 			
