@@ -20,6 +20,7 @@ import edu.nmt.optimizer.Instruction;
 public class Translator {
 
 	private Map<String, Integer> typeSizes = new HashMap<String, Integer>();
+	private Map<String, String> jumpLabels = new HashMap<String, String>();
  	
 	{
 		typeSizes.put("int", 4);		
@@ -275,8 +276,62 @@ public class Translator {
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
-				} else if (inst.getOperation().equals("~")) {
+				} else if (inst.getType().equals("boolean")) {
+					String instrValue1 = inst.getOperand1().getInstrID();
+					String instrValue2 = inst.getOperand2().getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue2));
+					Integer offset = variableOffsets.get(instrValue2);
 					
+					/* move second operand into register */
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					
+					/* flip with value with twos complement */
+					asm.add("\tnot" + sizeModifier + "\t%" + regModifier + "bx\n");
+					asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
+					
+					offset = variableOffsets.get(instrValue1);
+					
+					/* add the first operand to the register */
+					asm.add("\tadd" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					
+					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					
+					if (inst.getOperation().equals("==")) {
+						/* use ax as a tmp register */
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, %" + regModifier + "ax\n");
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, %" + regModifier + "bx\n");
+						asm.add("\tshr" + sizeModifier + "\t$0x1F," + regModifier + "bx\n");
+						asm.add("\tnot" + sizeModifier + "\t%" + regModifier + "ax\n");
+						asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "ax\n");
+						asm.add("\tshr" + sizeModifier + "\t$0x1F," + regModifier + "ax\n");
+						asm.add("\tor" + sizeModifier + "\t%" + regModifier + "bx, %" + regModifier + "ax\n");
+						asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "ax\n");
+						asm.add("\tmov" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
+						asm.add("\tnot" + sizeModifier + "\t%" + regModifier + "bx\n");
+						asm.add("\txor" + sizeModifier + "\t%" + regModifier + "bx, %" + regModifier + "ax\n");
+						asm.add("\tand" + sizeModifier + "\t$1, %" + regModifier + "ax\n");
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp), \n");
+					}
+					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if (inst.getType().equals("conditionalJump")) {
+					String instrValue1 = inst.getOperand1().getInstrID();
+					String instrValue2 = inst.getOperand2().getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					Integer offset = variableOffsets.get(instrValue1);
+					
+					jumpLabels.put(instrValue2, instrValue2 + "conditionalJump");
+					asm.add("\tcmp" + sizeModifier + "\t" + offset + "(%rbp), $0\n");
+					
+					if (inst.getOp1Name().equals("false")) {
+						asm.add("\tje\t" + instrValue2 + "\n");
+					} else {
+						asm.add("\tjne\t" + instrValue2 + "\n");
+					}
+				} else if (inst.getType().equals("label")) {
+					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");
 				}
 			}
 			
