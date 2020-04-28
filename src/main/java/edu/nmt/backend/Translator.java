@@ -326,9 +326,9 @@ public class Translator {
 					asm.add("\tcmp" + sizeModifier + "\t" + offset + "(%rbp), $0\n");
 					
 					if (inst.getOp1Name().equals("false")) {
-						asm.add("\tje\t" + instrValue2 + "\n");
+						asm.add("\tje\t" + jumpLabels.get(instrValue2) + "\n");
 					} else {
-						asm.add("\tjne\t" + instrValue2 + "\n");
+						asm.add("\tjne\t" + jumpLabels.get(instrValue2) + "\n");
 					}
 				} else if (inst.getType().equals("label")) {
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");
