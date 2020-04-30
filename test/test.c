@@ -1,10 +1,9 @@
 int main()
 {
-  int i = 1;
+  int i = 3;
   
-  if (i == 1)
-  {
-  	return 2;
+  if (i < 4) {
+  	i = 1;
   }
   
   return i;
