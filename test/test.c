@@ -1,6 +1,10 @@
 int main()
 {
-  int i = 1;
-  i = i % 2;
+  int i = 3;
+  
+  if (i < 4) {
+  	i = 1;
+  }
+  
   return i;
 }

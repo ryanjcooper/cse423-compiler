@@ -1,9 +1,14 @@
 #main
-1 _1 numeric_constant int null 1 null null
+1 _1 numeric_constant int null 3 null null
 2 i null int 1 i null null
-3 _3 numeric_constant int null 2 null null
+3 _3 numeric_constant int null 4 null null
 4 _4 identifier int null i null null
-5 _5 % int 4 null 3 null
-6 i = int 5 null null null
-7 _7 identifier int null i null null
-8 null return int 7 _7 null null
+5 _5 >= boolean 4 null 3 null
+6 null jump conditionalJump 5 false 10 null
+7 _7 numeric_constant int null 1 null null
+8 i = int 7 null null null
+9 null jump unconditionalJump null null 11 null
+10 _10 label label null endOfConditionalBlock null null
+11 _11 label label null endOfFullConditionalBlock null null
+12 _12 identifier int null i null null
+13 null return int 12 _12 null null

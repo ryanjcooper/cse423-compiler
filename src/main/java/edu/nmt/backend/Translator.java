@@ -20,9 +20,11 @@ import edu.nmt.optimizer.Instruction;
 public class Translator {
 
 	private Map<String, Integer> typeSizes = new HashMap<String, Integer>();
+	private Map<String, String> jumpLabels = new HashMap<String, String>();
  	
 	{
-		typeSizes.put("int", 4);		
+		typeSizes.put("int", 4);	
+		typeSizes.put("boolean", 4);
 	}
 	
 	private IR ir;
@@ -46,13 +48,16 @@ public class Translator {
 	}
 	
 	public String getSizeModifier(Integer size) {
+		if (size == null)
+			size = 4;
+		
 		switch (size) {
 		case 4: 
 			return "l";
 		case 8:
 			return "q";
 		}
-		return null;
+		return "l";
 	}
 	
 	public String getRegisterModifier(Integer size) {
@@ -66,6 +71,16 @@ public class Translator {
 		
 	}
 	
+	public String getShiftModifier(Integer size) {
+		switch (size) {
+		case 4: 
+			return "$0x1F";
+		case 8:
+			return "$0x3F";
+		}
+		return null;
+		
+	}
 	
 	public void translate() {
 		
@@ -123,15 +138,22 @@ public class Translator {
 				if (inst.getOperation() == null) {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					String instrValue = inst.getOperand1().getInstrID();
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue));
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
-					System.out.println(instrValue);
-					System.out.println(variableOffsets.get(instrValue));
-					
-					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + variableOffsets.get(instrValue) + "(%rbp), " + offset + "(%rbp)\n");
+					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if (inst.getOperation().equals("=")) {
+					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					String instrValue = inst.getInstrID();
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue));
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
+					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 				} else if (inst.getOperation().equals("numeric_constant")) {
 					
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
@@ -196,7 +218,7 @@ public class Translator {
 					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);;
 					
 					/* move register value to stack */
-					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp), \n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -210,11 +232,16 @@ public class Translator {
 					Integer idOffset = variableOffsets.get(id);
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					
-					/* move register value to stack */
-					asm.add("\tmov" + sizeModifier + "\t" + idOffset + "(%rbp), " + offset + "(%rbp), \n");
+					System.out.println("identifier");
+					System.out.println(id);
+					System.out.println(idOffset);					
 					
-					variableOffsets.put(inst.getInstrID(), offset);
-					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+					/* move register value to stack */
+					asm.add("\tmov" + sizeModifier + "\t" + idOffset + "(%rbp), %" + regModifier + "bx\n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
+					
+					variableOffsets.put(instrValue, offset);
+					variableSizes.put(instrValue, typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("*")) {
 					String instrValue1 = inst.getOperand1().getInstrID();
 					String instrValue2 = inst.getOperand2().getInstrID();
@@ -231,7 +258,7 @@ public class Translator {
 					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
 					
 					/* empty rdx */
-					asm.add("\tmov" + sizeModifier + "\t$0, " + regModifier + "dx\n");
+					asm.add("\tmov" + sizeModifier + "\t$0, %" + regModifier + "dx\n");
 					
 					/* multiply*/
 					asm.add("\timul\t%" + regModifier + "bx\n");
@@ -239,7 +266,7 @@ public class Translator {
 					/* move result into dest */
 					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					
-					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp), \n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp)\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -259,7 +286,7 @@ public class Translator {
 					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
 					
 					/* empty rdx */
-					asm.add("\tmov" + sizeModifier + "\t$0, " + regModifier + "dx\n");
+					asm.add("\tmov" + sizeModifier + "\t$0, %" + regModifier + "dx\n");
 					
 					/* divide */
 					asm.add("\tidiv\t%" + regModifier + "bx\n");
@@ -269,14 +296,108 @@ public class Translator {
 					
 					/* div uses ax, mod uses dx */
 					if (inst.getOperation().equals("/"))
-						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp), \n");
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp)\n");
 					else
-						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "dx, " + offset + "(%rbp), \n");
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "dx, " + offset + "(%rbp)\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
-				} else if (inst.getOperation().equals("~")) {
+				} else if (inst.getType().equals("boolean")) {
+					String instrValue1 = inst.getOperand1().getInstrID();
+					String instrValue2 = inst.getOperand2().getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getOperand1().getType()));
+					String shiftModifier = getShiftModifier(typeSizes.get(inst.getOperand1().getType()));
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue2));
+					Integer offset = variableOffsets.get(instrValue2);
 					
+					/* move second operand into register */
+					asm.add("\tmov" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+					
+					/* && and || assume both operand values are either 1 or 0 */
+					if (inst.getOperation().equals("&&")) {
+						offset = variableOffsets.get(instrValue1);
+						asm.add("\tand" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+						asm.add("\tand" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
+						offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
+					} else if (inst.getOperation().equals("||")) {
+						offset = variableOffsets.get(instrValue1);
+						asm.add("\tor" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+						asm.add("\tand" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
+						offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");						
+					} else {
+						/* x > y is converted to x >= y + 1 */
+						if (inst.getOperation().equals(">")) {
+							asm.add("\tadd" + sizeModifier + "\t$1," + regModifier + "bx\n");
+							inst.setOperation(">=");
+						}
+						
+						/* flip with value with twos complement */
+						asm.add("\tnot" + sizeModifier + "\t%" + regModifier + "bx\n");
+						asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
+						
+						offset = variableOffsets.get(instrValue1);
+						
+						/* add the first operand to the register */
+						asm.add("\tadd" + sizeModifier + "\t" + offset + "(%rbp), %" + regModifier + "bx\n");
+						
+						/* x <= y is converted to x - 1 < y */
+						if (inst.getOperation().equals("<=")) {
+							asm.add("\tsub" + sizeModifier + "\t$1," + regModifier + "bx\n");
+							inst.setOperation("<");
+						}
+						
+						offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getOperand1().getType()) * -1);
+						
+						if (inst.getOperation().equals("==")) {
+							/* use ax as a tmp register */
+							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, %" + regModifier + "ax\n");
+							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, %" + regModifier + "bx\n");
+							asm.add("\tshr" + sizeModifier + "\t" + shiftModifier + ", %" + regModifier + "bx\n");
+							asm.add("\tnot" + sizeModifier + "\t%" + regModifier + "ax\n");
+							asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "ax\n");
+							asm.add("\tshr" + sizeModifier + "\t" + shiftModifier + ", %" + regModifier + "ax\n");
+							asm.add("\tor" + sizeModifier + "\t%" + regModifier + "bx, %" + regModifier + "ax\n");
+							asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "ax\n");
+							asm.add("\tmov" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
+							asm.add("\tnot" + sizeModifier + "\t%" + regModifier + "bx\n");
+							asm.add("\txor" + sizeModifier + "\t%" + regModifier + "bx, %" + regModifier + "ax\n");
+							asm.add("\tand" + sizeModifier + "\t$1, %" + regModifier + "ax\n");
+							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp)\n");
+						} else if (inst.getOperation().equals("<")) {
+							asm.add("\tshr" + sizeModifier + "\t" + shiftModifier + ", %" + regModifier + "bx\n");
+							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
+						} else if (inst.getOperation().equals(">=")) {
+							asm.add("\tshr" + sizeModifier + "\t" + shiftModifier + ", %" + regModifier + "bx\n");
+							asm.add("\tnot" + sizeModifier + "\t%" + regModifier + "bx\n");
+							asm.add("\tand" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
+							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
+						}						
+					}
+					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if (inst.getType().equals("conditionalJump")) {
+					String instrValue1 = inst.getOperand1().getInstrID();
+					String instrValue2 = inst.getOperand2().getInstrID();
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					Integer offset = variableOffsets.get(instrValue1);
+					
+					jumpLabels.put(instrValue2, instrValue2 + "conditionalJump");
+					asm.add("\tcmp" + sizeModifier + "\t$0, " + offset + "(%rbp)\n");
+					
+					if (inst.getOp1Name().equals("false")) {
+						asm.add("\tje\t" + jumpLabels.get(instrValue2) + "\n");
+					} else {
+						asm.add("\tjne\t" + jumpLabels.get(instrValue2) + "\n");
+					}
+				} else if (inst.getType().equals("label")) {
+					if (jumpLabels.get(inst.getInstrID()) == null) {
+						jumpLabels.put(inst.getInstrID(), inst.getInstrID() + inst.getOp1Name());
+					}
+					
+					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
 				}
 			}
 			
