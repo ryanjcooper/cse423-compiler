@@ -398,6 +398,12 @@ public class Translator {
 					}
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
+				} else if (inst.getOperation().contentEquals("call")) {
+					// push parameters specified by callInstruction
+					// save %eax, %ecx, %edx
+					// call <label>
+					asm.add("\tcall " + inst.getOp1Name());
+					// clean up stack
 				}
 			}
 			
