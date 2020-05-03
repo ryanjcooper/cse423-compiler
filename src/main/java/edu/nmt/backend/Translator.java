@@ -428,7 +428,7 @@ public class Translator {
 					asm.add("\tcall " + inst.getOp1Name() + "\n");
 					
 					// clean up stack after the call (add offset based on number of params to "pop" all pushed params)
-					asm.add("\taddl\t$" + totalParamOffset + ", %esp\n");
+					asm.add("\taddl\t$" + (totalParamOffset + 8) + ", %esp\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -439,7 +439,7 @@ public class Translator {
 					String regModifier = getRegisterModifier(typeSizes.get(inst.getType()));
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
-					asm.add("\tmov" + sizeModifier + "\t" + paramOffset + "(%rbp), %" + regModifier + "bx\n");
+					asm.add("\tmov" + sizeModifier + "\t" + (paramOffset + 12) + "(%rbp), %" + regModifier + "bx\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					
 					variableOffsets.put(inst.getInstrID() + "Param", paramOffset);
@@ -468,6 +468,7 @@ public class Translator {
 			}
 			
 			// function footer
+			asm.add("\tmovq	%rbp, %rsp\n");
 			asm.add("\tpopq	%rbp\n");
 			asm.add("\tret\n");		
 		
