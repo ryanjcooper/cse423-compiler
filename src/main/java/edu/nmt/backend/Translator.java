@@ -42,7 +42,18 @@ public class Translator {
 		
 		try {
 			// Max offset.
-			return Collections.min(variableOffsets.values());
+			int min = Collections.min(variableOffsets.values());
+			return min >= 0 ? 0 : min;
+		} catch (java.util.NoSuchElementException e) {
+			return 0;
+		}		
+	}
+	
+	public Integer getPositiveBaseOffset(Map<String, Integer> variableOffsets) {
+		
+		try {
+			// Max positive offset.
+			return Collections.max(variableOffsets.values());
 		} catch (java.util.NoSuchElementException e) {
 			return 0;
 		}		
@@ -112,7 +123,7 @@ public class Translator {
 			asm.add(funcName + ":\n");
 			
 			// function preamble
-			asm.add(".LFB" + funcIndex + ":\n");
+			asm.add(".LFB" + funcIndex++ + ":\n");
 			asm.add("\t.cfi_startproc\n");
 			asm.add("\tpushq	%rbp\n");
 			asm.add("\t.cfi_def_cfa_offset 16\n");
@@ -138,26 +149,32 @@ public class Translator {
 				if (inst.getOperation() == null) {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					String instrValue = null;
-					if (inst.getOperand1() != null) {
-						// if var is declared and initialized
-						instrValue = inst.getOperand1().getInstrID();
-					} else {
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					// TODO: make uninitialized varDeclarations more graceful (move 0 directly rather than creating a new variable first)
+					if(inst.getOperand1() == null) {
 						// since every uninitialized variable will use this variable location, all of them will access this storage location upon declaration - which can have unintended behavior
 						// slight chance this will mess up types since this temporary variable will take the type of the first uninitialized variable
 						instrValue = "_0";
 						if (!variableOffsets.containsKey("_0")) {
 							// if var is declared but uninitialized, default value to 0
 							asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t$0, " + offset + "(%rbp)\n");
-//							
+							
 							variableOffsets.put(instrValue, offset);
 							variableSizes.put(instrValue, typeSizes.get(inst.getType()));
 							
 							offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 						}
+					} else {
+						// if var is declared and initialized
+						instrValue = inst.getOperand1().getInstrID();
 					}
 					
 					String regModifier = getRegisterModifier(variableSizes.get(instrValue));
-					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					
+					if(inst.getOperand1() instanceof CallInstruction) {
+						// move result of function call onto stack
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + variableOffsets.get(instrValue) + "(%rbp)\n");
+					}
 					
 					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
@@ -165,13 +182,13 @@ public class Translator {
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("=")) {
-					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
-					String instrValue = inst.getInstrID();
-					String regModifier = getRegisterModifier(variableSizes.get(instrValue));
+					String instrValue1 = inst.getInstrID();
+					String instrValue2 = inst.getOperand1().getInstrID();
+					String regModifier = getRegisterModifier(variableSizes.get(instrValue1));
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
-					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
-					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
+					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue2) + "(%rbp), %" + regModifier + "bx\n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + variableOffsets.get(instrValue1) + "(%rbp)\n");
 				} else if (inst.getOperation().equals("numeric_constant")) {
 					
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
@@ -417,20 +434,37 @@ public class Translator {
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
 				} else if (inst.getOperation().equals("call")) {
+					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					CallInstruction call = (CallInstruction) inst;
+					Collections.reverse(call.getParamList());
 					// push parameters specified by the callInstruction to stack
 					for (Instruction i : call.getParamList()) {
 						String instrValue = i.getInstrID();
 						String sizeModifier = getSizeModifier(typeSizes.get(i.getType()));
-						Integer offset = variableOffsets.get(instrValue);
+						Integer offset2 = variableOffsets.get(instrValue);
 						
-						asm.add("\tpush" + sizeModifier + "\t" + offset + "(%rbp)\n");
+						asm.add("\tpush" + sizeModifier + "\t" + offset2 + "(%rbp)\n");
 					}
+					Collections.reverse(call.getParamList());
 					
 					// call <functionLabel>
-					asm.add("\tcall " + inst.getOp1Name());
+					asm.add("\tcall " + inst.getOp1Name() + "\n");
+					
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("funcParam")) {
-					// TODO: Implement this
+					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					Integer paramOffset = getPositiveBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()));
+					
+					String regModifier = getRegisterModifier(typeSizes.get(inst.getType()));
+					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
+					
+					asm.add("\tmov" + sizeModifier + "\t" + paramOffset + "(%rbp), %" + regModifier + "bx\n");
+					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
+					
+					variableOffsets.put(inst.getInstrID() + "Param", paramOffset);
+					variableOffsets.put(inst.getInstrID(), offset);
+					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				}
 			}
 			
