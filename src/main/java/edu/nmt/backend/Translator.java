@@ -162,7 +162,6 @@ public class Translator {
 						asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
 						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					}
-
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("=")) {
@@ -191,6 +190,7 @@ public class Translator {
 				} else if (inst.getOperation().equals("return")) {					
 					String returnValueName = inst.getOp1Name();
 					Integer returnValueSize = variableSizes.get(returnValueName);
+
 					Integer offset = variableOffsets.get(returnValueName);				
 					
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + offset + "(%rbp), %" + getRegisterModifier(returnValueSize) + "ax\n");					
@@ -445,25 +445,15 @@ public class Translator {
 					variableOffsets.put(inst.getInstrID() + "Param", paramOffset);
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
-				} else if(inst.getType().equals("conditionalJump")) {
-					// Build jump statement
-					asm.add("\tJMP CONDITIONAL" + "\t" + "\n");
-				} else if(inst.getType().equals("unconditionalJump")) {
-					String splitres[];
-					splitres = inst.toString().split(" ");
-					asm.add("\tJMP" + "\t" +splitres[1] + "\n");
+				}  else if(inst.getType().equals("unconditionalJump")) {
+					String instrValue2 = inst.getOperand2().getInstrID();
+					jumpLabels.put(instrValue2, instrValue2 + "unconditionalJump");
+					asm.add("\tjmp" + "\t" + jumpLabels.get(instrValue2) + "\n");
 				} else if(inst.getOperation().equals("label")) {
 					String splitres[];
 					splitres = inst.toString().split("=");
 					
 					asm.add(splitres[0].replace(" ", "") + ": \n");
-				} else if(inst.getType().equals("boolean")) {
-					String splitres[];
-					
-					// Process statement
-					splitres = inst.toString().split(" ");
-					
-					asm.add("\tCOMPARISON" + "\n");
 				}
 			}
 			
