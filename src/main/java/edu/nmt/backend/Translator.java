@@ -458,8 +458,14 @@ public class Translator {
 			}
 			
 			// function footer
-			asm.add("\tpopq	%rbp\n");
-			asm.add("\tret\n");		
+			if (funcName.equals("main")) {
+				asm.add("movq\t%rax, %rdi\n");
+				asm.add("movq\t$60, %rax\n");
+				asm.add("syscall\n");
+			} else {
+				asm.add("\tpopq	%rbp\n");
+				asm.add("\tret\n");	
+			}	
 		
 
 			funcAsm.put(funcName, asm);
