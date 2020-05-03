@@ -166,7 +166,7 @@ public class Translator {
 						
 						asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
 						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
-						asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+						asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					}
 
 					variableOffsets.put(inst.getInstrID(), offset);
@@ -184,7 +184,7 @@ public class Translator {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t$" + inst.getOp1Name() + ", " + offset + "(%rbp)\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 //					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -245,7 +245,7 @@ public class Translator {
 					
 					/* move register value to stack */
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -266,7 +266,7 @@ public class Translator {
 					/* move register value to stack */
 					asm.add("\tmov" + sizeModifier + "\t" + idOffset + "(%rbp), %" + regModifier + "bx\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					
 					variableOffsets.put(instrValue, offset);
 					variableSizes.put(instrValue, typeSizes.get(inst.getType()));
@@ -295,7 +295,7 @@ public class Translator {
 					offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp)\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -328,7 +328,7 @@ public class Translator {
 						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset + "(%rbp)\n");
 					else
 						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "dx, " + offset + "(%rbp)\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -406,7 +406,7 @@ public class Translator {
 						}				
 					}
 					
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getType().equals("conditionalJump")) {
@@ -461,9 +461,9 @@ public class Translator {
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
 					asm.add("\tmov" + sizeModifier + "\t" + paramOffset + "(%rbp), %" + regModifier + "bx\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType() + ", %rsp\n"));
+					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					
 					variableOffsets.put(inst.getInstrID() + "Param", paramOffset);
 					variableOffsets.put(inst.getInstrID(), offset);
