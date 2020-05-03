@@ -459,9 +459,9 @@ public class Translator {
 			
 			// function footer
 			if (funcName.equals("main")) {
-				asm.add("movq\t%rax, %rdi\n");
-				asm.add("movq\t$60, %rax\n");
-				asm.add("syscall\n");
+				asm.add("\tmovq\t%rax, %rdi\n");
+				asm.add("\tmovq\t$60, %rax\n");
+				asm.add("\tsyscall\n");
 			} else {
 				asm.add("\tpopq	%rbp\n");
 				asm.add("\tret\n");	
