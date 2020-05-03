@@ -454,10 +454,10 @@ public class Translator {
 					variableOffsets.put(inst.getInstrID() + "Param", paramOffset);
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
-				} else if(inst.getType().equals("unconditionalJump")) {
-					String splitres[];
-					splitres = inst.toString().split(" ");
-					asm.add("\tJMP" + "\t" +splitres[1] + "\n");
+				}  else if(inst.getType().equals("unconditionalJump")) {
+					String instrValue2 = inst.getOperand2().getInstrID();
+					jumpLabels.put(instrValue2, instrValue2 + "unconditionalJump");
+					asm.add("\tjmp" + "\t" + jumpLabels.get(instrValue2) + "\n");
 				}
 			}
 			
