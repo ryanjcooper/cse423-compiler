@@ -123,12 +123,8 @@ public class Translator {
 			
 			// function preamble
 			asm.add(".LFB" + funcIndex++ + ":\n");
-			asm.add("\t.cfi_startproc\n");
 			asm.add("\tpushq	%rbp\n");
-			asm.add("\t.cfi_def_cfa_offset 16\n");
-			asm.add("\t.cfi_offset 6, -16\n");
 			asm.add("\tmovq	%rsp, %rbp\n");
-			asm.add("\t.cfi_def_cfa_register 6\n");
 			
 			// adjust stack pointer for necessary locals
 			
@@ -149,7 +145,6 @@ public class Translator {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					String instrValue = null;
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
-					// TODO: make uninitialized varDeclarations more graceful (move 0 directly rather than creating a new variable first)
 					if(inst.getOperand1() == null) {
 						// if var is declared without initializing, default value to 0
 						asm.add("\tmov" + sizeModifier + "\t$0, " + offset + "(%rbp)\n");
@@ -178,7 +173,6 @@ public class Translator {
 					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue2) + "(%rbp), %" + regModifier + "bx\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + variableOffsets.get(instrValue1) + "(%rbp)\n");
 				} else if (inst.getOperation().equals("numeric_constant")) {
-//					System.out.println("Constant: "+inst);
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t$" + inst.getOp1Name() + ", " + offset + "(%rbp)\n");
@@ -196,10 +190,8 @@ public class Translator {
 				} else if (inst.getOperation().equals("return")) {					
 					String returnValueName = inst.getOp1Name();
 					Integer returnValueSize = variableSizes.get(returnValueName);
-					Integer offset = variableOffsets.get(returnValueName);
-					
-//					System.out.println(returnValueSize);
-					
+
+					Integer offset = variableOffsets.get(returnValueName);				
 					
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + offset + "(%rbp), %" + getRegisterModifier(returnValueSize) + "ax\n");					
 				} else if (inst.getOperation().equals("+") || inst.getOperation().equals("-") || inst.getOperation().equals("&") 
@@ -247,17 +239,12 @@ public class Translator {
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("identifier")) {
 					/* assigning the value of an identifier to a variable */
-//					System.out.println(inst.getOp1Name());
 					String id = inst.getOp1Name();
 					String instrValue = inst.getInstrID();
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					String regModifier = getRegisterModifier(variableSizes.get(id));
 					Integer idOffset = variableOffsets.get(id);
-					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
-					
-//					System.out.println("identifier");
-//					System.out.println(id);
-//					System.out.println(idOffset);					
+					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);			
 					
 					/* move register value to stack */
 					asm.add("\tmov" + sizeModifier + "\t" + idOffset + "(%rbp), %" + regModifier + "bx\n");
@@ -367,7 +354,7 @@ public class Translator {
 						
 						/* x <= y is converted to x - 1 < y */
 						if (inst.getOperation().equals("<=")) {
-							asm.add("\tsub" + sizeModifier + "\t$1," + regModifier + "bx\n");
+							asm.add("\tsub" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
 							inst.setOperation("<");
 						}
 						
@@ -431,7 +418,7 @@ public class Translator {
 						String instrValue = i.getInstrID();
 						String sizeModifier = getSizeModifier(typeSizes.get(i.getType()));
 						Integer offset2 = variableOffsets.get(instrValue);
-						totalParamOffset += offset2;
+						totalParamOffset += (typeSizes.get(i.getType()));
 						
 						asm.add("\tpush" + sizeModifier + "\t" + offset2 + "(%rbp)\n");
 					}
@@ -441,7 +428,7 @@ public class Translator {
 					asm.add("\tcall " + inst.getOp1Name() + "\n");
 					
 					// clean up stack after the call (add offset based on number of params to "pop" all pushed params)
-					asm.add("\taddl $" + totalParamOffset + ", %esp");
+					asm.add("\taddl\t$" + totalParamOffset + ", %esp\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
@@ -472,9 +459,7 @@ public class Translator {
 			
 			// function footer
 			asm.add("\tpopq	%rbp\n");
-			asm.add("\t.cfi_def_cfa 7, 8\n");
-			asm.add("\tret\n");
-			asm.add("\t.cfi_endproc\n");			
+			asm.add("\tret\n");		
 		
 
 			funcAsm.put(funcName, asm);
@@ -492,7 +477,7 @@ public class Translator {
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/conditions.c");
+		Scanner s = new Scanner("test/function.c");
     	s.scan();
     
 //		s.printTokens();
