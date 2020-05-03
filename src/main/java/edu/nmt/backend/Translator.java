@@ -253,7 +253,10 @@ public class Translator {
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
-				} else if(inst.getOperation().equals("jump")) {
+				} else if(inst.getType().equals("conditionalJump")) {
+					// Build jump statement
+					asm.add("\tJMP CONDITIONAL" + "\t" + "\n");
+				} else if(inst.getType().equals("unconditionalJump")) {
 					String splitres[];
 					splitres = inst.toString().split(" ");
 					asm.add("\tJMP" + "\t" +splitres[1] + "\n");
@@ -262,6 +265,13 @@ public class Translator {
 					splitres = inst.toString().split("=");
 					
 					asm.add(splitres[0].replace(" ", "") + ": \n");
+				} else if(inst.getType().equals("boolean")) {
+					String splitres[];
+					
+					// Process statement
+					splitres = inst.toString().split(" ");
+					
+					asm.add("\tCOMPARISON" + "\n");
 				}
 			}
 			
@@ -287,7 +297,7 @@ public class Translator {
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/goto.c");
+		Scanner s = new Scanner("test/conditions.c");
     	s.scan();
     
 //		s.printTokens();
