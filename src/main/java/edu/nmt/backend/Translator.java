@@ -147,7 +147,6 @@ public class Translator {
 				// since this is already linearized, just simply translate Instruction object to corresponding assembly command(s)
 				if (inst.getOperation() == null) {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
-<<<<<<< Updated upstream
 					String instrValue = null;
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					// TODO: make uninitialized varDeclarations more graceful (move 0 directly rather than creating a new variable first)
@@ -168,16 +167,6 @@ public class Translator {
 						asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
 						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					}
-
-=======
-					String instrValue = inst.getOperand1().getInstrID();
-					
-//					System.out.println(instrValue);
-//					System.out.println(variableOffsets.get(instrValue));
-					
-					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t" + variableOffsets.get(instrValue) + "(%rbp), " + offset + "(%rbp)\n");
-					
->>>>>>> Stashed changes
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("=")) {
