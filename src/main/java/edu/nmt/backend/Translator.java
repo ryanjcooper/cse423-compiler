@@ -13,6 +13,7 @@ import edu.nmt.frontend.Node;
 import edu.nmt.frontend.parser.ASTParser;
 import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
+import edu.nmt.optimizer.CallInstruction;
 import edu.nmt.optimizer.CodeOptimizations;
 import edu.nmt.optimizer.IR;
 import edu.nmt.optimizer.Instruction;
@@ -120,7 +121,6 @@ public class Translator {
 			asm.add("\t.cfi_def_cfa_register 6\n");
 			
 			// adjust stack pointer for necessary locals
-			
 			
 //			asm.add("\tsubq	$16, %rsp\n");
 //			asm.add("\tmovl	$7, -4(%rbp)\n");
@@ -399,11 +399,18 @@ public class Translator {
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
 				} else if (inst.getOperation().contentEquals("call")) {
-					// push parameters specified by callInstruction
-					// save %eax, %ecx, %edx
-					// call <label>
+					CallInstruction call = (CallInstruction) inst;
+					// push parameters specified by the callInstruction to stack
+					for (Instruction i : call.getParamList()) {
+						String instrValue = i.getInstrID();
+						String sizeModifier = getSizeModifier(typeSizes.get(i.getType()));
+						Integer offset = variableOffsets.get(instrValue);
+						
+						asm.add("\tpush" + sizeModifier + "\t" + offset + "(%rbp)\n");
+					}
+					
+					// call <functionLabel>
 					asm.add("\tcall " + inst.getOp1Name());
-					// clean up stack
 				}
 			}
 			
