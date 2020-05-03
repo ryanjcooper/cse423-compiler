@@ -152,33 +152,23 @@ public class Translator {
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					// TODO: make uninitialized varDeclarations more graceful (move 0 directly rather than creating a new variable first)
 					if(inst.getOperand1() == null) {
-						// since every uninitialized variable will use this variable location, all of them will access this storage location upon declaration - which can have unintended behavior
-						// slight chance this will mess up types since this temporary variable will take the type of the first uninitialized variable
-						instrValue = "_0";
-						if (!variableOffsets.containsKey("_0")) {
-							// if var is declared but uninitialized, default value to 0
-							asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t$0, " + offset + "(%rbp)\n");
-							
-							variableOffsets.put(instrValue, offset);
-							variableSizes.put(instrValue, typeSizes.get(inst.getType()));
-							
-							offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
-						}
+						// if var is declared without initializing, default value to 0
+						asm.add("\tmov" + sizeModifier + "\t$0, " + offset + "(%rbp)\n");
 					} else {
 						// if var is declared and initialized
 						instrValue = inst.getOperand1().getInstrID();
+						
+						String regModifier = getRegisterModifier(variableSizes.get(instrValue));
+						
+						if(inst.getOperand1() instanceof CallInstruction) {
+							// move result of function call into memory
+							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + variableOffsets.get(instrValue) + "(%rbp)\n");
+						}
+						
+						asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					}
-					
-					String regModifier = getRegisterModifier(variableSizes.get(instrValue));
-					
-					if(inst.getOperand1() instanceof CallInstruction) {
-						// move result of function call onto stack
-						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + variableOffsets.get(instrValue) + "(%rbp)\n");
-					}
-					
-					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
-					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
-					
+
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("=")) {
@@ -434,14 +424,16 @@ public class Translator {
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
 				} else if (inst.getOperation().equals("call")) {
+					Integer totalParamOffset = 0;
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					CallInstruction call = (CallInstruction) inst;
+					// push parameters specified by the callInstruction to stack in right-to-left order
 					Collections.reverse(call.getParamList());
-					// push parameters specified by the callInstruction to stack
 					for (Instruction i : call.getParamList()) {
 						String instrValue = i.getInstrID();
 						String sizeModifier = getSizeModifier(typeSizes.get(i.getType()));
 						Integer offset2 = variableOffsets.get(instrValue);
+						totalParamOffset += offset2;
 						
 						asm.add("\tpush" + sizeModifier + "\t" + offset2 + "(%rbp)\n");
 					}
@@ -449,6 +441,9 @@ public class Translator {
 					
 					// call <functionLabel>
 					asm.add("\tcall " + inst.getOp1Name() + "\n");
+					
+					// clean up stack after the call (add offset based on number of params to "pop" all pushed params)
+					asm.add("\taddl $" + totalParamOffset + ", %esp");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
