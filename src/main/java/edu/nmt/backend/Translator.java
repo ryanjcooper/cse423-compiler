@@ -463,7 +463,7 @@ public class Translator {
 				asm.add("\tmovq\t$60, %rax\n");
 				asm.add("\tsyscall\n");
 			} else {
-				asm.add("\tpopq	%rbp\n");
+				asm.add("\tmovq	%rbp, %rsp\n");
 				asm.add("\tpopq	%rbp\n");
 				asm.add("\tret\n");	
 			}
