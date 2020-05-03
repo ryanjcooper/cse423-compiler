@@ -116,7 +116,7 @@ public class Translator {
 			
 			for (Instruction inst : funcInstr) {
 			
-				System.out.println(inst.getOperation() + " goes to: " + inst);
+//				System.out.println(inst.getOperation() + " goes to: " + inst);
 				
 				// since this is already linearized, just simply translate Instruction object to corresponding assembly command(s)
 				if (inst.getOperation() == null) {
