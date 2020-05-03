@@ -29,6 +29,7 @@ public class Translator {
 	
 	private IR ir;
 	private ASTParser a;
+	private List<String> fileAsm;
 
 	
 	public Translator(IR ir, ASTParser a) {
@@ -477,13 +478,7 @@ public class Translator {
 			fileAsm.addAll(asm);
 		}
 		
-		System.out.println("\n");
-		for(String s : fileAsm) {
-			System.out.print(s);
-		}
-		
-		
-		
+		this.fileAsm = fileAsm;
 	}
 	
 	
@@ -521,6 +516,17 @@ public class Translator {
     	}
 	
 		
+	}
+
+	public String getAsmString() {
+		StringBuilder sb = new StringBuilder();
+		
+		for(String s : this.fileAsm) {
+			sb.append(s);
+		}
+		sb.append("\n");
+		
+		return sb.toString();
 	}
 	
 }
