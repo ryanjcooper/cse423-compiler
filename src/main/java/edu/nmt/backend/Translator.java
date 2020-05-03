@@ -137,7 +137,25 @@ public class Translator {
 				// since this is already linearized, just simply translate Instruction object to corresponding assembly command(s)
 				if (inst.getOperation() == null) {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
-					String instrValue = inst.getOperand1().getInstrID();
+					String instrValue = null;
+					if (inst.getOperand1() != null) {
+						// if var is declared and initialized
+						instrValue = inst.getOperand1().getInstrID();
+					} else {
+						// since every uninitialized variable will use this variable location, all of them will access this storage location upon declaration - which can have unintended behavior
+						// slight chance this will mess up types since this temporary variable will take the type of the first uninitialized variable
+						instrValue = "_0";
+						if (!variableOffsets.containsKey("_0")) {
+							// if var is declared but uninitialized, default value to 0
+							asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t$0, " + offset + "(%rbp)\n");
+//							
+							variableOffsets.put(instrValue, offset);
+							variableSizes.put(instrValue, typeSizes.get(inst.getType()));
+							
+							offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+						}
+					}
+					
 					String regModifier = getRegisterModifier(variableSizes.get(instrValue));
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
@@ -398,7 +416,7 @@ public class Translator {
 					}
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
-				} else if (inst.getOperation().contentEquals("call")) {
+				} else if (inst.getOperation().equals("call")) {
 					CallInstruction call = (CallInstruction) inst;
 					// push parameters specified by the callInstruction to stack
 					for (Instruction i : call.getParamList()) {
@@ -411,6 +429,8 @@ public class Translator {
 					
 					// call <functionLabel>
 					asm.add("\tcall " + inst.getOp1Name());
+				} else if (inst.getOperation().equals("funcParam")) {
+					// TODO: Implement this
 				}
 			}
 			

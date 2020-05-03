@@ -747,7 +747,7 @@ public class IR {
 	
 	
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/function.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
@@ -765,14 +765,14 @@ public class IR {
 		a.printSymbolTable();
 		Node root = a.getRoot();
 		root.recursiveSetDepth();
-		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+//		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(a);
 		List<Instruction> mainList = test.getFunctionIRs().get("main");
-//		List<Instruction> foo = test.getFunctionIRs().get("foo");
+		List<Instruction> foo = test.getFunctionIRs().get("foo");
 //		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 //		System.out.println("printing foo");
-//		IR.printFunc(test.getFunctionIRs(), "foo");
+		IR.printFunc(test.getFunctionIRs(), "foo");
 		
 		//test.printIR();
 		
