@@ -14,7 +14,6 @@ import edu.nmt.frontend.parser.ASTParser;
 import edu.nmt.frontend.parser.Parser;
 import edu.nmt.frontend.scanner.Scanner;
 import edu.nmt.optimizer.CallInstruction;
-import edu.nmt.optimizer.CodeOptimizations;
 import edu.nmt.optimizer.IR;
 import edu.nmt.optimizer.Instruction;
 
@@ -143,7 +142,7 @@ public class Translator {
 			
 			for (Instruction inst : funcInstr) {
 			
-				System.out.println(inst);
+				System.out.println(inst.getOperation() + " goes to: " + inst);
 				
 				// since this is already linearized, just simply translate Instruction object to corresponding assembly command(s)
 				if (inst.getOperation() == null) {
@@ -180,7 +179,7 @@ public class Translator {
 					asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue2) + "(%rbp), %" + regModifier + "bx\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + variableOffsets.get(instrValue1) + "(%rbp)\n");
 				} else if (inst.getOperation().equals("numeric_constant")) {
-					
+					System.out.println("Constant: "+inst);
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 
 					asm.add("\tmov" + getSizeModifier(typeSizes.get(inst.getType())) + "\t$" + inst.getOp1Name() + ", " + offset + "(%rbp)\n");
@@ -460,6 +459,25 @@ public class Translator {
 					variableOffsets.put(inst.getInstrID() + "Param", paramOffset);
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
+				} else if(inst.getType().equals("conditionalJump")) {
+					// Build jump statement
+					asm.add("\tJMP CONDITIONAL" + "\t" + "\n");
+				} else if(inst.getType().equals("unconditionalJump")) {
+					String splitres[];
+					splitres = inst.toString().split(" ");
+					asm.add("\tJMP" + "\t" +splitres[1] + "\n");
+				} else if(inst.getOperation().equals("label")) {
+					String splitres[];
+					splitres = inst.toString().split("=");
+					
+					asm.add(splitres[0].replace(" ", "") + ": \n");
+				} else if(inst.getType().equals("boolean")) {
+					String splitres[];
+					
+					// Process statement
+					splitres = inst.toString().split(" ");
+					
+					asm.add("\tCOMPARISON" + "\n");
 				}
 			}
 			
@@ -485,7 +503,7 @@ public class Translator {
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/test.c");
+		Scanner s = new Scanner("test/conditions.c");
     	s.scan();
     
 //		s.printTokens();
