@@ -467,13 +467,6 @@ public class Translator {
 					splitres = inst.toString().split("=");
 					
 					asm.add(splitres[0].replace(" ", "") + ": \n");
-				} else if(inst.getType().equals("boolean")) {
-					String splitres[];
-					
-					// Process statement
-					splitres = inst.toString().split(" ");
-					
-					asm.add("\tCOMPARISON" + "\n");
 				}
 			}
 			
