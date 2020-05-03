@@ -444,7 +444,7 @@ public class Translator {
 					String regModifier = getRegisterModifier(typeSizes.get(inst.getType()));
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
-					asm.add("\tmov" + sizeModifier + "\t" + paramOffset + "(%rbp), %" + regModifier + "bx\n");
+					asm.add("\tmov" + sizeModifier + "\t" + (paramOffset + 12) + "(%rbp), %" + regModifier + "bx\n");
 					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
