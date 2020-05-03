@@ -47,6 +47,14 @@ public class CallInstruction extends Instruction {
 						  + op1Name + " " + op2 + " " + sb;
 	}
 	
+	public List<Instruction> getParamList() {
+		return paramList;
+	}
+
+	public void setParamList(List<Instruction> paramList) {
+		this.paramList = paramList;
+	}
+
 	public String toString() {
 		String returnStr = "push ";
 		for (Instruction i : this.paramList) {

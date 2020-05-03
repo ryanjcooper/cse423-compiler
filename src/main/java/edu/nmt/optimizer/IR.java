@@ -66,16 +66,48 @@ public class IR {
 	}
 	
 	private Node convertSwitchStmt(Node switchStmt) {
+		Node topIfStmt = new Node(new Token(null, "ifStmt"));
 		Node identifier = switchStmt.getChildren().get(0);
 		Node caseList = switchStmt.getChildren().get(1);
+		List<Node> switchCasesAsConditions = new ArrayList<Node>();
 		Collections.reverse(caseList.getChildren());
 		
+		for (Node c : caseList.getChildren()) {
+			Node switchLabel = c.getChildren().get(1);
+			switchCasesAsConditions.add(this.buildSwitchCondition(identifier, switchLabel));
+		}
+		
+		for (int i = 0; i < switchCasesAsConditions.size(); i++) {
+			Node condition = switchCasesAsConditions.get(i);
+			topIfStmt.getChildren().add(condition);
+			condition.setParent(topIfStmt);
+			Node compoundStmt = new Node(new Token(null, "compoundStmt"));
+			Node compoundStmtBody = caseList.getChildren().get(i).getChildren().get(0);
+//			List<Node> compoundStmtChildren = new ArrayList<Node>(compoundStmtBody.getChildren()); 
+		}
 		
 		return null;
 	}
 	
-	private Node buildSwitchCondition(Node identifier, Node switchCase) {
-		return null;
+	private Node buildSwitchCondition(Node identifier, Node switchLabel) {
+		if (switchLabel.getChildren().isEmpty()) {
+			return null;
+		}
+		
+		Node condition = new Node(new Token(null, "condition"));
+		Node boolExpr = new Node(new Token(null, "boolExpr"));
+		Node testVal = new Node(switchLabel.getChildren().get(0));
+		Node testID = new Node(identifier);
+		
+		condition.addChild(boolExpr);
+		boolExpr.setParent(condition);
+		boolExpr.setOp("==");
+		boolExpr.addChild(testVal);
+		boolExpr.addChild(testID);
+		testVal.setParent(boolExpr);
+		testID.setParent(boolExpr);
+
+		return condition;
 	}
 	
 	private static Node convertAssignStmt(Node assignStmt) {
@@ -715,7 +747,7 @@ public class IR {
 	
 	
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/test.c");
+		Scanner scanner = new Scanner("test/function.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
@@ -740,7 +772,7 @@ public class IR {
 //		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 //		System.out.println("printing foo");
-//		IR.printFunc(test.getFunctionIRs(), "foo");
+		IR.printFunc(test.getFunctionIRs(), "foo");
 		
 		//test.printIR();
 		
