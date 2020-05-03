@@ -352,7 +352,7 @@ public class Translator {
 					} else {
 						/* x > y is converted to x >= y + 1 */
 						if (inst.getOperation().equals(">")) {
-							asm.add("\tadd" + sizeModifier + "\t$1," + regModifier + "bx\n");
+							asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
 							inst.setOperation(">=");
 						}
 						
@@ -461,10 +461,7 @@ public class Translator {
 				}  else if(inst.getType().equals("unconditionalJump")) {
 					String instrValue2 = inst.getOperand2().getInstrID();
 					jumpLabels.put(instrValue2, instrValue2 + "unconditionalJump");
-					System.out.println("Label goes here: " + jumpLabels.get(instrValue2));
-					String splitres[];
-					splitres = inst.toString().split(" ");
-					asm.add("\tjmp" + "\t" +jumpLabels.get(instrValue2) + "\n");
+					asm.add("\tjmp" + "\t" + jumpLabels.get(instrValue2) + "\n");
 				} else if(inst.getOperation().equals("label")) {
 					String splitres[];
 					splitres = inst.toString().split("=");
