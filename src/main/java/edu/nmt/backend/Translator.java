@@ -150,7 +150,6 @@ public class Translator {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					String instrValue = null;
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
-					// TODO: make uninitialized varDeclarations more graceful (move 0 directly rather than creating a new variable first)
 					if(inst.getOperand1() == null) {
 						// if var is declared without initializing, default value to 0
 						asm.add("\tmov" + sizeModifier + "\t$0, " + offset + "(%rbp)\n");
@@ -354,7 +353,7 @@ public class Translator {
 					} else {
 						/* x > y is converted to x >= y + 1 */
 						if (inst.getOperation().equals(">")) {
-							asm.add("\tadd" + sizeModifier + "\t$1," + regModifier + "bx\n");
+							asm.add("\tadd" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
 							inst.setOperation(">=");
 						}
 						
@@ -369,7 +368,7 @@ public class Translator {
 						
 						/* x <= y is converted to x - 1 < y */
 						if (inst.getOperation().equals("<=")) {
-							asm.add("\tsub" + sizeModifier + "\t$1," + regModifier + "bx\n");
+							asm.add("\tsub" + sizeModifier + "\t$1, %" + regModifier + "bx\n");
 							inst.setOperation("<");
 						}
 						
@@ -433,7 +432,7 @@ public class Translator {
 						String instrValue = i.getInstrID();
 						String sizeModifier = getSizeModifier(typeSizes.get(i.getType()));
 						Integer offset2 = variableOffsets.get(instrValue);
-						totalParamOffset += offset2;
+						totalParamOffset += (typeSizes.get(i.getType()));
 						
 						asm.add("\tpush" + sizeModifier + "\t" + offset2 + "(%rbp)\n");
 					}
@@ -443,7 +442,7 @@ public class Translator {
 					asm.add("\tcall " + inst.getOp1Name() + "\n");
 					
 					// clean up stack after the call (add offset based on number of params to "pop" all pushed params)
-					asm.add("\taddl $" + totalParamOffset + ", %esp");
+					asm.add("\taddl\t$" + totalParamOffset + ", %esp\n");
 					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
