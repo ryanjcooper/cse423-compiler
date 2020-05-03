@@ -426,6 +426,8 @@ public class Translator {
 						String sizeModifier = getSizeModifier(typeSizes.get(i.getType()));
 						Integer offset2 = variableOffsets.get(instrValue);
 						totalParamOffset += (typeSizes.get(i.getType()));
+						
+						asm.add("\tpushq\t" + offset2 + "(%rbp)\n");
 					}
 					Collections.reverse(call.getParamList());
 					
