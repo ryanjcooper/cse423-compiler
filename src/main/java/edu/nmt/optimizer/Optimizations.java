@@ -308,7 +308,7 @@ public class Optimizations {
 			status = false;
 			status |= o1.constProp();
 			status |= o1.constFold();
-			IR.printMain(target.getFunctionIRs());
+//			IR.printMain(target.getFunctionIRs());
 		}
 		o1.clean();
 		
