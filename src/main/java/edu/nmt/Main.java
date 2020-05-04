@@ -49,10 +49,6 @@ public class Main {
         
         Option help = new Option("help", "print this message");
         options.addOption(help);
-
-//        Option tok = new Option("t", "tokens", false, "dump tokens to file");
-//        tok.setRequired(false);
-//        options.addOption(tok);
         
         Option pt = new Option("pt", "print-tokens", false, "print tokens to console");
         pt.setRequired(false);
@@ -66,11 +62,11 @@ public class Main {
         ppt.setRequired(false);
         options.addOption(ppt);
         
-        Option wpt = new Option("wp", "write-parsetree", true, "write parse tree to file (not yet supported!)");
+        Option wpt = new Option("wp", "write-parsetree", true, "write parse tree to file");
         wpt.setRequired(false);
         options.addOption(wpt);
         
-        Option apt = new Option("ap", "print-ast", false, "print the abstract syntax tree (limited support)");
+        Option apt = new Option("ap", "print-ast", false, "print the abstract syntax tree ");
         apt.setRequired(false);
         options.addOption(apt);
         
@@ -200,7 +196,7 @@ public class Main {
                 	}
                 	
                 	if (writeParseFile != null) {
-                		//p.writeParseTree(writeParseFile);
+                		p.writeParseTree(writeParseFile);
                 	}
                 	
                 	// Start AST Parser
