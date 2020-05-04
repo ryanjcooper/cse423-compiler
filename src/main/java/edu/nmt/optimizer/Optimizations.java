@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import edu.nmt.backend.Translator;
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
 import edu.nmt.frontend.parser.ASTParser;
@@ -98,14 +99,15 @@ public class Optimizations {
 				for(counter = 1; counter < splitres.length; counter++) {
 					if(varMap.get(splitres[counter]) != null) {		
 						try {
-				    		i.setOperation("identifier");
+				    		
 				    		if(i.op1Name != null) {
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			
+//				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
 				    		}
 				    		status = true;
+				    		i.setOperation("identifier");
 				    	} catch (NullPointerException e) {
 				    		i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
 							status = true;
@@ -118,7 +120,7 @@ public class Optimizations {
 				splitres = i.toString().split("=");
 				i.setOp1Name(splitres[1]);
 				
-				i.setOperation("identifier");
+				i.operation = "numeric_constant";
 				
 			}
 			else if (stattype.equals(Statement.returnStatement)) {
@@ -126,13 +128,15 @@ public class Optimizations {
 				for(counter = 1; counter < splitres.length; counter++) {
 					if(varMap.get(splitres[counter]) != null) {		
 						try {
-				    		i.setOperation("identifier");
+				    		
 				    		if(i.op1Name != null) {
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
 //				    			System.out.println("***DISReplacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
+				    			i.setOperation("identifier");
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
 //				    			System.out.println("*****DISReplacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+				    			i.setOperation("identifier");
 				    		}
 				    		status = true;
 				    	} catch (NullPointerException e) {
@@ -194,9 +198,8 @@ public class Optimizations {
 				
 				if(eval.GetValue() != null) {
 					try {
-			    		i.setOperation("identifier");
 			    		i.op1Name  = Integer.toString(eval.GetValue().intValue());
-			    		
+			    		i.setOperation("identifier");
 			    		if(Integer.parseInt(splitres[0]) != eval.GetValue().intValue()) {
 			    			status = true;
 			    		}
@@ -218,7 +221,7 @@ public class Optimizations {
 			
 			if(eval.GetValue() != null) {
 				try {
-		    		i.setOperation("identifier");
+//		    		i.setOperation("identifier");
 		    		i.op1Name  = Integer.toString(eval.GetValue().intValue());
 		    		
 		    		if(Integer.parseInt(splitres[1]) != eval.GetValue().intValue()) {
@@ -255,6 +258,7 @@ public class Optimizations {
 		// Iterate through to find live variables
 		for(Instruction i : instrList) {
 			splitres = i.toString().split(" ");
+//			System.out.println("Line: " + i.toString() +" operation: " + i.operation);
 			
 			// Iterate through statement to find vars
 			for(j = 1; j < splitres.length; j++) {
@@ -262,7 +266,8 @@ public class Optimizations {
 				try {
 					Integer.parseInt(splitres[j]);
 					if(splitres[0].contains("_") == false) {
-						liveVars.add(splitres[0]);
+//						liveVars.add(splitres[0]);
+						i.operation = "numeric_constant";
 					}
 					continue;
 				} catch (NumberFormatException e) {
@@ -276,6 +281,7 @@ public class Optimizations {
 		
 		//Find lines that are built for unused variables
 		for(Instruction i : instrList) {
+//			System.out.println("Stage 2 Line: " + i.toString() +" operation: " + i.operation);
 			splitres = i.toString().split(" ");
 			if(!liveVars.contains(splitres[0]) && splitres[1].contentEquals("=")) {
 				deadLines.add(i);
@@ -292,6 +298,19 @@ public class Optimizations {
 			count++;
 		}
 		this.target.setInstrCount(count);
+		
+		for(Instruction i : instrList) {
+			try {
+				if(i.op1Name != null) {
+//					System.out.println("LHS: " + i.op1Name);
+					Integer.parseInt(i.op1Name);
+//					System.out.println("Passed");
+					i.operation = "numeric_constant";
+				}
+			} catch (NumberFormatException e) {
+//				System.out.println("FAILED");
+			}
+		}
 	}
 	
 	/**
@@ -376,6 +395,11 @@ public class Optimizations {
 		Optimizations.l1Optimize(test); //  Example for calling L1 Opt
 //		System.out.println("\nPost-Optimization");
 		IR.printMain(test.getFunctionIRs());
+		
+		Translator t = new Translator(test, a);
+		System.out.println("Translator");
+		t.translate();
+		System.out.println(t.getAsmString());
 	}
 
 }

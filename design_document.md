@@ -252,3 +252,29 @@ using loops and may not functions as expected.
 | ------------- |-------------|
 | Constant Propagation     | :heavy_check_mark: |
 | Constant Folding | :heavy_check_mark: |
+
+### Backend
+
+#### Translator
+The translator is a naive direct translation of our IR. Since our IR is a list of instructions, the translator takes each instruction one at a time and translates it to x86 assembly code. Each tmp variable created in the IR is pushed onto the stack, although not an efficient way of doing so, it is effective in creating competent assembly code and our optimizations can alleviate this.
+
+Translator also follows the load-store paradigm. It loads operands from the stack, manipulates the operands locally in registers using register allocation, then stores the result on the stack.
+
+<b>x86 Commands Utilized</b>
+<ul>
+<li>mov</li>
+<li>add</li>
+<li>sub</li>
+<li>and</li>
+<li>or</li>
+<li>xor</li>
+<li>shl</li>
+<li>shr</li>
+<li>imul</li>
+<li>idiv</li>	
+<li>cmp</li>
+<li>jmp, je, jne</li>	
+<li>call</li>
+<li>ret</li>	
+<li>syscall</li>	
+</ul>

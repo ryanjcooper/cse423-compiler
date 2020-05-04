@@ -859,20 +859,27 @@ public class ASTParser {
 										
 										switchLabelNode = child3;
 										String caseType = null;
+										String key = null;
 										for(Node child4 : child3.getChildren()) {
+											System.out.println(child4);
 											if (child4.getToken().getTokenLabel().equals("case")) {
 												caseType = "case";
+											} else if (child4.getToken().getTokenLabel().equals("constant")) {
+												key = child4.getChildren().get(0).getToken().getTokenString();
+												System.out.println("KEYH: "+ key);
 											}
 										}
 										if (caseType == null) {
 											caseType = "default";
 										}
+										child2.setOp(key);
 										child2.setName(caseType);
+										
 									}
 									
 								}
 								
-								if ((switchLabelNode != null) && (child2.getName().equals("default"))) {
+								if ((switchLabelNode != null)) {
 									tmp2 = child2.getChildren();
 									tmp2.remove(switchLabelNode);
 									child2.setChildren(tmp2);
@@ -1021,7 +1028,7 @@ public class ASTParser {
 	}
 	
 	public static void main(String argv[]) throws Exception {
-		Scanner scanner = new Scanner("test/switch.c");
+		Scanner scanner = new Scanner("test/min.c");
 		scanner.scan();
 		
 		scanner.printTokens();
