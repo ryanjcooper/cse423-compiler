@@ -27,7 +27,7 @@
 #### Optional Features
 | Feature                 | Scanner            | Parser              | AST                 | IR                  | Backend             |
 | :---------------------: | :----------------: | :-----------------: | :-----------------: | :-----------------: | :-----------------: |
-| More Types              | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
+| More Types (int, void, char) | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
 | ++, - , -=. +=, \*=, /= | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
 | For Loops               | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
 | Binary Operators        | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  | :heavy_check_mark:  |
