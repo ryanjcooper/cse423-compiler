@@ -842,14 +842,21 @@ public class ASTParser {
 								Node bodyNode = new Node(new Token("body", "body"));
 								Node stmtListNode = null;
 								Node switchLabelNode = null;
-								
-//								System.out.println(child2.getChildren());
+								Node returnNode = null;
+								Node returnExpression = null;
 								
 								for (Node child3 : child2.getChildren()) {
 									if (child3.getToken().getTokenLabel().equals("statementList")) {
-										stmtListNode = child3;									
+										stmtListNode = child3;				
 										
-									}  else if (child3.getToken().getTokenLabel().equals("switchLabel")) {
+									} else if (child3.getToken().getTokenLabel().equals("return")) {
+										returnNode = child3;
+									
+									} else if (child3.getToken().getTokenLabel().equals("expression")) {
+										returnExpression = child3;
+										
+									} else if (child3.getToken().getTokenLabel().equals("switchLabel")) {
+										
 										switchLabelNode = child3;
 										String caseType = null;
 										for(Node child4 : child3.getChildren()) {
@@ -871,26 +878,25 @@ public class ASTParser {
 									child2.setChildren(tmp2);
 								}
 								
-//								
-//								if (stmtListNode != null) {
-//									
-//									// insert placeholder node into parent
-//									tmp = child2.getChildren();
-//									int idx = tmp.indexOf(stmtListNode);
-//									tmp.add(idx, bodyNode);
-//									tmp.remove(stmtListNode);
-//									
-//									child2.setChildren(tmp);
-//									bodyNode.setParent(child2);
-//									
-//									// rollup statementList node to be child of body node
-//									stmtListNode.setParent(bodyNode);
-//									tmp = new ArrayList<Node>();
-//									tmp.add(stmtListNode);
-//									
-//									bodyNode.setChildren(tmp);
-//									
-//								}
+								
+								if (returnNode != null && returnExpression != null) {
+									Node returnStmt = new Node(new Token("returnStmt", "returnStmt"));
+									
+									tmp2 = new ArrayList<Node>();
+									tmp2.add(returnNode);
+									tmp2.add(returnExpression);
+									
+									returnStmt.setParent(child2);
+									returnNode.setParent(returnStmt);
+									returnExpression.setParent(returnStmt);
+									returnStmt.setChildren(tmp2);
+									
+									tmp2 = child2.getChildren();
+									tmp2.add(tmp2.indexOf(returnNode), returnStmt);
+									tmp2.remove(returnNode);
+									tmp2.remove(returnExpression);
+									child2.setChildren(tmp2);
+								}
 							}
 						}
 					}
@@ -1018,7 +1024,7 @@ public class ASTParser {
 		Scanner scanner = new Scanner("test/switch.c");
 		scanner.scan();
 		
-//		scanner.printTokens();
+		scanner.printTokens();
 		
 		Grammar g = new Grammar("config/grammar.cfg");
 		g.loadGrammar();
