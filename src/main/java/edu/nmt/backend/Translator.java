@@ -29,6 +29,7 @@ public class Translator {
 	
 	private IR ir;
 	private ASTParser a;
+	private List<String> fileAsm;
 
 	
 	public Translator(IR ir, ASTParser a) {
@@ -416,7 +417,7 @@ public class Translator {
 					}
 				} else if (inst.getType().equals("label")) {
 					if (jumpLabels.get(inst.getInstrID()) == null) {
-						jumpLabels.put(inst.getInstrID(), inst.getInstrID() + inst.getOp1Name());
+						jumpLabels.put(inst.getInstrID(), inst.getInstrID() + "conditionalJump");
 					}
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
@@ -464,10 +465,10 @@ public class Translator {
 					variableOffsets.put(inst.getInstrID() + "Param", paramOffset);
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
-				} else if(inst.getType().equals("unconditionalJump")) {
-					String splitres[];
-					splitres = inst.toString().split(" ");
-					asm.add("\tJMP" + "\t" +splitres[1] + "\n");
+				}  else if(inst.getType().equals("unconditionalJump")) {
+					String instrValue2 = inst.getOperand2().getInstrID();
+					jumpLabels.put(instrValue2, instrValue2 + "unconditionalJump");
+					asm.add("\tjmp" + "\t" + jumpLabels.get(instrValue2) + "\n");
 				}
 			}
 			
@@ -487,18 +488,12 @@ public class Translator {
 			fileAsm.addAll(asm);
 		}
 		
-		System.out.println("\n");
-		for(String s : fileAsm) {
-			System.out.print(s);
-		}
-		
-		
-		
+		this.fileAsm = fileAsm;
 	}
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/function.c");
+		Scanner s = new Scanner("test/while.c");
     	s.scan();
     
 //		s.printTokens();
@@ -528,9 +523,21 @@ public class Translator {
 			
 			Translator t = new Translator(ir, a);
 			t.translate();
+			System.out.println(t.getAsmString());
     	}
 	
 		
+	}
+
+	public String getAsmString() {
+		StringBuilder sb = new StringBuilder();
+		
+		for(String s : this.fileAsm) {
+			sb.append(s);
+		}
+		sb.append("\n");
+		
+		return sb.toString();
 	}
 	
 }
