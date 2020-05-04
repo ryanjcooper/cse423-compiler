@@ -1,5 +1,7 @@
 package edu.nmt;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +22,12 @@ import edu.nmt.frontend.scanner.Scanner;
 import edu.nmt.optimizer.IR;
 import edu.nmt.optimizer.Optimizations;
 import edu.nmt.RuntimeSettings;
+import edu.nmt.backend.Translator;
 
 public class Main {
 	
 	private static String sourceFilename;
+	private static String outputFilename;
 	private static String irFilenameIn;
 	private static String irFilenameOut;
 	private static Boolean storeTokens;
@@ -54,9 +58,9 @@ public class Main {
         pt.setRequired(false);
         options.addOption(pt);
 
-//        Option output = new Option("o", "output", true, "file to compile to");
-//        output.setRequired(false);
-//        options.addOption(output);
+        Option output = new Option("o", "output", true, "file to compile to, default is <inpfile>.s");
+        output.setRequired(false);
+        options.addOption(output);
         
         Option ppt = new Option("pp", "print-parsetree", false, "print the parse tree");
         ppt.setRequired(false);
@@ -133,6 +137,17 @@ public class Main {
             } else if (arglist.size() == 1) {
             	sourceFilename = arglist.get(0);
             	RuntimeSettings.sourceFilename = sourceFilename;
+         
+            	// output file
+            	if (!cmd.hasOption("o")) {
+            		String parts[] = sourceFilename.split("\\.");
+            		outputFilename = parts[0] + ".s"; 
+            		
+            	} else {
+            		outputFilename = cmd.getOptionValue("output");
+            	}
+            	
+            	RuntimeSettings.outputFilename = outputFilename;
             	
             } else if (arglist.size() == 0) {
                 formatter.printHelp(helpStatement, options);
@@ -152,7 +167,10 @@ public class Main {
 	
     public static void main(String[] args) throws Exception {
     	parseArgs(args);
-    	IR ir = new IR();
+    	IR ir = null;
+    	ASTParser a = null;
+    	Parser p = null;
+    	Grammar grammar = null;
     	
     	try {
         	if (!readIR) {
@@ -170,11 +188,11 @@ public class Main {
             	
             	
             	// Initialize grammar
-            	Grammar grammar = new Grammar(RuntimeSettings.grammarFile);
+            	grammar = new Grammar(RuntimeSettings.grammarFile);
             	grammar.loadGrammar();
             	
             	// Start parser
-            	Parser p = new Parser(grammar, s);  
+            	p = new Parser(grammar, s);  
 
             	if (p.parse()) {
             		if (printParseTree) {
@@ -186,7 +204,7 @@ public class Main {
                 	}
                 	
                 	// Start AST Parser
-            		ASTParser a = new ASTParser(p);
+            		a = new ASTParser(p);
             		
             		if (a.parse()) {
             			if (printAST) {
@@ -216,6 +234,28 @@ public class Main {
     		if (writeIR) {
     			ir.outputToFile(irFilenameOut);
     		}	
+    		
+    		// backend time
+    		try {
+    			Translator t = new Translator(ir, a);
+    			t.translate();
+    			
+				try {
+					  FileWriter myWriter = new FileWriter(RuntimeSettings.outputFilename);
+				      myWriter.write(t.getAsmString());
+				      myWriter.close();
+				} catch (IOException e) {
+					  System.out.println("An error occurred writing the assembly to file.");
+					  e.printStackTrace();
+				}    			
+    			
+    		} catch (Exception e) {
+    			System.err.println("We have encountered an internal error on the backend (ir -> .s), please ensure you are following all rules in the design_document.md");
+    			e.printStackTrace();
+    			System.exit(1);
+    		}
+    		
+    		
     	} catch (Exception e) {
     		System.out.println("An internal error has occurred.");
     		printLimitations();

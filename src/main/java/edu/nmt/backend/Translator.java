@@ -29,6 +29,7 @@ public class Translator {
 	
 	private IR ir;
 	private ASTParser a;
+	private List<String> fileAsm;
 
 	
 	public Translator(IR ir, ASTParser a) {
@@ -411,7 +412,7 @@ public class Translator {
 					}
 				} else if (inst.getType().equals("label")) {
 					if (jumpLabels.get(inst.getInstrID()) == null) {
-						jumpLabels.put(inst.getInstrID(), inst.getInstrID() + inst.getOp1Name());
+						jumpLabels.put(inst.getInstrID(), inst.getInstrID() + "conditionalJump");
 					}
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
@@ -477,18 +478,12 @@ public class Translator {
 			fileAsm.addAll(asm);
 		}
 		
-		System.out.println("\n");
-		for(String s : fileAsm) {
-			System.out.print(s);
-		}
-		
-		
-		
+		this.fileAsm = fileAsm;
 	}
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/function.c");
+		Scanner s = new Scanner("test/while.c");
     	s.scan();
     
 //		s.printTokens();
@@ -518,9 +513,21 @@ public class Translator {
 			
 			Translator t = new Translator(ir, a);
 			t.translate();
+			System.out.println(t.getAsmString());
     	}
 	
 		
+	}
+
+	public String getAsmString() {
+		StringBuilder sb = new StringBuilder();
+		
+		for(String s : this.fileAsm) {
+			sb.append(s);
+		}
+		sb.append("\n");
+		
+		return sb.toString();
 	}
 	
 }
