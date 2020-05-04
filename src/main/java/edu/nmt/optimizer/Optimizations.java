@@ -102,7 +102,7 @@ public class Optimizations {
 				    		
 				    		if(i.op1Name != null) {
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
+//				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
 				    		}
@@ -131,21 +131,21 @@ public class Optimizations {
 				    		
 				    		if(i.op1Name != null) {
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			System.out.println("***DISReplacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
+//				    			System.out.println("***DISReplacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
 				    			i.setOperation("identifier");
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-				    			System.out.println("*****DISReplacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//				    			System.out.println("*****DISReplacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 				    			i.setOperation("identifier");
 				    		}
 				    		status = true;
 				    	} catch (NullPointerException e) {
 				    		i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-			    			System.out.println("*******************DISReplacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//			    			System.out.println("*******************DISReplacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 							status = true;
 						}
 						splitres = i.toString().split(" ");
-						System.out.println("Now this is: " + i.toString());
+//						System.out.println("Now this is: " + i.toString());
 					}
 				}
 			} else if(stattype.equals(Statement.conditionStatement)) {
@@ -258,7 +258,7 @@ public class Optimizations {
 		// Iterate through to find live variables
 		for(Instruction i : instrList) {
 			splitres = i.toString().split(" ");
-			System.out.println("Line: " + i.toString() +" operation: " + i.operation);
+//			System.out.println("Line: " + i.toString() +" operation: " + i.operation);
 			
 			// Iterate through statement to find vars
 			for(j = 1; j < splitres.length; j++) {
@@ -281,7 +281,7 @@ public class Optimizations {
 		
 		//Find lines that are built for unused variables
 		for(Instruction i : instrList) {
-			System.out.println("Stage 2 Line: " + i.toString() +" operation: " + i.operation);
+//			System.out.println("Stage 2 Line: " + i.toString() +" operation: " + i.operation);
 			splitres = i.toString().split(" ");
 			if(!liveVars.contains(splitres[0]) && splitres[1].contentEquals("=")) {
 				deadLines.add(i);
@@ -302,13 +302,13 @@ public class Optimizations {
 		for(Instruction i : instrList) {
 			try {
 				if(i.op1Name != null) {
-					System.out.println("LHS: " + i.op1Name);
+//					System.out.println("LHS: " + i.op1Name);
 					Integer.parseInt(i.op1Name);
-					System.out.println("Passed");
+//					System.out.println("Passed");
 					i.operation = "numeric_constant";
 				}
 			} catch (NumberFormatException e) {
-				System.out.println("FAILED");
+//				System.out.println("FAILED");
 			}
 		}
 	}
@@ -327,7 +327,7 @@ public class Optimizations {
 			status = false;
 			status |= o1.constProp();
 			status |= o1.constFold();
-			IR.printMain(target.getFunctionIRs());
+//			IR.printMain(target.getFunctionIRs());
 		}
 		o1.clean();
 		
