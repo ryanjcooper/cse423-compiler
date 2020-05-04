@@ -257,18 +257,19 @@ public class Main {
     		
     		
     	} catch (Exception e) {
-    		System.out.println("An internal error has occurred.");
+    		System.err.println("An internal error has occurred.");
+    		e.printStackTrace();
     		printLimitations();
     	}
     }
     
     private static void printLimitations() {
-    	System.out.println("Make sure the input program does not disregard the following limitations:\n");
-    	System.out.println("arrays can be declared, but not specified statically i.e char string[] = \"\" works but not char string[] = {'a', 'b'}");
-    	System.out.println("arrays can be referenced with an int i.e. a[1] but not without the int, so \"a[] = b\" will not work");
-    	System.out.println("pointers can only be in the form *variable");
-    	System.out.println("for loops have to be in the \"form for (i = 0; i < 1; i++) { }\" not precise, just similar format");
-    	System.out.println("if statements, while loops, for loops all need braces around their interior");
-    	System.out.println("switch statements do not allow fall-through");
+    	System.err.println("Make sure the input program does not disregard the following limitations:\n");
+    	System.err.println("arrays can be declared, but not specified statically i.e char string[] = \"\" works but not char string[] = {'a', 'b'}");
+    	System.err.println("arrays can be referenced with an int i.e. a[1] but not without the int, so \"a[] = b\" will not work");
+    	System.err.println("pointers can only be in the form *variable");
+    	System.err.println("for loops have to be in the \"form for (i = 0; i < 1; i++) { }\" not precise, just similar format");
+    	System.err.println("if statements, while loops, for loops all need braces around their interior");
+    	System.err.println("switch statements do not allow fall-through");
     }
 }
