@@ -268,15 +268,22 @@ public class IR {
 		List<Instruction> returnInstr = new ArrayList<Instruction>();
 		List<Instruction> argListInstr = new ArrayList<Instruction>();
 		List<Instruction> paramList = new ArrayList<Instruction>();
-		Node args = call.getChildren().get(0);
-		Node funcID = call.getChildren().get(1);
-		if (args.getToken().getTokenLabel().contentEquals("argList")) {
+		Node args = null;
+		Node funcID = null;
+		if (call.getChildren().size() > 1) {
+			args = call.getChildren().get(0);
+			funcID = call.getChildren().get(1);
+		} else {
+			funcID = call.getChildren().get(0);
+		}
+		
+		if (args != null && args.getToken().getTokenLabel().contentEquals("argList")) {
 			Collections.reverse(args.getChildren());
 			for (Node c : args.getChildren()) {
 				argListInstr.addAll(this.buildInstruction(c));
 				paramList.add(argListInstr.get(argListInstr.size() - 1));
 			}
-		} else {
+		} else if (args != null) {
 			argListInstr.addAll(this.buildInstruction(args));
 			paramList.add(argListInstr.get(argListInstr.size() - 1));
 		}

@@ -56,13 +56,17 @@ public class CallInstruction extends Instruction {
 	}
 
 	public String toString() {
-		String returnStr = "push ";
-		for (Instruction i : this.paramList) {
-			returnStr += i.getInstrID() + ", ";
+		String returnStr = "";
+		if (this.paramList.size() > 0) {
+			returnStr = "push ";
+			for (Instruction i : this.paramList) {
+				returnStr += i.getInstrID() + ", ";
+			}
+			
+			returnStr = returnStr.substring(0, returnStr.length() - 2);
+			returnStr += ", then"; 
 		}
-		
-		returnStr = returnStr.substring(0, returnStr.length() - 2);
-		returnStr += ", then call function " + this.op1Name;
+		returnStr += "call function " + this.op1Name;
 		
 		return returnStr;
 	}
