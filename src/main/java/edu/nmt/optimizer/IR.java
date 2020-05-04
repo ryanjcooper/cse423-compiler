@@ -73,7 +73,11 @@ public class IR {
 		Collections.reverse(caseList.getChildren());
 		
 		for (Node c : caseList.getChildren()) {
-			Node switchLabel = c.getChildren().get(1);
+			Node switchLabel = null;
+			int childrenLen = c.getChildren().size();
+			if (childrenLen > 1) {
+				switchLabel = c.getChildren().get(childrenLen - 1);
+			}
 			switchCasesAsConditions.add(this.buildSwitchCondition(identifier, switchLabel));
 		}
 		
@@ -754,7 +758,7 @@ public class IR {
 	
 	
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/switch.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
@@ -772,7 +776,7 @@ public class IR {
 		a.printSymbolTable();
 		Node root = a.getRoot();
 		root.recursiveSetDepth();
-//		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+		Node mainAST = root.getChildren().get(0).getChildren().get(0).getChildren().get(0);
 		IR test = new IR(a);
 		List<Instruction> mainList = test.getFunctionIRs().get("main");
 		List<Instruction> foo = test.getFunctionIRs().get("foo");
