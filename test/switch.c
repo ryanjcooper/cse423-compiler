@@ -13,15 +13,15 @@ int main() {
 			return x + 1;
         }
 
-        if (i == 0) {
-        	x = i;
-        	return x;
-        } else if (i == 1) {
-        	return i + 1;
-        } else {
-        	x = i + 1;
-        	return x + 1;
-        }
+//        if (i == 0) {
+//        	x = i;
+//        	return x;
+//        } else if (i == 1) {
+//        	return i + 1;
+//        } else {
+//        	x = i + 1;
+//        	return x + 1;
+//        }
 
         return 0;
 }

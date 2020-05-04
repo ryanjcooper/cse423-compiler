@@ -65,53 +65,57 @@ public class IR {
 		this.functionIRs = functionIRs;
 	}
 	
-	private Node convertSwitchStmt(Node switchStmt) {
-		Node topIfStmt = new Node(new Token(null, "ifStmt"));
+	private static Node convertSwitchStmt(Node switchStmt) {
+		Node topIfStmt = null;
 		Node identifier = switchStmt.getChildren().get(0);
 		Node caseList = switchStmt.getChildren().get(1);
-		List<Node> switchCasesAsConditions = new ArrayList<Node>();
-		Collections.reverse(caseList.getChildren());
 		
 		for (Node c : caseList.getChildren()) {
-			Node switchLabel = null;
-			int childrenLen = c.getChildren().size();
-			if (childrenLen > 1) {
-				switchLabel = c.getChildren().get(childrenLen - 1);
+			Node ifStmt = new Node(new Token(null, "ifStmt"));
+			List<Node> newChildList = new ArrayList<Node>();
+			
+			if (!c.getName().contentEquals("default")) {
+				Node condition = new Node(new Token(null, "condition"));
+				Node boolExpr = new Node(new Token(null, "boolExpr"));
+				Node testVal = new Node(new Token(c.getOp()));
+				Node testID = new Node(identifier);
+				
+				condition.addChild(boolExpr);
+				boolExpr.setParent(condition);
+				boolExpr.setOp("==");
+				testVal.setType("int");
+				boolExpr.addChild(testVal);
+				boolExpr.addChild(testID);
+				testVal.setParent(boolExpr);
+				testID.setParent(boolExpr);
+				newChildList.add(condition);
+				condition.setParent(ifStmt);
 			}
-			switchCasesAsConditions.add(this.buildSwitchCondition(identifier, switchLabel));
-		}
-		
-		for (int i = 0; i < switchCasesAsConditions.size(); i++) {
-			Node condition = switchCasesAsConditions.get(i);
-			topIfStmt.getChildren().add(condition);
-			condition.setParent(topIfStmt);
+			
 			Node compoundStmt = new Node(new Token(null, "compoundStmt"));
-			Node compoundStmtBody = caseList.getChildren().get(i).getChildren().get(0);
-//			List<Node> compoundStmtChildren = new ArrayList<Node>(compoundStmtBody.getChildren()); 
-		}
-		
-		return null;
-	}
-	
-	private Node buildSwitchCondition(Node identifier, Node switchLabel) {
-		if (switchLabel.getChildren().isEmpty()) {
-			return null;
-		}
-		
-		Node condition = new Node(new Token(null, "condition"));
-		Node boolExpr = new Node(new Token(null, "boolExpr"));
-		Node testVal = new Node(switchLabel.getChildren().get(0));
-		Node testID = new Node(identifier);
-		
-		condition.addChild(boolExpr);
-		boolExpr.setParent(condition);
-		boolExpr.setOp("==");
-		boolExpr.addChild(testVal);
-		boolExpr.addChild(testID);
-		testVal.setParent(boolExpr);
-		testID.setParent(boolExpr);
+			Collections.reverse(c.getChildren());
+			if (c.getChildren().size() > 1) {
+				Node statementList = new Node(new Token(null, "statementList"));
+				
+				statementList.getChildren().addAll(c.getChildren());
+				compoundStmt.addChild(statementList);
+			} else {
+				compoundStmt.getChildren().addAll(c.getChildren());
+			}
+			
+			newChildList.add(compoundStmt);
 
-		return condition;
+			if (topIfStmt != null) {
+				newChildList.add(topIfStmt);
+				topIfStmt.setParent(ifStmt);
+			}
+			
+			ifStmt.getChildren().addAll(newChildList);
+			
+			topIfStmt = ifStmt;
+		}
+		
+		return topIfStmt;
 	}
 	
 	private static Node convertAssignStmt(Node assignStmt) {
@@ -175,6 +179,16 @@ public class IR {
 				returnInstr.addAll(this.buildInstruction(c));
 			}
 			return returnInstr;
+		}
+		
+		if (label.contentEquals("switchStmt"))  {
+			Node replace = IR.convertSwitchStmt(node);
+			replace.setParent(node.getParent());
+			int nodeIndex = node.getParent().getParent().getChildren().indexOf(node.getParent());
+			node.getParent().getParent().getChildren().set(nodeIndex, replace);
+			node = replace;
+
+			label = "ifStmt";
 		}
 		
 		if (label.contentEquals("ifStmt")) {
@@ -783,7 +797,7 @@ public class IR {
 //		System.out.println(mainList.get(0));
 		IR.printMain(test.getFunctionIRs());
 //		System.out.println("printing foo");
-		IR.printFunc(test.getFunctionIRs(), "foo");
+//		IR.printFunc(test.getFunctionIRs(), "foo");
 		
 		//test.printIR();
 		
