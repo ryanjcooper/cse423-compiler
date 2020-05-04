@@ -275,6 +275,8 @@ Note: Translator does not support preprocessor statements, extern, or printf. Op
 <li>imul</li>
 <li>idiv</li>	
 <li>cmp</li>
+<li>push</li>
+<li>pop</li>
 <li>jmp, je, jne</li>	
 <li>call</li>
 <li>ret</li>	
