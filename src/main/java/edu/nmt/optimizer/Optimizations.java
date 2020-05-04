@@ -54,7 +54,10 @@ public class Optimizations {
 			splitres = i.toString().split(" ");
 			
 			// Set the types of the operation
-			if(i.type.contentEquals("int") && splitres[1].equals("=")) {
+			if (i.getOperation() == null) {
+				stattype = Statement.invalid;
+			}
+			else if(i.type.contentEquals("int") && splitres[1].equals("=")) {
 				stattype = Statement.basicStatement;
 			} else if(i.type.contentEquals("int") && splitres[0].equals("return")) {
 				stattype = Statement.returnStatement;
@@ -82,6 +85,7 @@ public class Optimizations {
 				
 				// Adding of entries goes here
 				if(splitres.length == 3) {
+//					System.out.println("0" + splitres[0] + ": 2 : " + splitres[2]);
 					try {
 						varMap.put(splitres[0], Integer.valueOf(splitres[2]));
 					} catch (NumberFormatException e) {
@@ -94,9 +98,15 @@ public class Optimizations {
 					if(varMap.get(splitres[counter]) != null) {		
 						try {
 				    		i.setOperation("identifier");
+				    		
 				    		if(i.op1Name != null) {
-				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
+//				    			System.out.println("Ya boii there: " + i.toString());
 //				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
+				    			
+				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
+//				    			System.out.println(i.instrToStr());
+//				    			System.out.println("Ya boii here: " +i.toString());
+				    			
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
 //				    			System.out.println("*****Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
@@ -108,7 +118,7 @@ public class Optimizations {
 							status = true;
 						}
 						splitres = i.toString().split(" ");
-//						System.out.println("Now this is: " + i.toString());
+//						System.out.println("datNow this is: " + i.toString());
 					}
 				}
 			} else if (stattype.equals(Statement.returnStatement)) {
@@ -119,15 +129,15 @@ public class Optimizations {
 				    		i.setOperation("identifier");
 				    		if(i.op1Name != null) {
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
-//				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
+//				    			System.out.println("***DISReplacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-//				    			System.out.println("*****Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//				    			System.out.println("*****DISReplacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 				    		}
 				    		status = true;
 				    	} catch (NullPointerException e) {
 				    		i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-//			    			System.out.println("*******************Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
+//			    			System.out.println("*******************DISReplacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 							status = true;
 						}
 						splitres = i.toString().split(" ");
@@ -248,6 +258,7 @@ public class Optimizations {
 			
 			// Iterate through statement to find vars
 			for(j = 1; j < splitres.length; j++) {
+				splitres[j] = splitres[j].replace(",", "");
 				try {
 					Integer.parseInt(splitres[j]);
 					continue;
@@ -294,6 +305,7 @@ public class Optimizations {
 			status = false;
 			status |= o1.constProp();
 			status |= o1.constFold();
+//			IR.printMain(target.getFunctionIRs());
 		}
 		o1.clean();
 		
@@ -328,7 +340,7 @@ public class Optimizations {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/optest.c");
+		Scanner scanner = new Scanner("test/function.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");
@@ -356,10 +368,10 @@ public class Optimizations {
 		
 		test.outputToFile();
 		
-		System.out.println("Pre-Optimization");
+//		System.out.println("Pre-Optimization");
 		IR.printMain(test.getFunctionIRs());
 		Optimizations.l1Optimize(test); //  Example for calling L1 Opt
-		System.out.println("\nPost-Optimization");
+//		System.out.println("\nPost-Optimization");
 		IR.printMain(test.getFunctionIRs());
 	}
 
