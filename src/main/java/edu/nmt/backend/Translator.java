@@ -152,17 +152,22 @@ public class Translator {
 						// if var is declared and initialized
 						instrValue = inst.getOperand1().getInstrID();
 						
-						String regModifier = getRegisterModifier(variableSizes.get(instrValue));
+						String regModifier = getRegisterModifier(typeSizes.get(inst.getOperand1().getType()));
 						
 						if(inst.getOperand1() instanceof CallInstruction) {
 							// move result of function call into memory
-							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + variableOffsets.get(instrValue) + "(%rbp)\n");
+							Integer offset2 = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getOperand1().getType()) * - 1);
+							asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "ax, " + offset2 + "(%rbp)\n");
+							
+							variableOffsets.put(inst.getOperand1().getOp1Name(), offset);
+							variableSizes.put(inst.getOperand1().getOp1Name(), typeSizes.get(inst.getType()));
 						}
-						
+
 						asm.add("\tmov" + sizeModifier + "\t" + variableOffsets.get(instrValue) + "(%rbp), %" + regModifier + "bx\n");
 						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 						asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					}
+					
 					variableOffsets.put(inst.getInstrID(), offset);
 					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("=")) {
@@ -417,28 +422,34 @@ public class Translator {
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
 				} else if (inst.getOperation().equals("call")) {
 					Integer totalParamOffset = 0;
-					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
+					
+					
 					CallInstruction call = (CallInstruction) inst;
 					// push parameters specified by the callInstruction to stack in right-to-left order
 					Collections.reverse(call.getParamList());
 					for (Instruction i : call.getParamList()) {
 						String instrValue = i.getInstrID();
+						String regModifier = getRegisterModifier(typeSizes.get(i.getType()));
 						String sizeModifier = getSizeModifier(typeSizes.get(i.getType()));
 						Integer offset2 = variableOffsets.get(instrValue);
+						Integer offset3 = getNextBaseOffset(variableOffsets) + (typeSizes.get(i.getType()) * -1);
 						totalParamOffset += (typeSizes.get(i.getType()));
 						
-						asm.add("\tpushq\t" + offset2 + "(%rbp)\n");
+//						asm.add("\tpushq\t" + offset2 + "(%rbp)\n");
+						asm.add("\tmov" + sizeModifier + "\t" + offset2 + "(%rbp), %" + regModifier + "cx\n");
+						asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "cx, " + offset3 + "(%rbp)\n");
+						asm.add("\tsubq\t$" + typeSizes.get(i.getType()) + ", %rsp\n");
+						
+						variableOffsets.put(i.getInstrID() + "Param", offset3);
+						variableSizes.put(i.getInstrID() + "Param", typeSizes.get(inst.getType()));
 					}
 					Collections.reverse(call.getParamList());
 					
 					// call <functionLabel>
-					asm.add("\tcall " + inst.getOp1Name() + "\n");
+					asm.add("\tcall\t" + inst.getOp1Name() + "\n");
 					
 					// clean up stack after the call (add offset based on number of params to "pop" all pushed params)
 					asm.add("\taddl\t$" + (totalParamOffset + 8) + ", %esp\n");
-					
-					variableOffsets.put(inst.getInstrID(), offset);
-					variableSizes.put(inst.getInstrID(), typeSizes.get(inst.getType()));
 				} else if (inst.getOperation().equals("funcParam")) {
 					Integer offset = getNextBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()) * -1);
 					Integer paramOffset = getPositiveBaseOffset(variableOffsets) + (typeSizes.get(inst.getType()));
@@ -447,7 +458,6 @@ public class Translator {
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
 					
 					asm.add("\tmov" + sizeModifier + "\t" + (paramOffset + 12) + "(%rbp), %" + regModifier + "bx\n");
-					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					asm.add("\tmov" + sizeModifier + "\t%" + regModifier + "bx, " + offset + "(%rbp)\n");
 					asm.add("\tsubq\t$" + typeSizes.get(inst.getType()) + ", %rsp\n");
 					
