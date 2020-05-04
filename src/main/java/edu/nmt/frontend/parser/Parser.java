@@ -1,10 +1,12 @@
 package edu.nmt.frontend.parser;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import edu.nmt.RuntimeSettings;
 import edu.nmt.frontend.Grammar;
 import edu.nmt.frontend.Node;
 import edu.nmt.frontend.Token;
@@ -64,6 +66,12 @@ public class Parser {
 	public void printParseTree() {
 		System.out.println(Node.printTree(this.parseTree, " ", false));
 		Node.recrusiveChildReversal(this.parseTree);
+	}
+	
+	public String getParseTreeString() {
+		String s = Node.printTree(this.parseTree, " ", false);
+		Node.recrusiveChildReversal(this.parseTree);
+		return s;
 	}
 	
 	public void testParse(Node node) {
@@ -156,5 +164,17 @@ public class Parser {
 	
 	public String getFilename() {
 		return this.filename;
+	}
+
+	public void writeParseTree(String writeParseFile) {
+		try {
+			  FileWriter myWriter = new FileWriter(writeParseFile);
+		      myWriter.write(this.getParseTreeString());
+		      myWriter.close();
+		} catch (IOException e) {
+			  System.out.println("An error occurred writing the parse tree to file.");
+			  e.printStackTrace();
+		}    			
+		
 	}
 }

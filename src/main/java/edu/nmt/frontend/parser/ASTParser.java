@@ -553,8 +553,6 @@ public class ASTParser {
 				if (!current.getParent().getToken().getTokenLabel().equals("exprStmt") && !current.getParent().getToken().getTokenLabel().equals("forLoop")) {
 					Node newPlaceholder = new Node(new Token("statementList", "statementList"));
 					
-					System.out.println(current.getParent());
-					
 					// set new placeholder up to capture stmtList
 					newPlaceholder.setParent(current.getParent().getParent());
 					tmp = new ArrayList<Node>();
@@ -660,7 +658,7 @@ public class ASTParser {
 			} else if (current.getToken().getTokenLabel().equals("expression")) {
 				tmp = current.getChildren();
 				tmp2 = new ArrayList<Node>();
-				
+
 				Node gotoNode = null;
 				Node identifierNode = null;
 				
@@ -861,12 +859,10 @@ public class ASTParser {
 										String caseType = null;
 										String key = null;
 										for(Node child4 : child3.getChildren()) {
-											System.out.println(child4);
 											if (child4.getToken().getTokenLabel().equals("case")) {
 												caseType = "case";
 											} else if (child4.getToken().getTokenLabel().equals("constant")) {
 												key = child4.getChildren().get(0).getToken().getTokenString();
-												System.out.println("KEYH: "+ key);
 											}
 										}
 										if (caseType == null) {

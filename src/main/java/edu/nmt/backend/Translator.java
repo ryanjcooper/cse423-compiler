@@ -246,7 +246,7 @@ public class Translator {
 					String instrValue1 = inst.getOperand1().getInstrID();
 					String instrValue2 = inst.getOperand2().getInstrID();
 					String sizeModifier = getSizeModifier(typeSizes.get(inst.getType()));
-					System.out.println(instrValue2);
+					//System.out.println(instrValue2);
 					String regModifier = getRegisterModifier(variableSizes.get(instrValue2));
 					Integer offset = variableOffsets.get(instrValue1);
 					String regSuffix = "";

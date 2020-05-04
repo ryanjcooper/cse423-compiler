@@ -118,8 +118,10 @@ public class Optimizations {
 			} else if(stattype.equals(Statement.varDec)) {
 				// Special handling for varDecs
 				splitres = i.toString().split("=");
+				if(splitres[1].matches(".*[a-z].*")) {
+					break;
+				}
 				i.setOp1Name(splitres[1]);
-				
 				i.operation = "numeric_constant";
 				
 			}
@@ -362,7 +364,7 @@ public class Optimizations {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		Scanner scanner = new Scanner("test/function.c");
+		Scanner scanner = new Scanner("test/while.c");
 
 		scanner.scan();
 		Grammar g = new Grammar("config/grammar.cfg");

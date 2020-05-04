@@ -197,41 +197,41 @@ public class Instruction {
 	
 	public boolean equals(Instruction i2) {
 		if (!(this.instrID == i2.instrID || this.instrID.equals(i2.instrID))) {
-			System.out.println("Instruction id do not match");
+//			System.out.println("Instruction id do not match");
 			return false;
 		}
 		
 		if (!(this.lineNumber == i2.lineNumber)) {
-			System.out.println("Line numbers do not match");
+//			System.out.println("Line numbers do not match");
 			return false;
 		}
 		
 		if (!(this.operation == i2.operation || this.operation.equals(i2.operation))) {
-			System.out.println("Operations do not match");
-			System.out.println(this.operation);
-			System.out.println(i2.operation);
+//			System.out.println("Operations do not match");
+//			System.out.println(this.operation);
+//			System.out.println(i2.operation);
 			return false;
 		}
 		
 		if (!(this.type == i2.type || this.type.equals(i2.type))) {
-			System.out.println("Types do not match");
-			System.out.println(this.type);
-			System.out.println(i2.type);
+//			System.out.println("Types do not match");
+//			System.out.println(this.type);
+//			System.out.println(i2.type);
 			return false;
 		}		
 		
 		if (!(this.op1Name == i2.op1Name || this.op1Name.equals(i2.op1Name))) {
-			System.out.println("Op1 name do not match");
+//			System.out.println("Op1 name do not match");
 			return false;
 		}
 		
 		if (!(this.operand1 == i2.operand1 || this.operand1.equals(i2.operand1))) {
-			System.out.println("Operand 1 do not match");
+//			System.out.println("Operand 1 do not match");
 			return false;
 		}
 		
 		if (!(this.operand2 == i2.operand2 || this.operand2.equals(i2.operand2))) {
-			System.out.println("Operand 2 do not match");
+//			System.out.println("Operand 2 do not match");
 			return false;
 		}
 		

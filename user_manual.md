@@ -14,9 +14,15 @@ or, you can just call `make` from the project root.
 ### Arguments
 | Argument | Description | Currently Supported |
 | -------- | ----------- | ------------------- |
-| -help | Prints usage intructions | :white_check_mark: |
-| -t | Dumps tokens to file | :x: |
+| -help | Prints usage instructions | :white_check_mark: |
 | -pt | Prints tokens to console | :white_check_mark: |
-| -o | Destination for executeable | :x: |
-| -ap | Prints the abstract syntax tree (Partial support) | :warning: |
+| -o | Destination for executable | :white_check_mark: |
+| -ap | Prints the abstract syntax tree | :white_check_mark: |
 | -stp | Prints the symbol table | :white_check_mark: |
+| -ap | Print the abstract syntax tree | :white_check_mark: |
+| -irn | read in ir from file, must have .ir extension | :white_check_mark: |
+| -iro | write ir to file | :white_check_mark: |
+| -o1 | Add optimizations (basic blocks only) | :white_check_mark: |
+| -pir | print ir to console | :white_check_mark: |
+| -pp |  print the parse tree | :white_check_mark: |
+| -wp | write parse tree to file | :white_check_mark: |
