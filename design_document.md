@@ -260,7 +260,7 @@ The translator is a naive direct translation of our IR. Since our IR is a list o
 
 Translator also follows the load-store paradigm. It loads operands from the stack, manipulates the operands locally in registers using register allocation, then stores the result on the stack.
 
-Note: Translator does not support preprocessor statements, extern, or printf.
+Note: Translator does not support preprocessor statements, extern, or printf. Optimizer works primarily on simple mathematical functions outside of loops.
 
 <b>x86 Commands Utilized</b>
 <ul>
