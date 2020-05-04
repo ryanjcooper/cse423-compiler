@@ -215,9 +215,18 @@ public class Main {
             	    	if (printST) {
             	    		a.printSymbolTable();
             	    	}
+            		} else {
+            			System.out.println("Error: could not create AST from PT.");
+            			
+            			printLimitations();
+            			System.exit(1);
             		}
             		
         			ir = new IR(a);
+            	} else {
+            		System.out.println("Error: looks like your file is not parsable.");
+            		printLimitations();
+            		System.exit(1);
             	}
         	} else {
     			ir.initFromFile(irFilenameIn);
