@@ -24,6 +24,7 @@ public class Optimizations {
 		deScope,
 		loopify,
 		deloopify,
+		varDec,
 	}
 	
 	/*
@@ -55,7 +56,7 @@ public class Optimizations {
 			
 			// Set the types of the operation
 			if (i.getOperation() == null) {
-				stattype = Statement.invalid;
+				stattype = Statement.varDec;
 			}
 			else if(i.type.contentEquals("int") && splitres[1].equals("=")) {
 				stattype = Statement.basicStatement;
@@ -98,30 +99,29 @@ public class Optimizations {
 					if(varMap.get(splitres[counter]) != null) {		
 						try {
 				    		i.setOperation("identifier");
-				    		
 				    		if(i.op1Name != null) {
-//				    			System.out.println("Ya boii there: " + i.toString());
-//				    			System.out.println("***Replacing: " + splitres[counter] + " with: " + varMap.get(splitres[counter]).toString());
-				    			
 				    			i.op1Name = i.op1Name.replace(splitres[counter], varMap.get(splitres[counter]).toString());
-//				    			System.out.println(i.instrToStr());
-//				    			System.out.println("Ya boii here: " +i.toString());
 				    			
 				    		} else {
 				    			i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-//				    			System.out.println("*****Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 				    		}
 				    		status = true;
 				    	} catch (NullPointerException e) {
 				    		i.op1Name = opPrep(splitres, 2).replace(splitres[counter], varMap.get(splitres[counter]).toString());
-//			    			System.out.println("*******************Replacing: " + splitres[counter] + " with: " + opPrep(splitres, 2).replaceAll(splitres[counter], varMap.get(splitres[counter]).toString()));
 							status = true;
 						}
 						splitres = i.toString().split(" ");
-//						System.out.println("datNow this is: " + i.toString());
 					}
 				}
-			} else if (stattype.equals(Statement.returnStatement)) {
+			} else if(stattype.equals(Statement.varDec)) {
+				// Special handling for varDecs
+				splitres = i.toString().split("=");
+				i.setOp1Name(splitres[1]);
+				
+				i.setOperation("identifier");
+				
+			}
+			else if (stattype.equals(Statement.returnStatement)) {
 				// Propagating goes here
 				for(counter = 1; counter < splitres.length; counter++) {
 					if(varMap.get(splitres[counter]) != null) {		
@@ -261,6 +261,9 @@ public class Optimizations {
 				splitres[j] = splitres[j].replace(",", "");
 				try {
 					Integer.parseInt(splitres[j]);
+					if(splitres[0].contains("_") == false) {
+						liveVars.add(splitres[0]);
+					}
 					continue;
 				} catch (NumberFormatException e) {
 					if(splitres[j].contentEquals("=") || splitres[j].contentEquals("null")) {
@@ -305,7 +308,7 @@ public class Optimizations {
 			status = false;
 			status |= o1.constProp();
 			status |= o1.constFold();
-//			IR.printMain(target.getFunctionIRs());
+			IR.printMain(target.getFunctionIRs());
 		}
 		o1.clean();
 		
