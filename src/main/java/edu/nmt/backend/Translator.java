@@ -412,7 +412,7 @@ public class Translator {
 					}
 				} else if (inst.getType().equals("label")) {
 					if (jumpLabels.get(inst.getInstrID()) == null) {
-						jumpLabels.put(inst.getInstrID(), inst.getInstrID() + inst.getOp1Name());
+						jumpLabels.put(inst.getInstrID(), inst.getInstrID() + "conditionalJump");
 					}
 					
 					asm.add(jumpLabels.get(inst.getInstrID()) + ":\n");	
@@ -483,7 +483,7 @@ public class Translator {
 	
 	
 	public static void main(String argv[]) throws IOException {
-		Scanner s = new Scanner("test/function.c");
+		Scanner s = new Scanner("test/while.c");
     	s.scan();
     
 //		s.printTokens();
@@ -513,6 +513,7 @@ public class Translator {
 			
 			Translator t = new Translator(ir, a);
 			t.translate();
+			System.out.println(t.getAsmString());
     	}
 	
 		
